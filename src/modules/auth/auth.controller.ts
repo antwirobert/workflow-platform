@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { authService } from "./auth.service";
-import { LoginInput, RefreshInput, RegisterInput } from "./auth.schema";
+import { LoginInput, RefreshInput, RegisterInput } from "./auth.schemas";
 
 export class AuthController {
   register = async (

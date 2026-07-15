@@ -13,4 +13,6 @@ router.post(
   organizationsController.create,
 );
 
+router.get("/", authenticate, organizationsController.list);
+
 export default router;

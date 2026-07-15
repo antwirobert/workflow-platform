@@ -40,6 +40,21 @@ export class OrganizationsService {
     return this.buildOrganizationResult(result.organization, result.membership);
   }
 
+  async listForUser(userId: string): Promise<OrganizationResult[]> {
+    const memberships = await prisma.organizationMember.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        organization: true,
+      },
+    });
+
+    return memberships.map((m) =>
+      this.buildOrganizationResult(m.organization, m),
+    );
+  }
+
   private buildOrganizationResult(
     organization: Organization,
     membership: OrganizationMember,

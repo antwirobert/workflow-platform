@@ -23,6 +23,21 @@ export class OrganizationsController {
       next(error);
     }
   };
+
+  list = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const userId = req.user!.userId;
+
+      const organizations = await organizationsService.listForUser(userId);
+      res.status(200).json(organizations);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export const organizationsController = new OrganizationsController();

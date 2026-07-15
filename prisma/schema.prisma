@@ -13,13 +13,15 @@ datasource db {
 }
 
 model User {
-  id           String         @id @default(uuid())
+  id           String               @id @default(uuid())
   name         String
-  email        String         @unique
-  passwordHash String         @map("password_hash")
-  createdAt    DateTime       @default(now()) @map("created_at")
-  updatedAt    DateTime       @updatedAt @map("updated_at")
+  email        String               @unique
+  passwordHash String               @map("password_hash")
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+
   tokens       RefreshToken[]
+  memberships  OrganizationMember[]
 
   @@map("users")
 }
@@ -36,3 +38,34 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
+model Organization {
+  id        String               @id @default(uuid())
+  name      String
+  slug      String               @unique
+  createdAt DateTime             @default(now()) @map("created_at")
+  updatedAt DateTime             @updatedAt @map("updated_at")
+
+  members   OrganizationMember[] 
+
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id             String       @id @default(uuid()) 
+  userId         String       @map("user_id")
+  organizationId String       @map("organization_id")
+  role           OrgRole      @default(MEMBER)
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@map("organization_members")
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MEMBER
+}

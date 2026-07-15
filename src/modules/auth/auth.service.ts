@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { ConflictError, UnauthorizedError } from "../../common/errors";
 import { prisma } from "../../lib/prisma";
-import { LoginInput, RegisterInput } from "./auth.schema";
+import { LoginInput, RegisterInput } from "./auth.schemas";
 import { config } from "../../config/env";
 import { AuthResult, RefreshResult } from "./auth.types";
 import { Prisma, User } from "../../generated/prisma/client";

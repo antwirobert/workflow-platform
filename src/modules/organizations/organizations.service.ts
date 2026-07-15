@@ -3,7 +3,7 @@ import {
   OrganizationResult,
 } from "./organizations.type";
 import { prisma } from "../../lib/prisma";
-import { ConflictError } from "../../common/errors";
+import { ConflictError, NotFoundError } from "../../common/errors";
 import {
   Organization,
   OrganizationMember,
@@ -45,6 +45,7 @@ export class OrganizationsService {
       where: {
         userId,
       },
+      orderBy: { createdAt: "desc" },
       include: {
         organization: true,
       },
@@ -53,6 +54,27 @@ export class OrganizationsService {
     return memberships.map((m) =>
       this.buildOrganizationResult(m.organization, m),
     );
+  }
+
+  async getById(
+    organizationId: string,
+    userId: string,
+  ): Promise<OrganizationResult> {
+    const membership = await prisma.organizationMember.findUnique({
+      where: {
+        organizationId_userId: {
+          organizationId,
+          userId,
+        },
+      },
+      include: { organization: true },
+    });
+
+    if (!membership) {
+      throw new NotFoundError("Organization");
+    }
+
+    return this.buildOrganizationResult(membership.organization, membership);
   }
 
   private buildOrganizationResult(

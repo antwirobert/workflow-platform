@@ -1,7 +1,10 @@
 import { Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../../middleware/authenticate";
 import { organizationsService } from "./organizations.service";
-import { CreateOrganizationBody } from "./organizations.schemas";
+import {
+  CreateOrganizationBody,
+  OrgIdParamInput,
+} from "./organizations.schemas";
 
 export class OrganizationsController {
   create = async (
@@ -34,6 +37,22 @@ export class OrganizationsController {
 
       const organizations = await organizationsService.listForUser(userId);
       res.status(200).json(organizations);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getById = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { orgId } = req.validated?.params as OrgIdParamInput;
+      const userId = req.user!.userId;
+
+      const organization = await organizationsService.getById(orgId, userId);
+      res.status(200).json(organization);
     } catch (error) {
       next(error);
     }

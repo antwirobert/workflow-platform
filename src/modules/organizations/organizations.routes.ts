@@ -27,9 +27,11 @@ router.get(
   organizationsController.getById,
 );
 
+// Mount nested workspaces router with strict tenancy validation middleware
 router.use(
   "/:orgId/workspaces",
   authenticate,
+  // Validate path parameters before passing control to subsequent route handlers
   validate(orgIdParamSchema, "params"),
   assertOrgMembership,
   workspacesRouter,

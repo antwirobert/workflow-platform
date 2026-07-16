@@ -3,7 +3,7 @@ import { validate } from "../../middleware/validate";
 import { workspacesController } from "./workspaces.controller";
 import {
   workspaceCreateSchema,
-  workspaceIdParamSchema,
+  workspaceDetailParamsSchema,
   workspaceUpdateSchema,
 } from "./workspaces.schemas";
 import projectsRouter from "../projects/projects.routes";
@@ -21,21 +21,23 @@ router.get("/", workspacesController.list);
 
 router.get(
   "/:workspaceId",
-  validate(workspaceIdParamSchema, "params"),
+  validate(workspaceDetailParamsSchema, "params"),
   workspacesController.getById,
 );
 
 router.patch(
   "/:workspaceId",
-  validate(workspaceIdParamSchema, "params"),
+  validate(workspaceDetailParamsSchema, "params"),
   validate(workspaceUpdateSchema),
   workspacesController.update,
 );
 
+// Mount nested projects router with strict tenancy validation middleware
 router.use(
   "/:workspaceId/projects",
   authenticate,
-  validate(workspaceIdParamSchema, "params"),
+  // Validate path parameters before passing control to subsequent route handlers
+  validate(workspaceDetailParamsSchema, "params"),
   assertOrgMembership,
   assertWorkspaceToOrg,
   projectsRouter,

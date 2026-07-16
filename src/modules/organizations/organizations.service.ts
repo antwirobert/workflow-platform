@@ -13,6 +13,7 @@ export class OrganizationsService {
   async create(input: createOrganizationInput): Promise<OrganizationResult> {
     const { name, slug, userId } = input;
 
+    // Check for global duplicate slug across all organizations
     const existingSlug = await prisma.organization.findUnique({
       where: { slug },
     });
@@ -21,6 +22,7 @@ export class OrganizationsService {
       throw new ConflictError("Slug already exists");
     }
 
+    // Atomic transaction to create both organization and initial owner membership
     const result = await prisma.$transaction(async (tx) => {
       const organization = await tx.organization.create({
         data: { name, slug },
@@ -60,6 +62,7 @@ export class OrganizationsService {
     organizationId: string,
     userId: string,
   ): Promise<OrganizationResult> {
+    // Check composite key to ensure the requesting user belongs to the organization
     const membership = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userId: {
@@ -77,6 +80,7 @@ export class OrganizationsService {
     return this.buildOrganizationResult(membership.organization, membership);
   }
 
+  // Combines model and membership records into a unified public API response format
   private buildOrganizationResult(
     organization: Organization,
     membership: OrganizationMember,

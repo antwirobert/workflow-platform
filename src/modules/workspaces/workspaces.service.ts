@@ -11,6 +11,7 @@ export class WorkspacesService {
   async create(input: CreateWorkspaceInput): Promise<WorkspaceResult> {
     const { name, slug, organizationId } = input;
 
+    // Check for duplicate slug within the same organization
     const existing = await prisma.workspace.findUnique({
       where: {
         organizationId_slug: {
@@ -54,6 +55,7 @@ export class WorkspacesService {
       where: { id: workspaceId },
     });
 
+    // Ensure workspace exists and belongs to the specified organization
     if (!workspace || workspace.organizationId !== organizationId) {
       throw new NotFoundError("Workspace");
     }
@@ -72,6 +74,7 @@ export class WorkspacesService {
       throw new NotFoundError("Workspace");
     }
 
+    // Only validate slug uniqueness if the slug is being changed
     if (slug && slug !== existing.slug) {
       const duplicate = await prisma.workspace.findUnique({
         where: {
@@ -92,6 +95,7 @@ export class WorkspacesService {
     const workspace = await prisma.workspace.update({
       where: { id: workspaceId },
       data: {
+        // Only update fields that are explicitly provided
         ...(name !== undefined && { name }),
         ...(slug !== undefined && { slug }),
       },
@@ -100,6 +104,7 @@ export class WorkspacesService {
     return this.buildWorkspaceResult(workspace);
   }
 
+  // Maps database model to public API response format
   private buildWorkspaceResult(workspace: Workspace): WorkspaceResult {
     return {
       id: workspace.id,

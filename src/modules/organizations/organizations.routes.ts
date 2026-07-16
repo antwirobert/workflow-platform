@@ -6,6 +6,8 @@ import {
   createOrganizationSchema,
   orgIdParamSchema,
 } from "./organizations.schemas";
+import workspacesRouter from "../workspaces/workspaces.routes";
+import { assertOrgMembership } from "../../middleware/guards";
 
 const router = Router();
 
@@ -23,6 +25,13 @@ router.get(
   authenticate,
   validate(orgIdParamSchema, "params"),
   organizationsController.getById,
+);
+router.use(
+  "/:orgId/workspaces",
+  authenticate,
+  validate(orgIdParamSchema, "params"),
+  assertOrgMembership,
+  workspacesRouter,
 );
 
 export default router;

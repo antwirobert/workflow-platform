@@ -26,6 +26,7 @@ router.get(
   validate(orgIdParamSchema, "params"),
   organizationsController.getById,
 );
+
 router.use(
   "/:orgId/workspaces",
   authenticate,

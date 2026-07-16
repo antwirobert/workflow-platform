@@ -1,44 +1,44 @@
 import { Router } from "express";
-import { authenticate } from "../../middleware/authenticate";
 import { validate } from "../../middleware/validate";
 import { workspacesController } from "./workspaces.controller";
 import {
-  orgIdParamSchema,
   workspaceCreateSchema,
-  workspaceDetailParamsSchema,
+  workspaceIdParamSchema,
   workspaceUpdateSchema,
 } from "./workspaces.schemas";
+import projectsRouter from "../projects/projects.routes";
+import { authenticate } from "../../middleware/authenticate";
+import {
+  assertOrgMembership,
+  assertWorkspaceToOrg,
+} from "../../middleware/guards";
 
 const router = Router({ mergeParams: true });
 
-router.post(
-  "/",
-  authenticate,
-  validate(orgIdParamSchema, "params"),
-  validate(workspaceCreateSchema),
-  workspacesController.create,
-);
+router.post("/", validate(workspaceCreateSchema), workspacesController.create);
 
-router.get(
-  "/",
-  authenticate,
-  validate(orgIdParamSchema, "params"),
-  workspacesController.list,
-);
+router.get("/", workspacesController.list);
 
 router.get(
   "/:workspaceId",
-  authenticate,
-  validate(workspaceDetailParamsSchema, "params"),
+  validate(workspaceIdParamSchema, "params"),
   workspacesController.getById,
 );
 
 router.patch(
   "/:workspaceId",
-  authenticate,
-  validate(workspaceDetailParamsSchema, "params"),
+  validate(workspaceIdParamSchema, "params"),
   validate(workspaceUpdateSchema),
   workspacesController.update,
+);
+
+router.use(
+  "/:workspaceId/projects",
+  authenticate,
+  validate(workspaceIdParamSchema, "params"),
+  assertOrgMembership,
+  assertWorkspaceToOrg,
+  projectsRouter,
 );
 
 export default router;

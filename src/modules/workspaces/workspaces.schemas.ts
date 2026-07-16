@@ -39,6 +39,12 @@ export const orgIdParamSchema = z.object({
   orgId: z.string().uuid("Invalid orgId format"),
 });
 
+export const workspaceIdParamSchema = z
+  .object({
+    workspaceId: z.string().uuid("Invalid workspaceId format"),
+  })
+  .passthrough();
+
 export const workspaceDetailParamsSchema = z.object({
   orgId: z.string().uuid("Invalid orgId format"),
   workspaceId: z.string().uuid("Invalid workspaceId format"),
@@ -47,6 +53,7 @@ export const workspaceDetailParamsSchema = z.object({
 export type CreateWorkspaceBody = z.infer<typeof workspaceCreateSchema>;
 export type UpdateWorkspaceBody = z.infer<typeof workspaceUpdateSchema>;
 export type OrgIdParamInput = z.infer<typeof orgIdParamSchema>;
+export type WorkspaceIdParamInput = z.infer<typeof workspaceIdParamSchema>;
 export type WorkspaceDetailParamsInput = z.infer<
   typeof workspaceDetailParamsSchema
 >;

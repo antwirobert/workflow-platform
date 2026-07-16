@@ -60,9 +60,25 @@ model Workspace {
   updatedAt       DateTime     @updatedAt @map("updated_at")
 
   organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  projects        Project[]
 
   @@unique([organizationId, slug])
   @@map("workspaces")
+}
+
+model Project {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String
+  description String?
+  workspaceId String    @map("workspace_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId, slug])
+  @@map("projects")
 }
 
 model OrganizationMember {

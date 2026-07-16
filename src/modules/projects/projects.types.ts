@@ -1,4 +1,4 @@
-import { CreateProjectBody } from "./projects.schemas";
+import { CreateProjectBody, UpdateProjectBody } from "./projects.schemas";
 
 export interface CreateProjectInput extends CreateProjectBody {
   workspaceId: string;
@@ -12,4 +12,9 @@ export interface ProjectResult {
   id: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface UpdateProjectInput extends UpdateProjectBody {
+  projectId: string;
+  workspaceId: string;
 }

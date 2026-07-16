@@ -11,6 +11,7 @@ export class ProjectsService {
   async create(input: CreateProjectInput): Promise<ProjectResult> {
     const { name, slug, description, workspaceId } = input;
 
+    // Check for duplicate slug within the same workspace
     const existingSlug = await prisma.project.findUnique({
       where: {
         workspaceId_slug: {
@@ -57,6 +58,7 @@ export class ProjectsService {
       },
     });
 
+    // Ensure project exists and belongs to the specified workspace
     if (!project || project.workspaceId !== workspaceId) {
       throw new NotFoundError("Project");
     }
@@ -77,6 +79,7 @@ export class ProjectsService {
       throw new NotFoundError("Project");
     }
 
+    // Only validate slug uniqueness if the slug is being changed
     if (slug && slug !== existing.slug) {
       const duplicate = await prisma.project.findUnique({
         where: {
@@ -99,6 +102,7 @@ export class ProjectsService {
         id: projectId,
       },
       data: {
+        // Only update fields that are explicitly provided
         ...(name !== undefined && { name }),
         ...(slug !== undefined && { slug }),
         ...(description !== undefined && { description }),
@@ -108,6 +112,7 @@ export class ProjectsService {
     return this.buildProjectResult(project);
   }
 
+  // Maps database model to public API response format
   private buildProjectResult(project: Project): ProjectResult {
     return {
       id: project.id,

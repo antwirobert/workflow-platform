@@ -7,6 +7,7 @@ import {
   orgIdParamSchema,
 } from "./organizations.schemas";
 import workspacesRouter from "../workspaces/workspaces.routes";
+import searchRouter from "../../search/search.routes";
 import { assertOrgMembership } from "../../middleware/guards";
 
 const router = Router();
@@ -30,11 +31,19 @@ router.get(
 // Mount nested workspaces router with strict tenancy validation middleware
 router.use(
   "/:orgId/workspaces",
-  authenticate,
   // Validate path parameters before passing control to subsequent route handlers
   validate(orgIdParamSchema, "params"),
+  authenticate,
   assertOrgMembership,
   workspacesRouter,
+);
+
+router.use(
+  "/:orgId/search",
+  validate(orgIdParamSchema, "params"),
+  authenticate,
+  assertOrgMembership,
+  searchRouter,
 );
 
 export default router;

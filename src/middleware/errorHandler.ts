@@ -1,5 +1,6 @@
 import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import { AppError, ValidationError } from "../common/errors";
+import multer from "multer";
 
 export const errorHandler: ErrorRequestHandler = (
   err: unknown,
@@ -15,6 +16,14 @@ export const errorHandler: ErrorRequestHandler = (
       ...(err instanceof ValidationError && err.details
         ? { details: err.details }
         : {}),
+    });
+  }
+
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      success: false,
+      code: `FILE_UPLOAD_ERROR_${err.code}`,
+      message: err.message,
     });
   }
 

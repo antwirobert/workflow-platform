@@ -1,7 +1,13 @@
 import { NotFoundError } from "../../common/errors";
 import { prisma } from "../../lib/prisma";
 import { Task, TaskStatus, Priority } from "../../generated/prisma/client";
-import { CreateTaskInput, TaskResult, UpdateTaskInput } from "./tasks.types";
+import {
+  CreateTaskInput,
+  listTasksQueryInput,
+  listTasksQueryResult,
+  TaskResult,
+  UpdateTaskInput,
+} from "./tasks.types";
 
 export class TasksService {
   async create(input: CreateTaskInput): Promise<TaskResult> {
@@ -32,18 +38,52 @@ export class TasksService {
     return this.buildTaskResult(task);
   }
 
-  async list(projectId: string): Promise<TaskResult[]> {
-    const tasks = await prisma.task.findMany({
-      where: {
-        projectId,
-        deletedAt: null,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+  async list(
+    query: listTasksQueryInput,
+  ): Promise<listTasksQueryResult<TaskResult>> {
+    const {
+      page,
+      limit,
+      status,
+      priority,
+      assigneeId,
+      sortBy,
+      order,
+      projectId,
+    } = query;
 
-    return tasks.map((task) => this.buildTaskResult(task));
+    const skip = (page - 1) * limit;
+
+    const where = {
+      projectId,
+      deletedAt: null,
+      ...(status && { status }),
+      ...(priority && { priority }),
+      ...(assigneeId && { assigneeId }),
+    };
+
+    const [tasks, total] = await Promise.all([
+      prisma.task.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          [sortBy]: order,
+        },
+      }),
+
+      prisma.task.count({ where }),
+    ]);
+
+    return {
+      data: tasks.map((task) => this.buildTaskResult(task)),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async getById(projectId: string, taskId: string): Promise<TaskResult> {

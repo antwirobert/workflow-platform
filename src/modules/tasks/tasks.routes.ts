@@ -3,6 +3,7 @@ import { tasksController } from "./tasks.controller";
 import { validate } from "../../middleware/validate";
 import {
   createTaskSchema,
+  listTasksQuerySchema,
   taskDetailParamsSchema,
   updateTaskSchema,
 } from "./tasks.schemas";
@@ -11,7 +12,7 @@ const router = Router({ mergeParams: true });
 
 router.post("/", validate(createTaskSchema), tasksController.create);
 
-router.get("/", tasksController.list);
+router.get("/", validate(listTasksQuerySchema, "query"), tasksController.list);
 
 router.get(
   "/:taskId",

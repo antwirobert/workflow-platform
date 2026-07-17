@@ -17,7 +17,11 @@ export class AuthService {
 
   private async generateRefreshToken(userId: string): Promise<string> {
     const token = crypto.randomBytes(40).toString("hex");
+
+    // Hash token before database insertion to prevent leaked DB dumps from compromising accounts
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+    // Convert days config value into a absolute expiration timestamp
     const expiresAt = new Date(
       Date.now() + config.refreshTokenDays * 24 * 60 * 60 * 1000,
     );
@@ -49,6 +53,7 @@ export class AuthService {
 
       return await this.buildAuthResult(user);
     } catch (error) {
+      // Catch race condition uniqueness constraint failures
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === "P2002"
@@ -101,6 +106,7 @@ export class AuthService {
       throw new UnauthorizedError("Refresh token has expired");
     }
 
+    // Enforce single-use refresh token rotation mechanics to minimize replay window
     await prisma.refreshToken.delete({
       where: { id: stored.id },
     });

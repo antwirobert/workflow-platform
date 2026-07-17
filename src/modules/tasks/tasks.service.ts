@@ -52,6 +52,7 @@ export class TasksService {
       projectId,
     } = query;
 
+    // Calculate offset for pagination
     const skip = (page - 1) * limit;
 
     const where = {
@@ -148,6 +149,7 @@ export class TasksService {
       throw new NotFoundError("Task");
     }
 
+    // Perform soft delete by setting timestamps
     const task = await prisma.task.update({
       where: { id: taskId },
       data: {

@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../../middleware/authenticate";
 import {
-  CreateTaskBody,
-  listTasksQuery,
-  ProjectTaskParamsInput,
-  TaskDetailParamsInput,
-  UpdateTaskBody,
+  CreateTaskPayload,
+  ListTasksQueryInput,
+  ProjectTaskParams,
+  TaskDetailParams,
+  UpdateTaskPayload,
 } from "./tasks.schemas";
 import { tasksService } from "./tasks.service";
 
@@ -16,9 +16,9 @@ export class TasksController {
     next: NextFunction,
   ) => {
     try {
-      const { projectId } = req.validated!.params as ProjectTaskParamsInput;
+      const { projectId } = req.validated!.params as ProjectTaskParams;
       const { title, description, status, priority, assigneeId, dueDate } = req
-        .validated!.body as CreateTaskBody;
+        .validated!.body as CreateTaskPayload;
 
       const task = await tasksService.create({
         projectId,
@@ -39,9 +39,9 @@ export class TasksController {
 
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { projectId } = req.validated!.params as ProjectTaskParamsInput;
+      const { projectId } = req.validated!.params as ProjectTaskParams;
       const { page, limit, status, priority, assigneeId, sortBy, order } = req
-        .validated!.query as listTasksQuery;
+        .validated!.query as ListTasksQueryInput;
 
       const tasks = await tasksService.list({
         page,
@@ -62,8 +62,7 @@ export class TasksController {
 
   getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { projectId, taskId } = req.validated!
-        .params as TaskDetailParamsInput;
+      const { projectId, taskId } = req.validated!.params as TaskDetailParams;
 
       const task = await tasksService.getById(projectId, taskId);
 
@@ -75,9 +74,8 @@ export class TasksController {
 
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { projectId, taskId } = req.validated!
-        .params as TaskDetailParamsInput;
-      const body = req.validated!.body as UpdateTaskBody;
+      const { projectId, taskId } = req.validated!.params as TaskDetailParams;
+      const body = req.validated!.body as UpdateTaskPayload;
 
       const task = await tasksService.update({
         projectId,
@@ -93,8 +91,7 @@ export class TasksController {
 
   delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { projectId, taskId } = req.validated!
-        .params as TaskDetailParamsInput;
+      const { projectId, taskId } = req.validated!.params as TaskDetailParams;
 
       const task = await tasksService.delete(projectId, taskId);
 

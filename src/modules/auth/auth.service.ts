@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { ConflictError, UnauthorizedError } from "../../common/errors";
 import { prisma } from "../../lib/prisma";
-import { LoginInput, RegisterInput } from "./auth.schemas";
+import { LoginBody, RegisterBody } from "./auth.schemas";
 import { config } from "../../config/env";
 import { AuthResult, RefreshResult } from "./auth.types";
 import { Prisma, User } from "../../generated/prisma/client";
@@ -33,7 +33,7 @@ export class AuthService {
     return token;
   }
 
-  async register(input: RegisterInput): Promise<AuthResult> {
+  async register(input: RegisterBody): Promise<AuthResult> {
     const { name, email, password } = input;
 
     const existingUser = await prisma.user.findUnique({
@@ -65,7 +65,7 @@ export class AuthService {
     }
   }
 
-  async login(input: LoginInput): Promise<AuthResult> {
+  async login(input: LoginBody): Promise<AuthResult> {
     const { email, password } = input;
 
     const user = await prisma.user.findUnique({

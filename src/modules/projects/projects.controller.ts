@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import {
-  CreateProjectBody,
-  ProjectDetailParamsInput,
-  UpdateProjectBody,
-  WorkspaceIdParamInput,
+  CreateProjectPayload,
+  ProjectDetailParams,
+  UpdateProjectPayload,
+  WorkspaceIdParams,
 } from "./projects.schemas";
 import { projectsService } from "./projects.service";
 
@@ -11,8 +11,8 @@ export class ProjectsController {
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name, slug, description } = req.validated!
-        .body as CreateProjectBody;
-      const { workspaceId } = req.validated!.params as WorkspaceIdParamInput;
+        .body as CreateProjectPayload;
+      const { workspaceId } = req.validated!.params as WorkspaceIdParams;
 
       const project = await projectsService.create({
         name,
@@ -29,7 +29,7 @@ export class ProjectsController {
 
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { workspaceId } = req.validated!.params as WorkspaceIdParamInput;
+      const { workspaceId } = req.validated!.params as WorkspaceIdParams;
 
       const projects = await projectsService.list(workspaceId);
 
@@ -42,7 +42,7 @@ export class ProjectsController {
   getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { workspaceId, projectId } = req.validated!
-        .params as ProjectDetailParamsInput;
+        .params as ProjectDetailParams;
 
       const project = await projectsService.getById(workspaceId, projectId);
 
@@ -55,10 +55,10 @@ export class ProjectsController {
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { workspaceId, projectId } = req.validated!
-        .params as ProjectDetailParamsInput;
+        .params as ProjectDetailParams;
 
       const { name, slug, description } = req.validated!
-        .body as UpdateProjectBody;
+        .body as UpdateProjectPayload;
 
       const project = await projectsService.update({
         workspaceId,

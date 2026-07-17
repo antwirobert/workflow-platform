@@ -1,6 +1,9 @@
-import { CreateWorkspaceBody, UpdateWorkspaceBody } from "./workspaces.schemas";
+import {
+  CreateWorkspacePayload,
+  UpdateWorkspacePayload,
+} from "./workspaces.schemas";
 
-export interface CreateWorkspaceInput extends CreateWorkspaceBody {
+export interface CreateWorkspaceInput extends CreateWorkspacePayload {
   organizationId: string;
 }
 
@@ -13,7 +16,7 @@ export interface WorkspaceResult {
   updatedAt: Date;
 }
 
-export interface UpdateWorkspaceInput extends UpdateWorkspaceBody {
+export interface UpdateWorkspaceInput extends UpdateWorkspacePayload {
   organizationId: string;
   workspaceId: string;
 }

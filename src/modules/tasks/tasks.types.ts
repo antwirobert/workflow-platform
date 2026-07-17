@@ -1,16 +1,16 @@
 import { TaskStatus, Priority } from "../../generated/prisma/client";
 import {
-  CreateTaskBody,
-  listTasksQuery,
-  UpdateTaskBody,
+  CreateTaskPayload,
+  ListTasksQueryInput,
+  UpdateTaskPayload,
 } from "./tasks.schemas";
 
-export interface CreateTaskInput extends CreateTaskBody {
+export interface CreateTaskInput extends CreateTaskPayload {
   projectId: string;
   createdById: string;
 }
 
-export interface UpdateTaskInput extends UpdateTaskBody {
+export interface UpdateTaskInput extends UpdateTaskPayload {
   projectId: string;
   taskId: string;
 }
@@ -29,7 +29,7 @@ export interface TaskResult {
   updatedAt: Date;
 }
 
-export interface listTasksQueryInput extends listTasksQuery {
+export interface ListTasksQuery extends ListTasksQueryInput {
   projectId: string;
 }
 

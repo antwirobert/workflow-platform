@@ -2,10 +2,10 @@ import { NextFunction, Response } from "express";
 import { AuthenticatedRequest } from "../../middleware/authenticate";
 import { workspacesService } from "./workspaces.service";
 import {
-  CreateWorkspaceBody,
-  OrgIdParamInput,
-  UpdateWorkspaceBody,
-  WorkspaceDetailParamsInput,
+  CreateWorkspacePayload,
+  OrganizationIdParams,
+  UpdateWorkspacePayload,
+  WorkspaceDetailParams,
 } from "./workspaces.schemas";
 
 export class WorkspacesController {
@@ -16,8 +16,8 @@ export class WorkspacesController {
   ) => {
     try {
       const { orgId: organizationId } = req.validated!
-        .params as OrgIdParamInput;
-      const { name, slug } = req.validated!.body as CreateWorkspaceBody;
+        .params as OrganizationIdParams;
+      const { name, slug } = req.validated!.body as CreateWorkspacePayload;
 
       const workspace = await workspacesService.create({
         name,
@@ -36,7 +36,7 @@ export class WorkspacesController {
     next: NextFunction,
   ) => {
     try {
-      const { orgId } = req.validated!.params as OrgIdParamInput;
+      const { orgId } = req.validated!.params as OrganizationIdParams;
 
       const workspaces = await workspacesService.list(orgId);
       res.status(200).json(workspaces);
@@ -52,7 +52,7 @@ export class WorkspacesController {
   ) => {
     try {
       const { orgId, workspaceId } = req.validated!
-        .params as WorkspaceDetailParamsInput;
+        .params as WorkspaceDetailParams;
 
       const workspace = await workspacesService.getById(orgId, workspaceId);
       res.status(200).json(workspace);
@@ -68,8 +68,8 @@ export class WorkspacesController {
   ) => {
     try {
       const { orgId: organizationId, workspaceId } = req.validated!
-        .params as WorkspaceDetailParamsInput;
-      const { name, slug } = req.validated!.body as UpdateWorkspaceBody;
+        .params as WorkspaceDetailParams;
+      const { name, slug } = req.validated!.body as UpdateWorkspacePayload;
 
       const workspace = await workspacesService.update({
         name,

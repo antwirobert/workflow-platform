@@ -1,6 +1,6 @@
-import { CreateCommentBody } from "./comments.schemas";
+import { CreateCommentPayload } from "./comments.schemas";
 
-export interface CreateCommentInput extends CreateCommentBody {
+export interface CreateCommentInput extends CreateCommentPayload {
   taskId: string;
   authorId: string;
 }

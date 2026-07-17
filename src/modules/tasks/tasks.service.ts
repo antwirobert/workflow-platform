@@ -3,7 +3,7 @@ import { prisma } from "../../lib/prisma";
 import { Task, TaskStatus, Priority } from "../../generated/prisma/client";
 import {
   CreateTaskInput,
-  listTasksQueryInput,
+  ListTasksQuery,
   listTasksQueryResult,
   TaskResult,
   UpdateTaskInput,
@@ -38,9 +38,7 @@ export class TasksService {
     return this.buildTaskResult(task);
   }
 
-  async list(
-    query: listTasksQueryInput,
-  ): Promise<listTasksQueryResult<TaskResult>> {
+  async list(query: ListTasksQuery): Promise<listTasksQueryResult<TaskResult>> {
     const {
       page,
       limit,

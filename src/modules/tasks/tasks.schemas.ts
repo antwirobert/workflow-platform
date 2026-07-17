@@ -60,8 +60,8 @@ export const listTasksQuerySchema = z.object({
   order: z.enum(["asc", "desc"]).default("desc"),
 });
 
-export type CreateTaskBody = z.infer<typeof createTaskSchema>;
-export type UpdateTaskBody = z.infer<typeof updateTaskSchema>;
-export type ProjectTaskParamsInput = z.infer<typeof taskProjectParamsSchema>;
-export type TaskDetailParamsInput = z.infer<typeof taskDetailParamsSchema>;
-export type listTasksQuery = z.infer<typeof listTasksQuerySchema>;
+export type CreateTaskPayload = z.infer<typeof createTaskSchema>;
+export type UpdateTaskPayload = z.infer<typeof updateTaskSchema>;
+export type ProjectTaskParams = z.infer<typeof taskProjectParamsSchema>;
+export type TaskDetailParams = z.infer<typeof taskDetailParamsSchema>;
+export type ListTasksQueryInput = z.infer<typeof listTasksQuerySchema>;

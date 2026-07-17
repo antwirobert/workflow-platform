@@ -50,6 +50,7 @@ export const workpaceIdParamSchema = z.object({
 });
 
 export const projectDetailParamsSchema = z.object({
+  orgId: z.string().uuid("Invalid orgId format"),
   workspaceId: z.string().uuid("Invalid workspaceId format"),
   projectId: z.string().uuid("Invalid projectId format"),
 });

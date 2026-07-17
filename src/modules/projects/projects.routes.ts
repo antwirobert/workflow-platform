@@ -6,6 +6,13 @@ import {
   projectDetailParamsSchema,
   updateProjectSchema,
 } from "./projects.schemas";
+import tasksRouter from "../tasks/tasks.routes";
+import { authenticate } from "../../middleware/authenticate";
+import {
+  assertOrgMembership,
+  assertProjectToWorkspace,
+  assertWorkspaceToOrg,
+} from "../../middleware/guards";
 
 const router = Router({ mergeParams: true });
 
@@ -24,6 +31,16 @@ router.patch(
   validate(projectDetailParamsSchema, "params"),
   validate(updateProjectSchema),
   projectsController.update,
+);
+
+router.use(
+  "/:projectId/tasks",
+  validate(projectDetailParamsSchema, "params"),
+  authenticate,
+  assertOrgMembership,
+  assertWorkspaceToOrg,
+  assertProjectToWorkspace,
+  tasksRouter,
 );
 
 export default router;

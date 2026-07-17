@@ -14,6 +14,7 @@ import {
   assertWorkspaceToOrg,
 } from "../../middleware/guards";
 
+// Preserves req.params from parent routers
 const router = Router({ mergeParams: true });
 
 router.post("/", validate(createProjectSchema), projectsController.create);
@@ -33,6 +34,7 @@ router.patch(
   projectsController.update,
 );
 
+// Cascading nested security checks for task access
 router.use(
   "/:projectId/tasks",
   validate(projectDetailParamsSchema, "params"),

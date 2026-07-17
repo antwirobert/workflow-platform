@@ -1,18 +1,19 @@
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../lib/prisma";
-import { OrgIdParamInput } from "../modules/organizations/organizations.schemas";
+import { OrganizationIdParams } from "../modules/organizations/organizations.schemas";
 import { AuthenticatedRequest } from "./authenticate";
 import { NotFoundError } from "../common/errors";
-import { WorkspaceDetailParamsInput } from "../modules/workspaces/workspaces.schemas";
-import { ProjectTaskParamsInput } from "../modules/tasks/tasks.schemas";
-import { TaskCommentParamsInput } from "../modules/comments/comments.schemas";
+import { WorkspaceDetailParams } from "../modules/workspaces/workspaces.schemas";
+import { ProjectTaskParams } from "../modules/tasks/tasks.schemas";
+import { TaskCommentParams } from "../modules/comments/comments.schemas";
 
 export const assertOrgMembership = async (
   req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction,
 ) => {
-  const { orgId: organizationId } = req.validated!.params as OrgIdParamInput;
+  const { orgId: organizationId } = req.validated!
+    .params as OrganizationIdParams;
   const userId = req.user!.userId;
 
   const membership = await prisma.organizationMember.findUnique({
@@ -37,7 +38,7 @@ export const assertWorkspaceToOrg = async (
   next: NextFunction,
 ) => {
   const { orgId: organizationId, workspaceId } = req.validated!
-    .params as WorkspaceDetailParamsInput;
+    .params as WorkspaceDetailParams;
 
   const workspace = await prisma.workspace.findUnique({
     where: { id: workspaceId },
@@ -55,8 +56,7 @@ export const assertProjectToWorkspace = async (
   _res: Response,
   next: NextFunction,
 ) => {
-  const { workspaceId, projectId } = req.validated!
-    .params as ProjectTaskParamsInput;
+  const { workspaceId, projectId } = req.validated!.params as ProjectTaskParams;
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
@@ -74,7 +74,7 @@ export const assertTaskToProject = async (
   _res: Response,
   next: NextFunction,
 ) => {
-  const { projectId, taskId } = req.validated!.params as TaskCommentParamsInput;
+  const { projectId, taskId } = req.validated!.params as TaskCommentParams;
 
   const task = await prisma.task.findUnique({
     where: { id: taskId },

@@ -2,8 +2,8 @@ import { Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../../middleware/authenticate";
 import { organizationsService } from "./organizations.service";
 import {
-  CreateOrganizationBody,
-  OrgIdParamInput,
+  CreateOrganizationPayload,
+  OrganizationIdParams,
 } from "./organizations.schemas";
 
 export class OrganizationsController {
@@ -13,7 +13,7 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      const { name, slug } = req.validated!.body as CreateOrganizationBody;
+      const { name, slug } = req.validated!.body as CreateOrganizationPayload;
       const userId = req.user!.userId;
 
       const organization = await organizationsService.create({
@@ -48,7 +48,7 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      const { orgId } = req.validated?.params as OrgIdParamInput;
+      const { orgId } = req.validated?.params as OrganizationIdParams;
       const userId = req.user!.userId;
 
       const organization = await organizationsService.getById(orgId, userId);

@@ -16,5 +16,7 @@ export const orgIdParamSchema = z.object({
   orgId: z.string().uuid("Invalid orgId format"),
 });
 
-export type CreateOrganizationBody = z.infer<typeof createOrganizationSchema>;
-export type OrgIdParamInput = z.infer<typeof orgIdParamSchema>;
+export type CreateOrganizationPayload = z.infer<
+  typeof createOrganizationSchema
+>;
+export type OrganizationIdParams = z.infer<typeof orgIdParamSchema>;

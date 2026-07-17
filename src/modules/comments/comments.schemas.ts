@@ -33,8 +33,7 @@ export const commentDetailParamsSchema = z.object({
   commentId: z.string().uuid("Invalid commentId format"),
 });
 
-export type CreateCommentBody = z.infer<typeof createCommentSchema>;
-export type TaskIdParamInput = z.infer<typeof taskIdParamSchema>;
-export type CommentTaskParamsInput = z.infer<typeof commentTaskParamsSchema>;
-export type TaskCommentParamsInput = z.infer<typeof taskCommentParamsSchema>;
-export type commentIdParamInput = z.infer<typeof commentIdParamSchema>;
+export type CreateCommentPayload = z.infer<typeof createCommentSchema>;
+export type TaskCommentRouteParams = z.infer<typeof taskIdParamSchema>;
+export type TaskCommentParams = z.infer<typeof taskCommentParamsSchema>;
+export type CommentDetailParams = z.infer<typeof commentDetailParamsSchema>;

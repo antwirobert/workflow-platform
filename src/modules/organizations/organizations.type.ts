@@ -1,6 +1,6 @@
-import { CreateOrganizationBody } from "./organizations.schemas";
+import { CreateOrganizationPayload } from "./organizations.schemas";
 
-export interface createOrganizationInput extends CreateOrganizationBody {
+export interface createOrganizationInput extends CreateOrganizationPayload {
   userId: string;
 }
 

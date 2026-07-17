@@ -1,5 +1,9 @@
 import { TaskStatus, Priority } from "../../generated/prisma/client";
-import { CreateTaskBody, UpdateTaskBody } from "./tasks.schemas";
+import {
+  CreateTaskBody,
+  listTasksQuery,
+  UpdateTaskBody,
+} from "./tasks.schemas";
 
 export interface CreateTaskInput extends CreateTaskBody {
   projectId: string;
@@ -23,4 +27,18 @@ export interface TaskResult {
   dueDate: Date | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface listTasksQueryInput extends listTasksQuery {
+  projectId: string;
+}
+
+export interface listTasksQueryResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

@@ -50,7 +50,18 @@ export const taskDetailParamsSchema = z.object({
   taskId: z.string().uuid("Invalid taskId format"),
 });
 
+export const listTasksQuerySchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(20),
+  status: z.nativeEnum(TaskStatus).optional(),
+  priority: z.nativeEnum(Priority).optional(),
+  assigneeId: z.string().uuid().optional(),
+  sortBy: z.enum(["createdAt", "dueDate", "priority"]).default("createdAt"),
+  order: z.enum(["asc", "desc"]).default("desc"),
+});
+
 export type CreateTaskBody = z.infer<typeof createTaskSchema>;
 export type UpdateTaskBody = z.infer<typeof updateTaskSchema>;
 export type ProjectTaskParamsInput = z.infer<typeof taskProjectParamsSchema>;
 export type TaskDetailParamsInput = z.infer<typeof taskDetailParamsSchema>;
+export type listTasksQuery = z.infer<typeof listTasksQuerySchema>;

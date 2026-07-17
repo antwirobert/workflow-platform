@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../../middleware/authenticate";
 import {
   CreateTaskBody,
+  listTasksQuery,
   ProjectTaskParamsInput,
   TaskDetailParamsInput,
   UpdateTaskBody,
@@ -39,8 +40,19 @@ export class TasksController {
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { projectId } = req.validated!.params as ProjectTaskParamsInput;
+      const { page, limit, status, priority, assigneeId, sortBy, order } = req
+        .validated!.query as listTasksQuery;
 
-      const tasks = await tasksService.list(projectId);
+      const tasks = await tasksService.list({
+        page,
+        limit,
+        status,
+        priority,
+        assigneeId,
+        sortBy,
+        order,
+        projectId,
+      });
 
       res.status(200).json(tasks);
     } catch (error) {

@@ -25,6 +25,7 @@ model User {
   createdTasks   Task[]               @relation("TaskCreator")
   assignedTasks  Task[]               @relation("TaskAssignee")
   comments       Comment[]
+  file           File[]
 
   @@map("users")
 }
@@ -103,6 +104,7 @@ model Task {
   assignee    User?      @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
   createdBy   User       @relation("TaskCreator", fields: [createdById], references: [id], onDelete: Cascade)
   comments    Comment[]
+  files       File[]
 
   @@map("tasks")
 }
@@ -119,6 +121,23 @@ model Comment {
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@map("comments")
+}
+
+model File {
+  id           String   @id @default(uuid())
+  filename     String    
+  storedName   String   @map("storedName")    
+  mimeType     String   @map("mime_type")   
+  size         Int           
+  path         String        
+  taskId       String   @map("task_id")
+  uploadedById String   @map("uploaded_by_id")
+  createdAt    DateTime @default(now())
+
+  task         Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+
+  @@map("files")
 }
 
 model OrganizationMember {

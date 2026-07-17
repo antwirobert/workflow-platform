@@ -8,6 +8,7 @@ import {
   updateTaskSchema,
 } from "./tasks.schemas";
 import commentsRouter from "../comments/comments.routes";
+import filesRouter from "../files/files.routes";
 import { authenticate } from "../../middleware/authenticate";
 import {
   assertOrgMembership,
@@ -16,6 +17,7 @@ import {
   assertWorkspaceToOrg,
 } from "../../middleware/guards";
 import { commentTaskParamsSchema } from "../comments/comments.schemas";
+import { taskFileParamsSchema } from "../files/files.schemas";
 
 const router = Router({ mergeParams: true });
 
@@ -51,6 +53,17 @@ router.use(
   assertProjectToWorkspace,
   assertTaskToProject,
   commentsRouter,
+);
+
+router.use(
+  "/:taskId/files",
+  validate(taskFileParamsSchema, "params"),
+  authenticate,
+  assertOrgMembership,
+  assertWorkspaceToOrg,
+  assertProjectToWorkspace,
+  assertTaskToProject,
+  filesRouter,
 );
 
 export default router;

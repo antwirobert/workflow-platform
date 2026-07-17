@@ -9,10 +9,6 @@ export const taskIdParamSchema = z.object({
   commentId: z.string().uuid("Invalid commentId format"),
 });
 
-export const commentIdParamSchema = z.object({
-  commentId: z.string().uuid("Invalid commentId format"),
-});
-
 export const taskCommentParamsSchema = z.object({
   taskId: z.string().uuid("Invalid taskId format"),
   projectId: z.string().uuid("Invalid projectId format"),

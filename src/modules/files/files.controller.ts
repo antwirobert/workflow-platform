@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { filesService } from "./files.service";
 import { AuthenticatedRequest } from "../../middleware/authenticate";
 import { fileTaskParams } from "./files.schemas";
-import { NotFoundError } from "../../common/errors";
+import { ForbiddenError, NotFoundError } from "../../common/errors";
 
 export class FilesController {
   upload = async (
@@ -38,11 +38,21 @@ export class FilesController {
     }
   };
 
-  delete = async (req: Request, res: Response, next: NextFunction) => {
+  delete = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const { taskId, fileId } = req.validated!.params as fileTaskParams;
+      const userId = req.user!.userId;
+      const orgRole = req.user!.orgRole;
 
-      await filesService.delete(fileId, taskId);
+      if (!orgRole) {
+        throw new ForbiddenError("Access denied. Organization role missing.");
+      }
+
+      await filesService.delete(fileId, taskId, userId, orgRole);
       res.sendStatus(204);
     } catch (error) {
       next(error);

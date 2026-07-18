@@ -5,6 +5,7 @@ import {
 } from "./comments.schemas";
 import { commentsService } from "./comments.service";
 import { AuthenticatedRequest } from "../../middleware/authenticate";
+import { ForbiddenError } from "../../common/errors";
 
 export class CommentsController {
   create = async (
@@ -44,15 +45,21 @@ export class CommentsController {
   };
 
   delete = async (
-    req: Request,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
       const { taskId, commentId } = req.validated!
         .params as TaskCommentRouteParams;
+      const userId = req.user!.userId;
+      const orgRole = req.user!.orgRole;
 
-      const comments = await commentsService.delete(commentId, taskId);
+      if (!orgRole) {
+        throw new ForbiddenError("Access denied. Organization role missing.");
+      }
+
+      await commentsService.delete(commentId, taskId, userId, orgRole);
       res.sendStatus(204);
     } catch (error) {
       next(error);

@@ -18,6 +18,7 @@ import {
 } from "../../middleware/guards";
 import { commentTaskParamsSchema } from "../comments/comments.schemas";
 import { taskFileParamsSchema } from "../files/files.schemas";
+import { requireRole } from "../../middleware/requireRole";
 
 const router = Router({ mergeParams: true });
 
@@ -41,6 +42,7 @@ router.patch(
 router.delete(
   "/:taskId",
   validate(taskDetailParamsSchema, "params"),
+  requireRole("ADMIN"),
   tasksController.delete,
 );
 

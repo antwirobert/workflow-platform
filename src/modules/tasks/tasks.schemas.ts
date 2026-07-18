@@ -45,6 +45,7 @@ export const taskProjectParamsSchema = z.object({
 });
 
 export const taskDetailParamsSchema = z.object({
+  orgId: z.string().uuid("Invalid orgIdId format"),
   workspaceId: z.string().uuid("Invalid workspaceId format"),
   projectId: z.string().uuid("Invalid projectId format"),
   taskId: z.string().uuid("Invalid taskId format"),

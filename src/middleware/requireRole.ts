@@ -1,9 +1,9 @@
-import { OrgRole } from "../generated/prisma/enums";
 import { Response, NextFunction } from "express";
-import { OrganizationIdParams } from "../modules/organizations/organizations.schemas";
-import { ForbiddenError, NotFoundError } from "../common/errors";
+import { OrgRole } from "../generated/prisma/enums";
 import { prisma } from "../lib/prisma";
 import { AuthenticatedRequest } from "./authenticate";
+import { ForbiddenError } from "../common/errors";
+import { OrganizationIdParams } from "../modules/organizations/organizations.schemas";
 
 const ROLE_HIERARCHY: Record<OrgRole, number> = {
   MEMBER: 1,
@@ -13,38 +13,45 @@ const ROLE_HIERARCHY: Record<OrgRole, number> = {
 
 export const requireRole = (...roles: OrgRole[]) => {
   return async (
-    _res: Response,
     req: AuthenticatedRequest,
+    _res: Response,
     next: NextFunction,
   ) => {
-    const { orgId: organizationId } = req.validated!
-      .params as OrganizationIdParams;
-    const userId = req.user!.userId;
+    try {
+      const { orgId } = req.validated!.params as OrganizationIdParams;
+      const userId = req.user!.userId;
 
-    const membership = await prisma.organizationMember.findUnique({
-      where: {
-        organizationId_userId: {
-          organizationId,
-          userId,
+      const membership = await prisma.organizationMember.findUnique({
+        where: {
+          organizationId_userId: {
+            organizationId: orgId,
+            userId,
+          },
         },
-      },
-    });
+      });
 
-    if (!membership) {
-      throw new NotFoundError("Organization");
+      if (!membership) {
+        return next(
+          new ForbiddenError(
+            "You do not have permission to access this resource.",
+          ),
+        );
+      }
+
+      const userLevel = ROLE_HIERARCHY[membership.role];
+      const requiredLevel = Math.min(...roles.map((r) => ROLE_HIERARCHY[r]));
+
+      if (userLevel < requiredLevel) {
+        return next(
+          new ForbiddenError(
+            "You do not have permission to access this resource.",
+          ),
+        );
+      }
+
+      next();
+    } catch (error) {
+      next(error);
     }
-
-    const userLevel = ROLE_HIERARCHY[membership.role];
-    const permissionLevel = Math.min(
-      ...roles.map((role) => ROLE_HIERARCHY[role]),
-    );
-
-    if (userLevel < permissionLevel) {
-      throw new ForbiddenError(
-        "You do not have permission to access this resource",
-      );
-    }
-
-    next();
   };
 };

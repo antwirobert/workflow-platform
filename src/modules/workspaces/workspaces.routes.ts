@@ -12,10 +12,16 @@ import {
   assertOrgMembership,
   assertWorkspaceToOrg,
 } from "../../middleware/guards";
+import { requireRole } from "../../middleware/requireRole";
 
 const router = Router({ mergeParams: true });
 
-router.post("/", validate(workspaceCreateSchema), workspacesController.create);
+router.post(
+  "/",
+  validate(workspaceCreateSchema),
+  requireRole("ADMIN"),
+  workspacesController.create,
+);
 
 router.get("/", workspacesController.list);
 
@@ -29,6 +35,7 @@ router.patch(
   "/:workspaceId",
   validate(workspaceDetailParamsSchema, "params"),
   validate(workspaceUpdateSchema),
+  requireRole("ADMIN"),
   workspacesController.update,
 );
 

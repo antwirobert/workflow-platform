@@ -1,6 +1,7 @@
 import fs from "fs";
-import { NotFoundError } from "../../common/errors";
+import { ForbiddenError, NotFoundError } from "../../common/errors";
 import { prisma } from "../../lib/prisma";
+import { OrgRole } from "../../generated/prisma/enums";
 
 export class FilesService {
   async upload(
@@ -34,11 +35,25 @@ export class FilesService {
     });
   }
 
-  async delete(fileId: string, taskId: string) {
+  async delete(
+    fileId: string,
+    taskId: string,
+    userId: string,
+    orgRole: OrgRole,
+  ) {
     const file = await prisma.file.findUnique({ where: { id: fileId } });
 
     if (!file || file.taskId !== taskId) {
       throw new NotFoundError("File");
+    }
+
+    const isPriviledged = ["OWNER", "ADMIN"].includes(orgRole);
+    const isCreator = file.uploadedById === userId;
+
+    if (!isPriviledged && !isCreator) {
+      throw new ForbiddenError(
+        "You do not have permission to perform this action.",
+      );
     }
 
     if (fs.existsSync(file.path)) {

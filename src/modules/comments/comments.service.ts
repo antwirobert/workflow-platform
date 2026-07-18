@@ -1,5 +1,5 @@
-import { NotFoundError } from "../../common/errors";
-import { Comment, User } from "../../generated/prisma/client";
+import { ForbiddenError, NotFoundError } from "../../common/errors";
+import { Comment, OrgRole, User } from "../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 import { CommentResult, CreateCommentInput } from "./comments.types";
 
@@ -31,13 +31,27 @@ export class CommentsService {
     );
   }
 
-  async delete(commentId: string, taskId: string) {
+  async delete(
+    commentId: string,
+    taskId: string,
+    userId: string,
+    orgRole: OrgRole,
+  ) {
     const comment = await prisma.comment.findUnique({
       where: { id: commentId },
     });
 
     if (!comment || comment.taskId !== taskId)
       throw new NotFoundError("Comment");
+
+    const isPriviledged = ["OWNER", "ADMIN"].includes(orgRole);
+    const isCreator = comment.authorId === userId;
+
+    if (!isPriviledged && !isCreator) {
+      throw new ForbiddenError(
+        "You do not have permission to perform this action.",
+      );
+    }
 
     await prisma.comment.delete({ where: { id: commentId } });
   }

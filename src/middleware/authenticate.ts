@@ -6,10 +6,12 @@ import jwt, {
   TokenExpiredError,
 } from "jsonwebtoken";
 import { config } from "../config/env";
+import { OrgRole } from "../generated/prisma/enums";
 
 export interface AuthenticatedRequest extends Request {
   user?: {
     userId: string;
+    orgRole?: OrgRole;
   };
 }
 

@@ -29,6 +29,8 @@ export const assertOrgMembership = async (
     throw new NotFoundError("Organization");
   }
 
+  req.user!.orgRole = membership.role;
+
   next();
 };
 

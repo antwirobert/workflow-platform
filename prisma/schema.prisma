@@ -44,14 +44,15 @@ model RefreshToken {
 }
 
 model Organization {
-  id        String               @id @default(uuid())
-  name      String
-  slug      String               @unique
-  createdAt DateTime             @default(now()) @map("created_at")
-  updatedAt DateTime             @updatedAt @map("updated_at")
+  id          String               @id @default(uuid())
+  name        String
+  slug        String               @unique
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
 
-  members   OrganizationMember[]
-  workspaces Workspace[]
+  members     OrganizationMember[]
+  workspaces  Workspace[]
+  invitations Invitation[]
 
   @@map("organizations")
 }
@@ -141,6 +142,21 @@ model File {
   @@map("files")
 }
 
+model Invitation {
+  id           String           @id @default(uuid())
+  email        String
+  orgId        String           @map("org_id")
+  role         OrgRole          @default(MEMBER)
+  token        String           @unique
+  status       InvitationStatus @default(PENDING)
+  expiresAt    DateTime         @map("expires_at")
+  createdAt    DateTime         @default(now()) @map("created_at")
+
+  organization Organization     @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@map("invitations")
+}
+
 model OrganizationMember {
   id             String       @id @default(uuid()) 
   userId         String       @map("user_id")
@@ -174,4 +190,10 @@ enum Priority {
   MEDIUM
   HIGH
   URGENT
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
 }

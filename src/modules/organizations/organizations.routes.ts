@@ -8,6 +8,7 @@ import {
 } from "./organizations.schemas";
 import workspacesRouter from "../workspaces/workspaces.routes";
 import searchRouter from "../../search/search.routes";
+import invitationsRouter from "../invitations/invitations.routes";
 import { assertOrgMembership } from "../../middleware/guards";
 
 const router = Router();
@@ -44,6 +45,14 @@ router.use(
   authenticate,
   assertOrgMembership,
   searchRouter,
+);
+
+router.use(
+  "/:orgId/invitations",
+  validate(orgIdParamSchema, "params"),
+  authenticate,
+  assertOrgMembership,
+  invitationsRouter,
 );
 
 export default router;

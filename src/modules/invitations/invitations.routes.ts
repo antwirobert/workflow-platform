@@ -6,10 +6,16 @@ import {
   sendInvitationSchema,
 } from "./invitations.schemas";
 import { authenticate } from "../../middleware/authenticate";
+import { requireRole } from "../../middleware/requireRole";
 
 const router = Router();
 
-router.post("/", validate(sendInvitationSchema), invitationsController.send);
+router.post(
+  "/",
+  validate(sendInvitationSchema),
+  requireRole("ADMIN"),
+  invitationsController.send,
+);
 
 router.get(
   "/accept",
@@ -18,6 +24,6 @@ router.get(
   invitationsController.accept,
 );
 
-router.get("/", invitationsController.pending);
+router.get("/", requireRole("ADMIN"), invitationsController.pending);
 
 export default router;

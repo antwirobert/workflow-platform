@@ -13,11 +13,17 @@ import {
   assertProjectToWorkspace,
   assertWorkspaceToOrg,
 } from "../../middleware/guards";
+import { requireRole } from "../../middleware/requireRole";
 
 // Preserves req.params from parent routers
 const router = Router({ mergeParams: true });
 
-router.post("/", validate(createProjectSchema), projectsController.create);
+router.post(
+  "/",
+  validate(createProjectSchema),
+  requireRole("ADMIN"),
+  projectsController.create,
+);
 
 router.get("/", projectsController.list);
 
@@ -31,6 +37,7 @@ router.patch(
   "/:projectId",
   validate(projectDetailParamsSchema, "params"),
   validate(updateProjectSchema),
+  requireRole("ADMIN"),
   projectsController.update,
 );
 

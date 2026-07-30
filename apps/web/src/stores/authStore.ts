@@ -1,14 +1,15 @@
+import type { UserData } from "@/types/user";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
-  user: string | null;
+  user: UserData | null;
   setAuth: (data: {
     accessToken: string;
     refreshToken: string;
-    user: string;
+    user: UserData;
   }) => void;
   clearAuth: () => void;
 }

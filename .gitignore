@@ -1,5 +1,6 @@
 # Dependencies (Covers root and all inner folders)
 node_modules/
+
 # Production Build Outputs
 dist/
 dist-ssr/

@@ -1,0 +1,7 @@
+{
+  "name": "my-monorepo-root",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ]
+}

@@ -1,7 +1,11 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { ConflictError, UnauthorizedError } from "../../common/errors";
+import {
+  ConflictError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../../common/errors";
 import { prisma } from "../../lib/prisma";
 import { LoginBody, RegisterBody } from "./auth.schemas";
 import { config } from "../../config/env";
@@ -126,6 +130,18 @@ export class AuthService {
     return prisma.refreshToken.deleteMany({
       where: { tokenHash },
     });
+  }
+
+  async me(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedError("Session invalid");
+    }
+
+    return this.buildAuthResult(user);
   }
 
   private async buildAuthResult(user: User): Promise<AuthResult> {

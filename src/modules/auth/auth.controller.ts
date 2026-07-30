@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { authService } from "./auth.service";
 import { LoginBody, RefreshTokenBody, RegisterBody } from "./auth.schemas";
+import { AuthenticatedRequest } from "../../middleware/authenticate";
 
 export class AuthController {
   register = async (
@@ -50,6 +51,17 @@ export class AuthController {
 
       await authService.logout(refreshToken);
       res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  me = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.userId;
+
+      const result = await authService.me(userId);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }

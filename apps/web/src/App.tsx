@@ -1,6 +1,7 @@
 import { RouterProvider } from "react-router/dom";
 import { router } from "./routes/router";
 import { useSessionBootstrap } from "./features/auth/hooks/useSessionBootstrap";
+import { Toaster } from "./components/ui/toast";
 
 const App = () => {
   const { isLoading } = useSessionBootstrap();
@@ -13,7 +14,12 @@ const App = () => {
     );
   }
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster />
+    </>
+  );
 };
 
 export default App;

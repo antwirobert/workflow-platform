@@ -1,17 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
 import { authApi } from "../api";
 import { useAuthStore } from "@/stores/authStore";
-import { useNavigate } from "react-router";
+import type { User } from "@/types/user";
+import type { ApiError } from "@/lib/api/client";
+import type { LoginPayload } from "../types";
 
 export function useLogin() {
-  const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  return useMutation({
+  return useMutation<User, ApiError, LoginPayload>({
     mutationFn: authApi.login,
     onSuccess: (data) => {
       setAuth(data);
-      navigate("/dashboard");
     },
   });
 }

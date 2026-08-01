@@ -1,8 +1,8 @@
 import { useAuthStore } from "@/stores/authStore";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
-type ApiErrorDetails = Record<string, string[]>;
+export type ApiErrorDetails = Record<string, string[]>;
 
 export class ApiError extends Error {
   status: number;
@@ -19,18 +19,18 @@ export class ApiError extends Error {
     this.status = status;
     this.code = code;
     this.details = details;
-    Object.setPrototypeOf(this, ApiError.prototype);
   }
+}
+
+interface BackendErrorBody {
+  success: false;
+  code: string;
+  message: string;
+  details?: ApiErrorDetails;
 }
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string>;
-}
-interface BackendErrorBody {
-  success: boolean;
-  code: string;
-  message: string;
-  details?: ApiErrorDetails;
 }
 
 let refreshPromise: Promise<boolean> | null = null;
@@ -38,16 +38,14 @@ let refreshPromise: Promise<boolean> | null = null;
 async function refreshAccessToken(): Promise<boolean> {
   if (!refreshPromise) {
     refreshPromise = (async () => {
-      const { refreshToken, user, setAuth, clearAuth } =
+      const { refreshToken, setAuth, clearAuth, user } =
         useAuthStore.getState();
       if (!refreshToken) return false;
 
       try {
         const response = await fetch(`${BASE_URL}/api/auth/refresh`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refreshToken }),
         });
 
@@ -55,6 +53,7 @@ async function refreshAccessToken(): Promise<boolean> {
           clearAuth();
           return false;
         }
+
         const data = await response.json();
         setAuth({
           accessToken: data.accessToken,
@@ -99,15 +98,14 @@ async function request<T>(
   const { params, headers, ...rest } = options;
 
   const url = new URL(`${BASE_URL}${path}`);
-
   if (params) {
     Object.entries(params).forEach(([key, value]) =>
       url.searchParams.set(key, value),
     );
   }
 
-  const isFormData = rest.body instanceof FormData;
   const token = useAuthStore.getState().accessToken;
+  const isFormData = rest.body instanceof FormData;
 
   const response = await fetch(url.toString(), {
     ...rest,
@@ -118,20 +116,13 @@ async function request<T>(
     },
   });
 
-  const bypassRefreshPaths = ["/api/auth/login", "/api/auth/refresh"];
-
-  if (
-    response.status === 401 &&
-    !isRetry &&
-    !bypassRefreshPaths.includes(path)
-  ) {
+  if (response.status === 401 && !isRetry && path !== "/api/auth/login") {
     const refreshed = await refreshAccessToken();
     if (refreshed) {
-      return request<T>(path, options, true);
+      return request<T>(path, options, true); // retry once, marked so we don't loop forever
     }
-
-    useAuthStore.getState().clearAuth();
-    throw new ApiError(401, "SESION_EXPIRED", "Session expired");
+    window.location.href = "/login"; // refresh token is dead too — hard redirect
+    throw new ApiError(401, "SESSION_EXPIRED", "Session expired");
   }
 
   if (!response.ok) {
@@ -147,14 +138,14 @@ async function request<T>(
 }
 
 export const apiClient = {
+  get: <T>(path: string, options?: RequestOptions) =>
+    request<T>(path, { ...options, method: "GET" }),
   post: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     request<T>(path, {
       ...options,
       method: "POST",
       body: body ? JSON.stringify(body) : undefined,
     }),
-  get: <T>(path: string, options?: RequestOptions) =>
-    request<T>(path, { ...options, method: "GET" }),
   patch: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     request<T>(path, {
       ...options,
@@ -163,10 +154,6 @@ export const apiClient = {
     }),
   delete: <T>(path: string, options?: RequestOptions) =>
     request<T>(path, { ...options, method: "DELETE" }),
-  postForm: <T>(path: string, formData: FormData, options?: RequestOptions) =>
-    request<T>(path, {
-      ...options,
-      method: "POST",
-      body: formData,
-    }),
+  postForm: <T>(path: string, formData: FormData) =>
+    request<T>(path, { method: "POST", body: formData as unknown as BodyInit }),
 };

@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useNavigate } from "react-router";
 import { queryClient } from "@/app/queryClient";
 
-export function useLogin() {
+export function useLogout() {
   const navigate = useNavigate();
   const clearAuth = useAuthStore((state) => state.clearAuth);
 

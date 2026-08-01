@@ -1,5 +1,6 @@
 import AppSidebar from "@/components/layout/AppSidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import Navbar from "@/components/layout/Navbar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/stores/authStore";
 import { Navigate, Outlet } from "react-router";
 
@@ -13,8 +14,8 @@ const ProtectedLayout = () => {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main>
-        <SidebarTrigger />
+      <main className="w-full">
+        <Navbar />
         <Outlet />
       </main>
     </SidebarProvider>

@@ -40,11 +40,11 @@ const ErrorState = ({
       >
         {isRetrying ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Retrying...
+            <Loader2 className="mr- h-4 w-4 animate-spin" /> Retrying...
           </>
         ) : (
           <>
-            <RefreshCw className="mr-2 h-4 w-4" /> Retry
+            <RefreshCw className="mr-1 h-4 w-4" /> Retry
           </>
         )}
       </Button>

@@ -9,38 +9,39 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useCreateOrganization } from "../hooks/useCreateOrganization";
 import type { ApiError } from "@/lib/api/client";
 import { ERROR_CODES } from "@/lib/api/constatnts";
 import { toast } from "@/components/ui/toast";
 import { Loader2 } from "lucide-react";
+import { useCreateWorkspace } from "../hooks/useCreateWorkspace";
 
-type CreateOrgValues = z.infer<typeof createOrgSchema>;
+type CreateWorkspaceValues = z.infer<typeof createWorkspaceSchema>;
 
-const createOrgSchema = z.object({
+const createWorkspaceSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
 });
 
-interface CreateOrganizationFormProps {
+interface CreateWorkspaceFormProps {
+  orgId: string;
   onClose: () => void;
 }
 
-const CreateOrganizationForm = ({ onClose }: CreateOrganizationFormProps) => {
+const CreateWorkspaceForm = ({ orgId, onClose }: CreateWorkspaceFormProps) => {
   const {
-    mutate: createOrganization,
+    mutate: createWorkspace,
     isPending,
     error,
-  } = useCreateOrganization();
+  } = useCreateWorkspace(orgId);
 
-  const form = useForm<CreateOrgValues>({
-    resolver: zodResolver(createOrgSchema),
+  const form = useForm<CreateWorkspaceValues>({
+    resolver: zodResolver(createWorkspaceSchema),
     defaultValues: {
       name: "",
     },
   });
 
-  function onSubmit(data: CreateOrgValues) {
-    createOrganization(data, {
+  function onSubmit(data: CreateWorkspaceValues) {
+    createWorkspace(data, {
       onSuccess: (data) => {
         form.reset();
         onClose();
@@ -52,7 +53,7 @@ const CreateOrganizationForm = ({ onClose }: CreateOrganizationFormProps) => {
       onError: (err: ApiError) => {
         if (err.code === ERROR_CODES.VALIDATION && err.details) {
           Object.entries(err.details).forEach(([field, messages]) =>
-            form.setError(field as keyof CreateOrgValues, {
+            form.setError(field as keyof CreateWorkspaceValues, {
               message: messages[0],
             }),
           );
@@ -69,14 +70,14 @@ const CreateOrganizationForm = ({ onClose }: CreateOrganizationFormProps) => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="org-name" className="font-semibold">
-                Organization name
+              <FieldLabel htmlFor="workspace-name" className="font-semibold">
+                Name
               </FieldLabel>
               <Input
                 {...field}
-                id="org-name"
+                id="workspace-name"
                 aria-invalid={fieldState.invalid}
-                placeholder="Vanguard HQ"
+                placeholder="Growth"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -104,7 +105,7 @@ const CreateOrganizationForm = ({ onClose }: CreateOrganizationFormProps) => {
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...
               </>
             ) : (
-              "Create organization"
+              "Create workspace"
             )}
           </Button>
         </div>
@@ -113,4 +114,4 @@ const CreateOrganizationForm = ({ onClose }: CreateOrganizationFormProps) => {
   );
 };
 
-export default CreateOrganizationForm;
+export default CreateWorkspaceForm;

@@ -10,7 +10,7 @@ const WorkspaceCard = ({ id, name }: WorkspaceCardProps) => {
   const color = getIdentityColor(id);
 
   return (
-    <div className="group relative flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
+    <div className="relative flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
       <div className="flex items-center gap-2.5">
         <div
           className={cn(

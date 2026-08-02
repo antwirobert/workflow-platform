@@ -31,7 +31,7 @@ const OrganizationSwitcherTrigger = ({
         />
 
         <div className="flex min-w-0 flex-col leading-none">
-          <span className="truncate text-sm font-medium tracking-tight capitalize font-semibold">
+          <span className="truncate text-sm tracking-tight capitalize font-semibold">
             {activeOrganization.name}
           </span>
           <span className="mt-0.5 truncate text-xs text-muted-foreground">

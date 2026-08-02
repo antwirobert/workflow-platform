@@ -13,13 +13,18 @@ import { getIdentityColor } from "@/lib/utils";
 import { Check, Plus } from "lucide-react";
 import OrganizationSwitcherTrigger from "./OrganizationSwitcherTrigger ";
 import { useOrgStore } from "@/stores/orgStore";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 const OrganizationSwitcher = () => {
   const { activeOrganization, organizations } = useActiveOrganization();
   const setActiveOrgId = useOrgStore((state) => state.setActiveOrgId);
+  const setActiveWorkspaceId = useWorkspaceStore(
+    (state) => state.setActiveWorkspaceId,
+  );
 
   const handleSwitch = (orgId: string) => {
     setActiveOrgId(orgId);
+    setActiveWorkspaceId(null);
   };
 
   return (

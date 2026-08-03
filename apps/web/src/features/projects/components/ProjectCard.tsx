@@ -1,16 +1,28 @@
 import { cn, getIdentityColor, getInitials } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 interface ProjectCardProps {
   id: string;
   name: string;
   description: string | null;
+  targetOrgId: string;
+  targetWorkspaceId: string;
 }
 
-const ProjectCard = ({ id, name, description }: ProjectCardProps) => {
+const ProjectCard = ({
+  id,
+  name,
+  description,
+  targetOrgId,
+  targetWorkspaceId,
+}: ProjectCardProps) => {
   const color = getIdentityColor(id);
 
   return (
-    <div className="group relative flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
+    <Link
+      to={`/organizations/${targetOrgId}/workspaces/${targetWorkspaceId}/projects/${id}`}
+      className="group relative flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md"
+    >
       <div className="flex items-start justify-between gap-3">
         <div
           className={cn(
@@ -36,7 +48,7 @@ const ProjectCard = ({ id, name, description }: ProjectCardProps) => {
           </p>
         )}
       </div>
-    </div>
+    </Link>
   );
 };
 

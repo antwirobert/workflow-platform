@@ -88,7 +88,12 @@ const ProjectsPage = () => {
       {projects && projects.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <ProjectCard key={project.id} {...project} />
+            <ProjectCard
+              key={project.id}
+              targetOrgId={activeOrganization.id}
+              targetWorkspaceId={activeWorkspaceId}
+              {...project}
+            />
           ))}
         </div>
       )}

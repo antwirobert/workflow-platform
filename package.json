@@ -11,5 +11,8 @@
   },
   "devDependencies": {
     "concurrently": "^10.0.4"
+  },
+  "dependencies": {
+    "@tanstack/react-table": "^8.21.3"
   }
 }

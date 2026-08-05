@@ -3,6 +3,8 @@ import { AuthenticatedRequest } from "../../middleware/authenticate";
 import { organizationsService } from "./organizations.service";
 import {
   CreateOrganizationPayload,
+  UpdateOrganizationPayload,
+  ListOrganizationsQueryInput,
   OrganizationIdParams,
 } from "./organizations.schemas";
 
@@ -34,8 +36,14 @@ export class OrganizationsController {
   ) => {
     try {
       const userId = req.user!.userId;
+      const { page, limit } = req.validated!
+        .query as ListOrganizationsQueryInput;
 
-      const organizations = await organizationsService.listForUser(userId);
+      const organizations = await organizationsService.listForUser({
+        page,
+        limit,
+        userId,
+      });
       res.status(200).json(organizations);
     } catch (error) {
       next(error);
@@ -53,6 +61,44 @@ export class OrganizationsController {
 
       const organization = await organizationsService.getById(orgId, userId);
       res.status(200).json(organization);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  update = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { orgId } = req.validated!.params as OrganizationIdParams;
+      const payload = req.validated!.body as UpdateOrganizationPayload;
+      const userId = req.user!.userId;
+
+      const organization = await organizationsService.update({
+        organizationId: orgId,
+        userId,
+        ...(payload as any),
+      });
+
+      res.status(200).json(organization);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  delete = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { orgId } = req.validated!.params as OrganizationIdParams;
+
+      await organizationsService.delete(orgId);
+
+      res.status(204).send();
     } catch (error) {
       next(error);
     }

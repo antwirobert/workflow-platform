@@ -2,7 +2,6 @@ import { Router } from "express";
 import { validate } from "../../middleware/validate";
 import {
   commentDetailParamsSchema,
-  commentTaskParamsSchema,
   createCommentSchema,
 } from "./comments.schemas";
 import { commentsController } from "./comments.controller";

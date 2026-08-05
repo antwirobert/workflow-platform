@@ -17,7 +17,9 @@ const TasksPage = () => {
   const activeWorkspaceId = useWorkspaceStore(
     (state) => state.activeWorkspaceId,
   );
-  const { projectId } = useParams<{ projectId: string }>();
+  const { projectId } = useParams<{
+    projectId: string;
+  }>();
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<TaskStatus | "ALL">("ALL");
   const [priority, setPriority] = useState<Priority | "ALL">("ALL");

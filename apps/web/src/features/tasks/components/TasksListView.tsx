@@ -17,6 +17,8 @@ import { TaskPriorityBadge } from "./TaskPriorityBadge";
 import { TaskStatusBadge } from "./TaskStatusBadge";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import TaskDetailsSheet from "./TaskDetailsSheet";
+import { useState } from "react";
 
 const columnHelper = createColumnHelper<Task>();
 
@@ -71,6 +73,9 @@ const TasksListView = ({
   isLoading,
   isFetching,
 }: TasksListViewProps) => {
+  const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
   const table = useReactTable({
     data: tasks,
     columns,
@@ -126,6 +131,11 @@ const TasksListView = ({
     );
   }
 
+  const handleRowClick = (task: Task): void => {
+    setIsSheetOpen(true);
+    setSelectedTask(task);
+  };
+
   return (
     <div
       className={cn(
@@ -164,7 +174,8 @@ const TasksListView = ({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="border-b border-border/40 transition-colors hover:bg-muted/30"
+                  className="border-b border-border/40 transition-colors hover:bg-muted/30 cursor-pointer"
+                  onClick={() => handleRowClick(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="px-4 py-3">
@@ -189,6 +200,11 @@ const TasksListView = ({
           </TableBody>
         </Table>
       </div>
+      <TaskDetailsSheet
+        task={selectedTask}
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+      />
     </div>
   );
 };

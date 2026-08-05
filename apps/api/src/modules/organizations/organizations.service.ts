@@ -1,7 +1,10 @@
 import {
-  createOrganizationInput,
+  CreateOrganizationInput,
+  ListOrganizationQuery,
+  ListOrganizationsQueryResult,
   OrganizationResult,
-} from "./organizations.type";
+  UpdateOrganizationInput,
+} from "./organizations.types";
 import { prisma } from "../../lib/prisma";
 import { ConflictError, NotFoundError } from "../../common/errors";
 import {
@@ -10,7 +13,7 @@ import {
 } from "../../generated/prisma/client";
 
 export class OrganizationsService {
-  async create(input: createOrganizationInput): Promise<OrganizationResult> {
+  async create(input: CreateOrganizationInput): Promise<OrganizationResult> {
     const { name, slug, userId } = input;
 
     // Check for global duplicate slug across all organizations
@@ -42,20 +45,54 @@ export class OrganizationsService {
     return this.buildOrganizationResult(result.organization, result.membership);
   }
 
-  async listForUser(userId: string): Promise<OrganizationResult[]> {
-    const memberships = await prisma.organizationMember.findMany({
-      where: {
-        userId,
-      },
-      orderBy: { createdAt: "desc" },
-      include: {
-        organization: true,
-      },
-    });
+  async listForUser(
+    query: ListOrganizationQuery,
+  ): Promise<ListOrganizationsQueryResult<OrganizationResult>> {
+    const { page, limit, userId } = query;
 
-    return memberships.map((m) =>
-      this.buildOrganizationResult(m.organization, m),
-    );
+    const skip = (page - 1) * limit;
+
+    const where = {
+      userId,
+    };
+
+    const [memberships, total] = await Promise.all([
+      prisma.organizationMember.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        include: {
+          organization: {
+            include: {
+              _count: {
+                select: {
+                  workspaces: true,
+                  members: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+
+      prisma.organizationMember.count({ where }),
+    ]);
+
+    return {
+      data: memberships.map((m) =>
+        this.buildOrganizationResult(m.organization, m, {
+          workspaceCount: m.organization._count.workspaces,
+          memberCount: m.organization._count.members,
+        }),
+      ),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async getById(
@@ -80,17 +117,68 @@ export class OrganizationsService {
     return this.buildOrganizationResult(membership.organization, membership);
   }
 
+  async update(input: UpdateOrganizationInput): Promise<OrganizationResult> {
+    const { organizationId, name, slug, userId } = input;
+
+    const organization = await prisma.organization.findUnique({
+      where: { id: organizationId },
+    });
+
+    if (!organization) {
+      throw new NotFoundError("Organization");
+    }
+
+    // If slug is changing, ensure it's globally unique
+    if (slug && slug !== organization.slug) {
+      const existing = await prisma.organization.findUnique({
+        where: { slug },
+      });
+      if (existing) {
+        throw new ConflictError("Slug already exists");
+      }
+    }
+
+    const updated = await prisma.organization.update({
+      where: { id: organizationId },
+      data: {
+        ...(name ? { name } : {}),
+        ...(slug ? { slug } : {}),
+      },
+    });
+
+    return this.buildOrganizationResult(updated);
+  }
+
+  async delete(organizationId: string): Promise<void> {
+    const organization = await prisma.organization.findUnique({
+      where: { id: organizationId },
+    });
+
+    if (!organization) {
+      throw new NotFoundError("Organization");
+    }
+
+    await prisma.organization.delete({ where: { id: organizationId } });
+  }
+
   // Combines model and membership records into a unified public API response format
   private buildOrganizationResult(
     organization: Organization,
-    membership: OrganizationMember,
+    membership?: OrganizationMember,
+    counts?: { workspaceCount: number; memberCount: number },
   ): OrganizationResult {
     return {
       id: organization.id,
       name: organization.name,
       slug: organization.slug,
-      role: membership.role,
+      role: membership?.role,
       createdAt: organization.createdAt,
+      ...(counts
+        ? {
+            workspaceCount: counts.workspaceCount,
+            memberCount: counts.memberCount,
+          }
+        : {}),
     };
   }
 }

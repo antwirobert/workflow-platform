@@ -2,6 +2,7 @@ import { Router } from "express";
 import { validate } from "../../middleware/validate";
 import { workspacesController } from "./workspaces.controller";
 import {
+  listWorkspacesQuerySchema,
   workspaceCreateSchema,
   workspaceDetailParamsSchema,
   workspaceUpdateSchema,
@@ -23,7 +24,11 @@ router.post(
   workspacesController.create,
 );
 
-router.get("/", workspacesController.list);
+router.get(
+  "/",
+  validate(listWorkspacesQuerySchema, "query"),
+  workspacesController.list,
+);
 
 router.get(
   "/:workspaceId",
@@ -37,6 +42,13 @@ router.patch(
   validate(workspaceUpdateSchema),
   requireRole("ADMIN"),
   workspacesController.update,
+);
+
+router.delete(
+  "/:workspaceId",
+  validate(workspaceDetailParamsSchema, "params"),
+  requireRole("ADMIN"),
+  workspacesController.delete,
 );
 
 // Mount nested projects router with strict tenancy validation middleware

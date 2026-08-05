@@ -1,5 +1,6 @@
 import {
   CreateWorkspacePayload,
+  listWorkspacesQueryInput,
   UpdateWorkspacePayload,
 } from "./workspaces.schemas";
 
@@ -14,9 +15,29 @@ export interface WorkspaceResult {
   organizationId: string;
   createdAt: Date;
   updatedAt: Date;
+  projects?: {
+    count: number;
+    names: string[];
+  };
+  taskCount?: number;
+  memberCount?: number;
 }
 
 export interface UpdateWorkspaceInput extends UpdateWorkspacePayload {
   organizationId: string;
   workspaceId: string;
+}
+
+export interface listWorkspacesQuery extends listWorkspacesQueryInput {
+  organizationId: string;
+}
+
+export interface ListWorkspacesQueryResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

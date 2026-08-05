@@ -48,8 +48,16 @@ export const workspaceDetailParamsSchema = z.object({
   workspaceId: z.string().uuid("Invalid workspaceId format"),
 });
 
+export const listWorkspacesQuerySchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(20),
+});
+
 export type CreateWorkspacePayload = z.infer<typeof workspaceCreateSchema>;
 export type UpdateWorkspacePayload = z.infer<typeof workspaceUpdateSchema>;
 export type OrganizationIdParams = z.infer<typeof orgIdParamSchema>;
 export type WorkspaceIdParams = z.infer<typeof workspaceIdParamSchema>;
 export type WorkspaceDetailParams = z.infer<typeof workspaceDetailParamsSchema>;
+export type listWorkspacesQueryInput = z.infer<
+  typeof listWorkspacesQuerySchema
+>;

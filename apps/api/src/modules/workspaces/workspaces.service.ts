@@ -3,6 +3,8 @@ import { ConflictError, NotFoundError } from "../../common/errors";
 import { Workspace } from "../../generated/prisma/client";
 import {
   CreateWorkspaceInput,
+  listWorkspacesQuery,
+  ListWorkspacesQueryResult,
   UpdateWorkspaceInput,
   WorkspaceResult,
 } from "./workspaces.types";
@@ -38,21 +40,61 @@ export class WorkspacesService {
     return this.buildWorkspaceResult(workspace);
   }
 
-  async list(organizationId: string): Promise<WorkspaceResult[]> {
-    const workspaces = await prisma.workspace.findMany({
-      where: { organizationId },
-      orderBy: { createdAt: "desc" },
-    });
+  async list(
+    query: listWorkspacesQuery,
+  ): Promise<ListWorkspacesQueryResult<WorkspaceResult>> {
+    const { page, limit, organizationId } = query;
 
-    return workspaces.map((w) => this.buildWorkspaceResult(w));
+    const skip = (page - 1) * limit;
+
+    const where = { organizationId };
+
+    const [workspaces, total] = await Promise.all([
+      prisma.workspace.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        include: {
+          _count: { select: { projects: true } },
+          projects: true,
+        },
+      }),
+
+      prisma.workspace.count({ where }),
+    ]);
+
+    return {
+      data: workspaces.map((w) =>
+        this.buildWorkspaceResult(w, {
+          count: w._count.projects,
+          names: w.projects.map((p) => p.name),
+        }),
+      ),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async getById(
     organizationId: string,
     workspaceId: string,
-  ): Promise<Workspace> {
+  ): Promise<WorkspaceResult> {
     const workspace = await prisma.workspace.findUnique({
       where: { id: workspaceId },
+      include: {
+        _count: { select: { projects: true } },
+        projects: {
+          select: { id: true, name: true, _count: { select: { tasks: true } } },
+        },
+        organization: {
+          select: { _count: { select: { members: true } } },
+        },
+      },
     });
 
     // Ensure workspace exists and belongs to the specified organization
@@ -60,7 +102,20 @@ export class WorkspacesService {
       throw new NotFoundError("Workspace");
     }
 
-    return this.buildWorkspaceResult(workspace);
+    return this.buildWorkspaceResult(
+      workspace,
+      {
+        count: workspace._count.projects,
+        names: workspace.projects.map((project) => project.name),
+      },
+      {
+        taskCount: workspace.projects.reduce(
+          (acc, project) => acc + project._count.tasks,
+          0,
+        ),
+        memberCount: workspace.organization._count.members,
+      },
+    );
   }
 
   async update(input: UpdateWorkspaceInput): Promise<WorkspaceResult> {
@@ -104,8 +159,24 @@ export class WorkspacesService {
     return this.buildWorkspaceResult(workspace);
   }
 
+  async delete(workspaceId: string): Promise<void> {
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: workspaceId },
+    });
+
+    if (!workspace) {
+      throw new NotFoundError("Workspace");
+    }
+
+    await prisma.workspace.delete({ where: { id: workspaceId } });
+  }
+
   // Maps database model to public API response format
-  private buildWorkspaceResult(workspace: Workspace): WorkspaceResult {
+  private buildWorkspaceResult(
+    workspace: Workspace,
+    projects?: { count: number; names: string[] },
+    counts?: { taskCount: number; memberCount: number },
+  ): WorkspaceResult {
     return {
       id: workspace.id,
       name: workspace.name,
@@ -113,6 +184,10 @@ export class WorkspacesService {
       organizationId: workspace.organizationId,
       createdAt: workspace.createdAt,
       updatedAt: workspace.updatedAt,
+      ...(projects ? { projects } : {}),
+      ...(counts
+        ? { taskCount: counts.taskCount, memberCount: counts.memberCount }
+        : {}),
     };
   }
 }

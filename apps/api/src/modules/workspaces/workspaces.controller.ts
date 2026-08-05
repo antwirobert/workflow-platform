@@ -3,9 +3,11 @@ import { AuthenticatedRequest } from "../../middleware/authenticate";
 import { workspacesService } from "./workspaces.service";
 import {
   CreateWorkspacePayload,
+  listWorkspacesQueryInput,
   OrganizationIdParams,
   UpdateWorkspacePayload,
   WorkspaceDetailParams,
+  WorkspaceIdParams,
 } from "./workspaces.schemas";
 
 export class WorkspacesController {
@@ -36,9 +38,15 @@ export class WorkspacesController {
     next: NextFunction,
   ) => {
     try {
-      const { orgId } = req.validated!.params as OrganizationIdParams;
+      const { page, limit } = req.validated!.query as listWorkspacesQueryInput;
+      const { orgId: organizationId } = req.validated!
+        .params as OrganizationIdParams;
 
-      const workspaces = await workspacesService.list(orgId);
+      const workspaces = await workspacesService.list({
+        page,
+        limit,
+        organizationId,
+      });
       res.status(200).json(workspaces);
     } catch (error) {
       next(error);
@@ -78,6 +86,21 @@ export class WorkspacesController {
         workspaceId,
       });
       res.status(200).json(workspace);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  delete = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { workspaceId } = req.validated!.params as WorkspaceIdParams;
+
+      await workspacesService.delete(workspaceId);
+      res.status(204).send();
     } catch (error) {
       next(error);
     }

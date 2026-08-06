@@ -1,6 +1,6 @@
 import {
   CreateOrganizationInput,
-  ListOrganizationQuery,
+  ListOrganizationsQuery,
   ListOrganizationsQueryResult,
   OrganizationResult,
   UpdateOrganizationInput,
@@ -46,7 +46,7 @@ export class OrganizationsService {
   }
 
   async listForUser(
-    query: ListOrganizationQuery,
+    query: ListOrganizationsQuery,
   ): Promise<ListOrganizationsQueryResult<OrganizationResult>> {
     const { page, limit, userId } = query;
 
@@ -161,11 +161,51 @@ export class OrganizationsService {
     await prisma.organization.delete({ where: { id: organizationId } });
   }
 
+  async listMembers(
+    query: ListOrganizationsQuery,
+  ): Promise<ListOrganizationsQueryResult<OrganizationResult>> {
+    const { page, limit, organizationId } = query;
+
+    const skip = (page - 1) * limit;
+    const where = { organizationId };
+
+    const [members, total] = await Promise.all([
+      prisma.organizationMember.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          organization: true,
+          user: { select: { id: true, name: true, email: true } },
+        },
+      }),
+
+      prisma.organizationMember.count({ where }),
+    ]);
+
+    return {
+      data: members.map((member) =>
+        this.buildOrganizationResult(member.organization, member, undefined, {
+          id: member.user.id,
+          name: member.user.name,
+          email: member.user.email,
+        }),
+      ),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
   // Combines model and membership records into a unified public API response format
   private buildOrganizationResult(
     organization: Organization,
     membership?: OrganizationMember,
     counts?: { workspaceCount: number; memberCount: number },
+    user?: { id: string; name: string; email: string },
   ): OrganizationResult {
     return {
       id: organization.id,
@@ -179,6 +219,7 @@ export class OrganizationsService {
             memberCount: counts.memberCount,
           }
         : {}),
+      ...(user ? { user } : {}),
     };
   }
 }

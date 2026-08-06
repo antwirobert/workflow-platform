@@ -34,7 +34,17 @@ router.get(
   "/:orgId",
   authenticate,
   validate(orgIdParamSchema, "params"),
+  assertOrgMembership,
   organizationsController.getById,
+);
+
+router.get(
+  "/:orgId/members",
+  authenticate,
+  validate(orgIdParamSchema, "params"),
+  validate(listOrganizationsQuerySchema, "query"),
+  assertOrgMembership,
+  organizationsController.listMembers,
 );
 
 router.patch(

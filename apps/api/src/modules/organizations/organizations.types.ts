@@ -21,10 +21,16 @@ export interface OrganizationResult {
   createdAt: Date;
   workspaceCount?: number;
   memberCount?: number;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
-export interface ListOrganizationQuery extends ListOrganizationsQueryInput {
-  userId: string;
+export interface ListOrganizationsQuery extends ListOrganizationsQueryInput {
+  userId?: string;
+  organizationId?: string;
 }
 
 export interface ListOrganizationsQueryResult<T> {

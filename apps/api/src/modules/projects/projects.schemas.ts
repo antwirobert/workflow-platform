@@ -55,7 +55,13 @@ export const projectDetailParamsSchema = z.object({
   projectId: z.string().uuid("Invalid projectId format"),
 });
 
+export const listProjectsQuerySchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(20),
+});
+
 export type CreateProjectPayload = z.infer<typeof createProjectSchema>;
 export type UpdateProjectPayload = z.infer<typeof updateProjectSchema>;
 export type WorkspaceIdParams = z.infer<typeof workspaceIdParamSchema>;
 export type ProjectDetailParams = z.infer<typeof projectDetailParamsSchema>;
+export type ListProjectsQueryInput = z.infer<typeof listProjectsQuerySchema>;

@@ -3,6 +3,8 @@ import { Project } from "../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 import {
   CreateProjectInput,
+  ListProjectsQuery,
+  ListProjectsQueryResult,
   ProjectResult,
   UpdateProjectInput,
 } from "./projects.types";
@@ -37,15 +39,41 @@ export class ProjectsService {
     return this.buildProjectResult(project);
   }
 
-  async list(workspaceId: string): Promise<ProjectResult[]> {
-    const projects = await prisma.project.findMany({
-      where: { workspaceId },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+  async list(
+    query: ListProjectsQuery,
+  ): Promise<ListProjectsQueryResult<ProjectResult>> {
+    const { page, limit, workspaceId } = query;
 
-    return projects.map((project) => this.buildProjectResult(project));
+    const skip = (page - 1) * limit;
+    const where = { workspaceId };
+
+    const [projects, total] = await await Promise.all([
+      prisma.project.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: { _count: { select: { tasks: true } } },
+      }),
+
+      prisma.project.count({ where }),
+    ]);
+
+    return {
+      data: projects.map((project) =>
+        this.buildProjectResult(project, {
+          taskCount: project._count.tasks,
+        }),
+      ),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async getById(
@@ -113,7 +141,10 @@ export class ProjectsService {
   }
 
   // Maps database model to public API response format
-  private buildProjectResult(project: Project): ProjectResult {
+  private buildProjectResult(
+    project: Project,
+    counts?: { taskCount: number },
+  ): ProjectResult {
     return {
       id: project.id,
       name: project.name,
@@ -122,6 +153,7 @@ export class ProjectsService {
       workspaceId: project.workspaceId,
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
+      ...(counts ? { taskCount: counts.taskCount } : {}),
     };
   }
 }

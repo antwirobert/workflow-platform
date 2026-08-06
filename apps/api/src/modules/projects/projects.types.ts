@@ -1,4 +1,8 @@
-import { CreateProjectPayload, UpdateProjectPayload } from "./projects.schemas";
+import {
+  CreateProjectPayload,
+  ListProjectsQueryInput,
+  UpdateProjectPayload,
+} from "./projects.schemas";
 
 export interface CreateProjectInput extends CreateProjectPayload {
   workspaceId: string;
@@ -12,9 +16,24 @@ export interface ProjectResult {
   id: string;
   createdAt: Date;
   updatedAt: Date;
+  taskCount?: number;
 }
 
 export interface UpdateProjectInput extends UpdateProjectPayload {
   projectId: string;
   workspaceId: string;
+}
+
+export interface ListProjectsQuery extends ListProjectsQueryInput {
+  workspaceId: string;
+}
+
+export interface ListProjectsQueryResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

@@ -103,6 +103,28 @@ export class OrganizationsController {
       next(error);
     }
   };
+
+  listMembers = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { orgId: organizationId } = req.validated!
+        .params as OrganizationIdParams;
+      const { page, limit } = req.validated!
+        .query as ListOrganizationsQueryInput;
+
+      const members = await organizationsService.listMembers({
+        page,
+        limit,
+        organizationId,
+      });
+      res.status(200).json(members);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export const organizationsController = new OrganizationsController();

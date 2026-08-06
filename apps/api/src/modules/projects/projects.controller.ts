@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import {
   CreateProjectPayload,
+  ListProjectsQueryInput,
   ProjectDetailParams,
   UpdateProjectPayload,
   WorkspaceIdParams,
@@ -30,8 +31,9 @@ export class ProjectsController {
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { workspaceId } = req.validated!.params as WorkspaceIdParams;
+      const { page, limit } = req.validated!.query as ListProjectsQueryInput;
 
-      const projects = await projectsService.list(workspaceId);
+      const projects = await projectsService.list({ page, limit, workspaceId });
 
       res.status(200).json(projects);
     } catch (error) {

@@ -3,6 +3,7 @@ import { projectsController } from "./projects.controller";
 import { validate } from "../../middleware/validate";
 import {
   createProjectSchema,
+  listProjectsQuerySchema,
   projectDetailParamsSchema,
   updateProjectSchema,
 } from "./projects.schemas";
@@ -25,7 +26,11 @@ router.post(
   projectsController.create,
 );
 
-router.get("/", projectsController.list);
+router.get(
+  "/",
+  validate(listProjectsQuerySchema, "query"),
+  projectsController.list,
+);
 
 router.get(
   "/:projectId",

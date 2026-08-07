@@ -1,25 +1,31 @@
 import { Link } from "react-router-dom";
-import AuthCardWrapper from "../components/AuthCardWrapper ";
+import AuthWrapper from "../components/AuthWrapper ";
 import LoginForm from "../components/LoginForm";
+import AuthSidebar from "../components/AuthSidebar";
 
 const LoginPage = () => {
   return (
-    <div className="flex flex-col min-h-svh justify-center items-center">
-      <AuthCardWrapper
-        title="Welcome back"
-        description="Sign in to reach every organization you belong to."
-      >
-        <LoginForm />
-      </AuthCardWrapper>
-      <p className="mt-4 text-sm">
-        Don't have an account?{" "}
-        <Link
-          to="/register"
-          className="underline underline-offset-4 font-semibold"
+    <div className="flex min-h-svh w-full">
+      <div className="relative flex w-full flex-col items-center justify-center px-6 py-12 md:w-1/2">
+        <AuthWrapper
+          title="Welcome back"
+          description="Sign in to reach every organization you belong to."
         >
-          Create one
-        </Link>
-      </p>
+          <LoginForm />
+        </AuthWrapper>
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="font-medium text-foreground underline-offset-4 transition-colors hover:underline"
+          >
+            Create one
+          </Link>
+        </p>
+      </div>
+
+      <AuthSidebar />
     </div>
   );
 };

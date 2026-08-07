@@ -1,25 +1,31 @@
 import RegisterForm from "../components/RegisterForm";
-import AuthCardWrapper from "../components/AuthCardWrapper ";
+import AuthWrapper from "../components/AuthWrapper ";
 import { Link } from "react-router-dom";
+import AuthSidebar from "../components/AuthSidebar";
 
 const RegisterPage = () => {
   return (
-    <div className="flex flex-col min-h-svh justify-center items-center">
-      <AuthCardWrapper
-        title="Create your account"
-        description="Join an existing organization with an invite, or start your own."
-      >
-        <RegisterForm />
-      </AuthCardWrapper>
-      <p className="mt-4 text-sm">
-        Already have an account?{" "}
-        <Link
-          to="/login"
-          className="underline underline-offset-4 font-semibold"
+    <div className="flex min-h-svh w-full">
+      <div className="relative flex w-full flex-col items-center justify-center px-6 py-12 md:w-1/2">
+        <AuthWrapper
+          title="Create your account"
+          description="Join an existing organization with an invite, or start your own."
         >
-          Sign in
-        </Link>
-      </p>
+          <RegisterForm />
+        </AuthWrapper>
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-medium text-foreground underline-offset-4 transition-colors hover:underline"
+          >
+            Sign in
+          </Link>
+        </p>
+      </div>
+
+      <AuthSidebar />
     </div>
   );
 };

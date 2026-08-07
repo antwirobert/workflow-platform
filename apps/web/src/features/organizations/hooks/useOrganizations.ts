@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { organizationsApi } from "../api";
+import type { OrganizationlistParams } from "../types";
 
-export function useOrganizations() {
+export function useOrganizations(filters: OrganizationlistParams) {
   return useQuery({
-    queryKey: ["organizations"],
-    queryFn: organizationsApi.list,
+    queryKey: ["organizations", filters],
+    queryFn: () => organizationsApi.list(filters),
   });
 }

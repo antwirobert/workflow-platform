@@ -21,6 +21,9 @@ import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { useProjects } from "@/features/projects/hooks/useProjects";
 import OrganizationSwitcher from "@/features/organizations/components/OrganizationSwitcher ";
 
+const PAGE = 1;
+const LIMIT = 20;
+
 const AppSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,7 +41,10 @@ const AppSidebar = () => {
     isError: workspacesError,
     refetch: workspacesRefetch,
     isFetching: workspacesFetching,
-  } = useWorkspaces(activeOrganization?.id ?? null);
+  } = useWorkspaces(activeOrganization?.id ?? null, {
+    page: PAGE,
+    limit: LIMIT,
+  });
 
   const {
     data: projects,
@@ -109,7 +115,7 @@ const AppSidebar = () => {
 
               {!workspacesLoading &&
                 !workspacesError &&
-                (workspaces ?? []).length === 0 && (
+                (workspaces?.data ?? []).length === 0 && (
                   <div className="mx-2 flex flex-col items-center gap-2 rounded-lg border border-dashed border-border/80 px-3 py-4 text-center">
                     <p className="text-xs leading-relaxed text-muted-foreground">
                       No workspaces yet.
@@ -128,7 +134,7 @@ const AppSidebar = () => {
 
               {!workspacesLoading &&
                 !workspacesError &&
-                (workspaces ?? []).map((workspace) => {
+                (workspaces?.data ?? []).map((workspace) => {
                   const workspaceColor = getIdentityColor(workspace.id);
                   const isWorkspaceActive = workspace.id === activeWorkspaceId;
 
@@ -154,7 +160,7 @@ const AppSidebar = () => {
 
             {!workspacesLoading &&
               !workspacesError &&
-              (workspaces ?? []).length > 0 && (
+              (workspaces?.data ?? []).length > 0 && (
                 <SidebarMenu className="mt-1">
                   <SidebarMenuItem>
                     <SidebarMenuButton

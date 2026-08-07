@@ -14,6 +14,7 @@ import type { ApiError } from "@/lib/api/client";
 import { toast } from "@/components/ui/toast";
 import { useNavigate } from "react-router-dom";
 import { ERROR_CODES } from "@/lib/api/constatnts";
+import { Loader2 } from "lucide-react";
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
@@ -67,14 +68,14 @@ const RegisterForm = () => {
   }
 
   return (
-    <form className="mt-2" onSubmit={form.handleSubmit(onSubmit)}>
-      <FieldGroup>
+    <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+      <FieldGroup className="gap-4">
         <Controller
           name="name"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="full-name" className="font-semibold">
+              <FieldLabel htmlFor="full-name" className="text-sm font-medium">
                 Full name
               </FieldLabel>
               <Input
@@ -82,6 +83,8 @@ const RegisterForm = () => {
                 id="full-name"
                 aria-invalid={fieldState.invalid}
                 placeholder="Jordan Smith"
+                className="h-10"
+                autoComplete="name"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -93,7 +96,7 @@ const RegisterForm = () => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="email" className="font-semibold">
+              <FieldLabel htmlFor="email" className="text-sm font-medium">
                 Work email
               </FieldLabel>
               <Input
@@ -102,6 +105,8 @@ const RegisterForm = () => {
                 id="email"
                 aria-invalid={fieldState.invalid}
                 placeholder="you@company.com"
+                className="h-10"
+                autoComplete="email"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -113,7 +118,7 @@ const RegisterForm = () => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="password" className="font-semibold">
+              <FieldLabel htmlFor="password" className="text-sm font-medium">
                 Password
               </FieldLabel>
               <Input
@@ -122,6 +127,8 @@ const RegisterForm = () => {
                 id="password"
                 aria-invalid={fieldState.invalid}
                 placeholder="••••••••"
+                className="h-10"
+                autoComplete="new-password"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -133,7 +140,10 @@ const RegisterForm = () => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="confirm-password" className="font-semibold">
+              <FieldLabel
+                htmlFor="confirm-password"
+                className="text-sm font-medium"
+              >
                 Confirm password
               </FieldLabel>
               <Input
@@ -142,6 +152,8 @@ const RegisterForm = () => {
                 id="confirm-password"
                 aria-invalid={fieldState.invalid}
                 placeholder="••••••••"
+                className="h-10"
+                autoComplete="new-password"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -149,13 +161,24 @@ const RegisterForm = () => {
         />
 
         {error && error.code !== ERROR_CODES.VALIDATION && (
-          <div className="rounded-lg bg-destructive/10 p-3 text-sm font-medium text-destructive">
+          <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
             {error.message || "An unexpected error occurred."}
           </div>
         )}
 
-        <Button size="lg" type="submit" disabled={isPending}>
-          {isPending ? "Creating..." : "Create account"}
+        <Button
+          size="lg"
+          type="submit"
+          disabled={isPending}
+          className="mt-1 w-full"
+        >
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...
+            </>
+          ) : (
+            "Create account"
+          )}
         </Button>
       </FieldGroup>
     </form>

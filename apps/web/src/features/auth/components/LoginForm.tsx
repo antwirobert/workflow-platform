@@ -14,6 +14,7 @@ import { toast } from "@/components/ui/toast";
 import { useNavigate } from "react-router-dom";
 import { ERROR_CODES } from "@/lib/api/constatnts";
 import { useLogin } from "../hooks/useLogin";
+import { Loader2 } from "lucide-react";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -56,14 +57,14 @@ const LoginForm = () => {
   }
 
   return (
-    <form className="mt-2" onSubmit={form.handleSubmit(onSubmit)}>
-      <FieldGroup>
+    <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+      <FieldGroup className="gap-4">
         <Controller
           name="email"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="email" className="font-semibold">
+              <FieldLabel htmlFor="email" className="text-sm font-medium">
                 Email
               </FieldLabel>
               <Input
@@ -72,6 +73,8 @@ const LoginForm = () => {
                 id="email"
                 aria-invalid={fieldState.invalid}
                 placeholder="you@company.com"
+                className="h-10"
+                autoComplete="email"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -83,7 +86,7 @@ const LoginForm = () => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="password" className="font-semibold">
+              <FieldLabel htmlFor="password" className="text-sm font-medium">
                 Password
               </FieldLabel>
               <Input
@@ -92,6 +95,8 @@ const LoginForm = () => {
                 id="password"
                 aria-invalid={fieldState.invalid}
                 placeholder="••••••••"
+                className="h-10"
+                autoComplete="current-password"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -99,13 +104,24 @@ const LoginForm = () => {
         />
 
         {error && error.code !== ERROR_CODES.VALIDATION && (
-          <div className="rounded-lg bg-destructive/10 p-3 text-sm font-medium text-destructive">
+          <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
             {error.message || "An unexpected error occurred."}
           </div>
         )}
 
-        <Button size="lg" type="submit" disabled={isPending}>
-          {isPending ? "Signing in..." : "Sign in"}
+        <Button
+          size="lg"
+          type="submit"
+          disabled={isPending}
+          className="mt-1 w-full"
+        >
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing in...
+            </>
+          ) : (
+            "Sign in"
+          )}
         </Button>
       </FieldGroup>
     </form>

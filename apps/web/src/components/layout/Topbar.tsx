@@ -2,6 +2,8 @@ import { Bell, Search } from "lucide-react";
 import { Input } from "../ui/input";
 import { SidebarTrigger } from "../ui/sidebar";
 import { useMatches } from "react-router-dom";
+import { Button } from "../ui/button";
+import { Fragment } from "react";
 
 type Match = {
   handle?: {
@@ -23,50 +25,59 @@ const Topbar = () => {
     });
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/70 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-3">
-        <div className="flex items-center gap-4">
-          <SidebarTrigger />
-          <span>|</span>
-          <div className="flex items-center gap-2 text-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md supports-backdrop-filter:bg-background/60">
+      <div className="flex h-14 items-center justify-between gap-4 px-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <SidebarTrigger className="-ml-1" />
+
+          <div className="hidden h-4 w-px shrink-0 bg-border sm:block" />
+
+          <nav className="flex min-w-0 items-center gap-1.5 text-sm">
             {crumbs.map((crumb, index) => {
               const isLast = index === crumbs.length - 1;
 
               return (
-                <div key={index} className="flex items-center gap-2">
+                <Fragment key={index}>
                   <span
-                    className={`transition-colors ${
+                    className={
                       isLast
-                        ? "text-foreground font-semibold text-base"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
+                        ? "truncate font-medium text-foreground"
+                        : "hidden truncate text-muted-foreground sm:inline"
+                    }
                   >
                     {crumb}
                   </span>
 
                   {!isLast && (
-                    <span className="text-muted-foreground/50">/</span>
+                    <span className="hidden text-muted-foreground/40 sm:inline">
+                      /
+                    </span>
                   )}
-                </div>
+                </Fragment>
               );
             })}
-          </div>
+          </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2">
           <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
-              type="text"
+              type="search"
               placeholder="Search..."
-              className="w-55 pl-9 pr-3 rounded-full bg-muted/50 focus:bg-background transition"
+              className="h-8 w-56 rounded-md border-transparent bg-muted/50 pl-8 text-sm transition-colors placeholder:text-muted-foreground focus-visible:border-border focus-visible:bg-background"
             />
           </div>
 
-          <button className="relative flex items-center justify-center rounded-full p-2 hover:bg-muted transition">
-            <Bell className="h-5 w-5 text-muted-foreground" />
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-          </button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative size-8 text-muted-foreground"
+          >
+            <Bell className="size-4" />
+            <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-destructive" />
+            <span className="sr-only">Notifications</span>
+          </Button>
         </div>
       </div>
     </header>

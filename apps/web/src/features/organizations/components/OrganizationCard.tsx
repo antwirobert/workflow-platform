@@ -2,7 +2,7 @@ import TextAvatar from "@/components/TextAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getIdentityColor } from "@/lib/utils";
-import { Ellipsis, Layers, Pencil, Trash2, Users } from "lucide-react";
+import { Ellipsis, Layers, Lock, Pencil, Trash2, Users } from "lucide-react";
 import { OrgRoleBadge } from "./OrgRoleBadge";
 import type { OrgRole } from "@/types/organization";
 import {
@@ -15,6 +15,7 @@ import {
 import { useState } from "react";
 import EditOrganizationDialog from "./EditOrganizationDialog";
 import DeleteOrganizationDialog from "./DeleteOrganizationDialog";
+import { ROLE_OWNER, ROLES_MANAGEMENT } from "@/constants";
 
 interface OrganizationCardProps {
   id: string;
@@ -101,18 +102,54 @@ const OrganizationCard = ({
                 <DropdownMenuItem
                   onClick={() => setIsEditOpen(true)}
                   className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm"
+                  disabled={!ROLES_MANAGEMENT.includes(role)}
                 >
-                  <Pencil className="size-3.5 text-muted-foreground" />
-                  Edit organization
+                  {ROLES_MANAGEMENT.includes(role) ? (
+                    <>
+                      <Pencil className="size-3.5 text-muted-foreground" />
+                      Edit organization
+                    </>
+                  ) : (
+                    <div className="flex items-start gap-2 py-0.5">
+                      <Lock className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm text-muted-foreground">
+                          Edit organization
+                        </span>
+                        <span className="text-[11px] leading-snug text-muted-foreground/70">
+                          Only an owner or admin can edit
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  variant="destructive"
+                  variant={
+                    ROLE_OWNER.includes(role) ? "destructive" : "default"
+                  }
                   className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm"
                   onClick={() => setIsDeleteOpen(true)}
+                  disabled={!ROLE_OWNER.includes(role)}
                 >
-                  <Trash2 className="size-3.5" />
-                  Delete organization
+                  {ROLES_MANAGEMENT.includes(role) ? (
+                    <>
+                      <Trash2 className="size-3.5" />
+                      Delete organization
+                    </>
+                  ) : (
+                    <div className="flex items-start gap-2 py-0.5">
+                      <Lock className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm text-muted-foreground">
+                          Delete organization
+                        </span>
+                        <span className="text-[11px] leading-snug text-muted-foreground/70">
+                          Only the owner can delete
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>

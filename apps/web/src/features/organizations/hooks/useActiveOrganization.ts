@@ -1,14 +1,12 @@
 import { useOrgStore } from "@/stores/orgStore";
 import { useOrganizations } from "./useOrganizations";
 import { useEffect } from "react";
-
-const PAGE = 1;
-const LIMIT = 5;
+import { DEFAULT_PAGE, DEFAULT_SIDEBAR_LIMIT } from "@/constants";
 
 export function useActiveOrganization() {
   const { data: organizations } = useOrganizations({
-    page: PAGE,
-    limit: LIMIT,
+    page: DEFAULT_PAGE,
+    limit: DEFAULT_SIDEBAR_LIMIT,
   });
   const activeOrgId = useOrgStore((state) => state.activeOrgId);
   const setActiveOrgId = useOrgStore((state) => state.setActiveOrgId);

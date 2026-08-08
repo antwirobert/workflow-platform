@@ -10,7 +10,7 @@ type Match = {
   data?: unknown;
 };
 
-const Navbar = () => {
+const Topbar = () => {
   const matches = useMatches() as Match[];
 
   const crumbs = matches
@@ -73,4 +73,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Topbar;

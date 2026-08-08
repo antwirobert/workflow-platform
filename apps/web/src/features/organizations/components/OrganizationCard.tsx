@@ -12,6 +12,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import EditOrganizationDialog from "./EditOrganizationDialog";
+import DeleteOrganizationDialog from "./DeleteOrganizationDialog";
 
 interface OrganizationCardProps {
   id: string;
@@ -30,84 +33,107 @@ const OrganizationCard = ({
   workspaceCount,
   memberCount,
 }: OrganizationCardProps) => {
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const color = getIdentityColor(id);
 
   return (
-    <div className="group relative flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
-      <div className="flex min-w-0 items-center gap-3.5">
-        <TextAvatar
-          name={name}
-          colorClass={color.bg}
-          textClass={color.text}
-          className="size-11 shrink-0 rounded-lg text-sm font-semibold"
-        />
+    <>
+      <div className="group relative flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
+        <div className="flex min-w-0 items-center gap-3.5">
+          <TextAvatar
+            name={name}
+            colorClass={color.bg}
+            textClass={color.text}
+            className="size-11 shrink-0 rounded-lg text-sm font-semibold"
+          />
 
-        <div className="flex min-w-0 flex-col gap-1.5">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h3 className="truncate text-sm font-semibold tracking-tight text-foreground">
-              {name}
-            </h3>
-            <OrgRoleBadge role={role} />
-            <Badge
-              variant="secondary"
-              className="h-5 shrink-0 rounded-md px-1.5 text-[11px] font-medium text-muted-foreground"
-            >
-              {slug}
-            </Badge>
-          </div>
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <h3 className="truncate text-sm font-semibold tracking-tight text-foreground">
+                {name}
+              </h3>
+              <OrgRoleBadge role={role} />
+              <Badge
+                variant="secondary"
+                className="h-5 shrink-0 rounded-md px-1.5 text-[11px] font-medium text-muted-foreground"
+              >
+                {slug}
+              </Badge>
+            </div>
 
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <Layers className="size-3.5 opacity-70" />
-              {workspaceCount}{" "}
-              {workspaceCount === 1 ? "workspace" : "workspaces"}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Users className="size-3.5 opacity-70" />
-              {memberCount} {memberCount === 1 ? "member" : "members"}
-            </span>
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Layers className="size-3.5 opacity-70" />
+                {workspaceCount}{" "}
+                {workspaceCount === 1 ? "workspace" : "workspaces"}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Users className="size-3.5 opacity-70" />
+                {memberCount} {memberCount === 1 ? "member" : "members"}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex shrink-0 items-center gap-1.5">
-        <Button
-          variant="outline"
-          size="sm"
-          className="opacity-80 transition-opacity group-hover:opacity-100"
-        >
-          Manage
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8 opacity-60 transition-opacity group-hover:opacity-100"
-              >
-                <Ellipsis className="size-4" />
-              </Button>
-            }
+        <div className="flex shrink-0 items-center gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            className="opacity-80 transition-opacity group-hover:opacity-100"
+          >
+            Manage
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 opacity-60 transition-opacity group-hover:opacity-100"
+                >
+                  <Ellipsis className="size-4" />
+                </Button>
+              }
+            />
+            <DropdownMenuContent className="w-48 p-1" align="end">
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => setIsEditOpen(true)}
+                  className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm"
+                >
+                  <Pencil className="size-3.5 text-muted-foreground" />
+                  Edit organization
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  variant="destructive"
+                  className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm"
+                  onClick={() => setIsDeleteOpen(true)}
+                >
+                  <Trash2 className="size-3.5" />
+                  Delete organization
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <EditOrganizationDialog
+            id={id}
+            name={name}
+            open={isEditOpen}
+            onOpenChange={setIsEditOpen}
           />
-          <DropdownMenuContent className="w-48 p-1" align="end">
-            <DropdownMenuGroup>
-              <DropdownMenuItem className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm">
-                <Pencil className="size-3.5 text-muted-foreground" />
-                Edit organization
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm"
-              >
-                <Trash2 className="size-3.5" />
-                Delete organization
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+          <DeleteOrganizationDialog
+            id={id}
+            name={name}
+            slug={slug}
+            open={isDeleteOpen}
+            onOpenChange={setIsDeleteOpen}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

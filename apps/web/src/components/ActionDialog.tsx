@@ -10,9 +10,9 @@ import {
 interface ActionDialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   title: string;
-  description: string;
+  description?: string;
   children: React.ReactNode;
 }
 

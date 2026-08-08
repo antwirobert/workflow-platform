@@ -9,50 +9,58 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useCreateOrganization } from "../hooks/useCreateOrganization";
 import type { ApiError } from "@/lib/api/client";
 import { ERROR_CODES } from "@/lib/api/constatnts";
 import { toast } from "@/components/ui/toast";
 import { Loader2 } from "lucide-react";
+import { useUpdateOrganization } from "../hooks/useUpdateOrganization";
+import { useEffect } from "react";
 
-type CreateOrgValues = z.infer<typeof createOrgSchema>;
+type EditOrgValues = z.infer<typeof editOrgSchema>;
 
-const createOrgSchema = z.object({
+const editOrgSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
 });
 
-interface CreateOrganizationFormProps {
+interface EditOrganizationFormProps {
+  id: string;
+  name: string;
   onClose: () => void;
 }
 
-const CreateOrganizationForm = ({ onClose }: CreateOrganizationFormProps) => {
+const EditOrganizationForm = ({
+  id,
+  name,
+  onClose,
+}: EditOrganizationFormProps) => {
   const {
-    mutate: createOrganization,
+    mutate: editOrganization,
     isPending,
     error,
-  } = useCreateOrganization();
+  } = useUpdateOrganization(id);
 
-  const form = useForm<CreateOrgValues>({
-    resolver: zodResolver(createOrgSchema),
-    defaultValues: {
-      name: "",
-    },
+  const form = useForm<EditOrgValues>({
+    resolver: zodResolver(editOrgSchema),
+    defaultValues: { name },
   });
 
-  function onSubmit(data: CreateOrgValues) {
-    createOrganization(data, {
+  useEffect(() => {
+    form.reset({ name });
+  }, [name, form]);
+
+  function onSubmit(data: EditOrgValues) {
+    editOrganization(data, {
       onSuccess: () => {
-        form.reset();
         onClose();
         toast.add({
           type: "success",
-          description: "Organization created",
+          description: "Organization updated",
         });
       },
       onError: (err: ApiError) => {
         if (err.code === ERROR_CODES.VALIDATION && err.details) {
           Object.entries(err.details).forEach(([field, messages]) =>
-            form.setError(field as keyof CreateOrgValues, {
+            form.setError(field as keyof EditOrgValues, {
               message: messages[0],
             }),
           );
@@ -89,7 +97,7 @@ const CreateOrganizationForm = ({ onClose }: CreateOrganizationFormProps) => {
           </div>
         )}
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-end gap-2">
           <Button
             type="button"
             variant="outline"
@@ -101,10 +109,10 @@ const CreateOrganizationForm = ({ onClose }: CreateOrganizationFormProps) => {
           <Button type="submit" disabled={isPending}>
             {isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
               </>
             ) : (
-              "Create organization"
+              "Save changes"
             )}
           </Button>
         </div>
@@ -113,4 +121,4 @@ const CreateOrganizationForm = ({ onClose }: CreateOrganizationFormProps) => {
   );
 };
 
-export default CreateOrganizationForm;
+export default EditOrganizationForm;

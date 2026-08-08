@@ -56,10 +56,13 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      const { orgId } = req.validated?.params as OrganizationIdParams;
-      const userId = req.user!.userId;
+      // const { orgId } = req.validated?.params as OrganizationIdParams;
+      // const userId = req.user!.userId;
 
-      const organization = await organizationsService.getById(orgId, userId);
+      const organization = organizationsService.buildOrganizationResult(
+        req.organization!,
+        req.membership,
+      );
       res.status(200).json(organization);
     } catch (error) {
       next(error);
@@ -72,13 +75,12 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      const { orgId } = req.validated!.params as OrganizationIdParams;
+      // const { orgId } = req.validated!.params as OrganizationIdParams;
       const payload = req.validated!.body as UpdateOrganizationPayload;
-      const userId = req.user!.userId;
+      // const userId = req.user!.userId;
 
       const organization = await organizationsService.update({
-        organizationId: orgId,
-        userId,
+        organizationId: req.organization!.id,
         ...(payload as any),
       });
 
@@ -94,10 +96,9 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      const { orgId } = req.validated!.params as OrganizationIdParams;
+      // const { orgId } = req.validated!.params as OrganizationIdParams;
 
-      await organizationsService.delete(orgId);
-
+      await organizationsService.delete(req.organization!.id);
       res.status(204).send();
     } catch (error) {
       next(error);
@@ -110,15 +111,15 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      const { orgId: organizationId } = req.validated!
-        .params as OrganizationIdParams;
+      // const { orgId: organizationId } = req.validated!
+      //   .params as OrganizationIdParams;
       const { page, limit } = req.validated!
         .query as ListOrganizationsQueryInput;
 
       const members = await organizationsService.listMembers({
         page,
         limit,
-        organizationId,
+        organizationId: req.organization!.id,
       });
       res.status(200).json(members);
     } catch (error) {

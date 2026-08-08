@@ -6,6 +6,7 @@ import {
   createOrganizationSchema,
   listOrganizationsQuerySchema,
   orgIdParamSchema,
+  orgSlugParamSchema,
 } from "./organizations.schemas";
 import { updateOrganizationSchema } from "./organizations.schemas";
 import { requireRole } from "../../middleware/requireRole";
@@ -31,26 +32,26 @@ router.get(
 );
 
 router.get(
-  "/:orgId",
+  "/:orgSlug",
   authenticate,
-  validate(orgIdParamSchema, "params"),
+  validate(orgSlugParamSchema, "params"),
   assertOrgMembership,
   organizationsController.getById,
 );
 
 router.get(
-  "/:orgId/members",
+  "/:orgSlug/members",
   authenticate,
-  validate(orgIdParamSchema, "params"),
+  validate(orgSlugParamSchema, "params"),
   validate(listOrganizationsQuerySchema, "query"),
   assertOrgMembership,
   organizationsController.listMembers,
 );
 
 router.patch(
-  "/:orgId",
+  "/:orgSlug",
   authenticate,
-  validate(orgIdParamSchema, "params"),
+  validate(orgSlugParamSchema, "params"),
   validate(updateOrganizationSchema),
   assertOrgMembership,
   requireRole("ADMIN"),
@@ -58,9 +59,9 @@ router.patch(
 );
 
 router.delete(
-  "/:orgId",
+  "/:orgSlug",
   authenticate,
-  validate(orgIdParamSchema, "params"),
+  validate(orgSlugParamSchema, "params"),
   assertOrgMembership,
   requireRole("OWNER"),
   organizationsController.delete,
@@ -68,15 +69,15 @@ router.delete(
 
 // Mount nested workspaces router with strict tenancy validation middleware
 router.use(
-  "/:orgId/workspaces",
-  validate(orgIdParamSchema, "params"),
+  "/:orgSlug/workspaces",
+  validate(orgSlugParamSchema, "params"),
   authenticate,
   assertOrgMembership,
   workspacesRouter,
 );
 
 router.use(
-  "/:orgId/search",
+  "/:orgSlug/search",
   validate(orgIdParamSchema, "params"),
   authenticate,
   assertOrgMembership,
@@ -84,7 +85,7 @@ router.use(
 );
 
 router.use(
-  "/:orgId/invitations",
+  "/:orgSlug/invitations",
   validate(orgIdParamSchema, "params"),
   authenticate,
   assertOrgMembership,

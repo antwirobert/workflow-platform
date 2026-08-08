@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../lib/prisma";
-import { OrganizationIdParams } from "../modules/organizations/organizations.schemas";
+import { OrganizationSlugParams } from "../modules/organizations/organizations.schemas";
 import { AuthenticatedRequest } from "./authenticate";
 import { NotFoundError } from "../common/errors";
 import { WorkspaceDetailParams } from "../modules/workspaces/workspaces.schemas";
@@ -12,17 +12,15 @@ export const assertOrgMembership = async (
   _res: Response,
   next: NextFunction,
 ) => {
-  const { orgId: organizationId } = req.validated!
-    .params as OrganizationIdParams;
+  const { orgSlug } = req.validated!.params as OrganizationSlugParams;
   const userId = req.user!.userId;
 
-  const membership = await prisma.organizationMember.findUnique({
+  const membership = await prisma.organizationMember.findFirst({
     where: {
-      organizationId_userId: {
-        organizationId,
-        userId,
-      },
+      userId,
+      organization: { slug: orgSlug },
     },
+    include: { organization: true },
   });
 
   if (!membership) {
@@ -30,6 +28,8 @@ export const assertOrgMembership = async (
   }
 
   req.user!.orgRole = membership.role;
+  req.organization = membership.organization;
+  req.membership = membership;
 
   next();
 };

@@ -3,6 +3,10 @@ export interface CreateOrganizationPayload {
   slug: string;
 }
 
+export interface UpdateOrganizationPayload {
+  name?: string;
+}
+
 export interface OrganizationlistParams {
   page: number;
   limit: number;

@@ -11,8 +11,6 @@ export function useActiveOrganization() {
   const activeOrgId = useOrgStore((state) => state.activeOrgId);
   const setActiveOrgId = useOrgStore((state) => state.setActiveOrgId);
 
-  console.log(organizations);
-
   useEffect(() => {
     if (!organizations?.data || organizations.data.length === 0) return;
 

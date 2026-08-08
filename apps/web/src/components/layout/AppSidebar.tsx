@@ -20,9 +20,7 @@ import { Skeleton } from "../ui/skeleton";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { useProjects } from "@/features/projects/hooks/useProjects";
 import OrganizationSwitcher from "@/features/organizations/components/OrganizationSwitcher ";
-
-const PAGE = 1;
-const LIMIT = 20;
+import { DEFAULT_PAGE, DEFAULT_SIDEBAR_LIMIT } from "@/constants";
 
 const AppSidebar = () => {
   const navigate = useNavigate();
@@ -42,8 +40,8 @@ const AppSidebar = () => {
     refetch: workspacesRefetch,
     isFetching: workspacesFetching,
   } = useWorkspaces(activeOrganization?.id ?? null, {
-    page: PAGE,
-    limit: LIMIT,
+    page: DEFAULT_PAGE,
+    limit: DEFAULT_SIDEBAR_LIMIT,
   });
 
   const {

@@ -6,4 +6,6 @@ export interface Organization {
   slug: string;
   role: OrgRole;
   createdAt: string;
+  workspaceCount?: number;
+  memberCount?: number;
 }

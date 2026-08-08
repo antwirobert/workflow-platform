@@ -5,12 +5,14 @@ interface EmptyStateProps {
   title: string;
   description: string;
   btnCaption: string;
+  onOpenChange: () => void;
   icon?: LucideIcon;
 }
 
 const EmptyState = ({
   title,
   description,
+  onOpenChange,
   btnCaption,
   icon: Icon,
 }: EmptyStateProps) => {
@@ -23,7 +25,10 @@ const EmptyState = ({
       <p className="mt-1 max-w-md text-sm text-muted-foreground leading-relaxed">
         {description}
       </p>
-      <Button className="mt-5 shrink-0 gap-1.5 self-start sm:self-auto">
+      <Button
+        className="mt-5 shrink-0 gap-1.5 self-start sm:self-auto"
+        onClick={onOpenChange}
+      >
         <Plus className="size-4" />
         {btnCaption}
       </Button>

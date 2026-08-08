@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useOrganizations } from "../hooks/useOrganizations";
 import { Building2 } from "lucide-react";
 import ErrorState from "@/components/ErrorState";
@@ -6,11 +7,11 @@ import OrganizationCard from "../components/OrganizationCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import CreateOrganizationDialog from "../components/CreateOrganizationDialog";
 import PageHeader from "@/components/PageHeader";
-import { useState } from "react";
 import PaginationControls from "@/components/PaginationControls";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 
 const OrganizationsPage = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
   const {
@@ -28,7 +29,9 @@ const OrganizationsPage = () => {
     <PageHeader
       title="Organizations"
       description="Every org you belong to. Switch context or spin up a new one."
-      action={<CreateOrganizationDialog />}
+      action={
+        <CreateOrganizationDialog open={isOpen} onOpenChange={setIsOpen} />
+      }
     >
       {organizations?.data && organizations.data.length === 0 && (
         <EmptyState
@@ -36,6 +39,7 @@ const OrganizationsPage = () => {
           description="Create your first organization to invite teammates and start collaborating."
           btnCaption="New organization"
           icon={Building2}
+          onOpenChange={() => setIsOpen(true)}
         />
       )}
 

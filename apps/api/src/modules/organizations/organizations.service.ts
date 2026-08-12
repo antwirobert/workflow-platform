@@ -95,28 +95,6 @@ export class OrganizationsService {
     };
   }
 
-  async getById(
-    organizationId: string,
-    userId: string,
-  ): Promise<OrganizationResult> {
-    // Check composite key to ensure the requesting user belongs to the organization
-    const membership = await prisma.organizationMember.findUnique({
-      where: {
-        organizationId_userId: {
-          organizationId,
-          userId,
-        },
-      },
-      include: { organization: true },
-    });
-
-    if (!membership) {
-      throw new NotFoundError("Organization");
-    }
-
-    return this.buildOrganizationResult(membership.organization, membership);
-  }
-
   async update(input: UpdateOrganizationInput): Promise<OrganizationResult> {
     const { organizationId, name, slug } = input;
 

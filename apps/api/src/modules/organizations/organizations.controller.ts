@@ -56,9 +56,6 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      // const { orgId } = req.validated?.params as OrganizationIdParams;
-      // const userId = req.user!.userId;
-
       const organization = organizationsService.buildOrganizationResult(
         req.organization!,
         req.membership,
@@ -75,15 +72,12 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      // const { orgId } = req.validated!.params as OrganizationIdParams;
       const payload = req.validated!.body as UpdateOrganizationPayload;
-      // const userId = req.user!.userId;
 
       const organization = await organizationsService.update({
         organizationId: req.organization!.id,
         ...(payload as any),
       });
-
       res.status(200).json(organization);
     } catch (error) {
       next(error);
@@ -96,8 +90,6 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      // const { orgId } = req.validated!.params as OrganizationIdParams;
-
       await organizationsService.delete(req.organization!.id);
       res.status(204).send();
     } catch (error) {
@@ -111,8 +103,6 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      // const { orgId: organizationId } = req.validated!
-      //   .params as OrganizationIdParams;
       const { page, limit } = req.validated!
         .query as ListOrganizationsQueryInput;
 

@@ -155,14 +155,13 @@ const OrganizationCard = ({
             </DropdownMenuContent>
           </DropdownMenu>
           <EditOrganizationDialog
-            id={id}
+            orgSlug={slug}
             name={name}
             open={isEditOpen}
             onOpenChange={setIsEditOpen}
           />
 
           <DeleteOrganizationDialog
-            id={id}
             name={name}
             slug={slug}
             open={isDeleteOpen}

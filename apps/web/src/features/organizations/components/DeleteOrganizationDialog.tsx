@@ -6,7 +6,6 @@ import { useDeleteOrganization } from "../hooks/useDeleteOrganization";
 import { toast } from "@/components/ui/toast";
 
 interface DeleteOrganizationDialogProps {
-  id: string;
   name: string;
   slug: string;
   open: boolean;
@@ -14,7 +13,6 @@ interface DeleteOrganizationDialogProps {
 }
 
 const DeleteOrganizationDialog = ({
-  id,
   name,
   slug,
   open,
@@ -28,7 +26,7 @@ const DeleteOrganizationDialog = ({
   const handleConfirm = () => {
     if (!canConfirm) return;
 
-    deleteOrganization(id, {
+    deleteOrganization(slug, {
       onSuccess: () => {
         setConfirmText("");
         onOpenChange(false);

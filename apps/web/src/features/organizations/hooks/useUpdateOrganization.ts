@@ -4,12 +4,12 @@ import type { UpdateOrganizationPayload } from "../types";
 import type { Organization } from "@/types/organization";
 import type { ApiError } from "@/lib/api/client";
 
-export function useUpdateOrganization(orgId: string) {
+export function useUpdateOrganization(orgSlug: string) {
   const queryClient = useQueryClient();
 
   return useMutation<Organization, ApiError, UpdateOrganizationPayload>({
     mutationFn: (payload: UpdateOrganizationPayload) =>
-      organizationsApi.update(orgId, payload),
+      organizationsApi.update(orgSlug, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },

@@ -10,8 +10,6 @@ import {
 import commentsRouter from "../comments/comments.routes";
 import filesRouter from "../files/files.routes";
 import { assertTaskToProject } from "../../middleware/guards";
-import { commentTaskParamsSchema } from "../comments/comments.schemas";
-import { taskFileParamsSchema } from "../files/files.schemas";
 import { requireRole } from "../../middleware/requireRole";
 
 const router = Router({ mergeParams: true });
@@ -42,14 +40,14 @@ router.delete(
 
 router.use(
   "/:taskId/comments",
-  validate(commentTaskParamsSchema, "params"),
+  validate(taskDetailParamsSchema, "params"),
   assertTaskToProject,
   commentsRouter,
 );
 
 router.use(
   "/:taskId/files",
-  validate(taskFileParamsSchema, "params"),
+  validate(taskDetailParamsSchema, "params"),
   assertTaskToProject,
   filesRouter,
 );

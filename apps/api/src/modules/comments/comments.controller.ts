@@ -1,8 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {
-  CreateCommentPayload,
-  TaskCommentRouteParams,
-} from "./comments.schemas";
+import { CommentDetailParams, CreateCommentPayload } from "./comments.schemas";
 import { commentsService } from "./comments.service";
 import { AuthenticatedRequest } from "../../middleware/authenticate";
 import { ForbiddenError } from "../../common/errors";
@@ -15,7 +12,7 @@ export class CommentsController {
   ): Promise<void> => {
     try {
       const { body } = req.validated!.body as CreateCommentPayload;
-      const { taskId } = req.validated!.params as TaskCommentRouteParams;
+      const { taskId } = req.validated!.params as CommentDetailParams;
       const userId = req.user!.userId;
 
       const comment = await commentsService.create({
@@ -35,7 +32,7 @@ export class CommentsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const { taskId } = req.validated!.params as TaskCommentRouteParams;
+      const { taskId } = req.validated!.params as CommentDetailParams;
 
       const comments = await commentsService.list(taskId);
       res.status(200).json(comments);
@@ -51,7 +48,7 @@ export class CommentsController {
   ): Promise<void> => {
     try {
       const { taskId, commentId } = req.validated!
-        .params as TaskCommentRouteParams;
+        .params as CommentDetailParams;
       const userId = req.user!.userId;
       const orgRole = req.user!.orgRole;
 

@@ -3,7 +3,7 @@ import { prisma } from "../lib/prisma";
 import { OrganizationSlugParams } from "../modules/organizations/organizations.schemas";
 import { AuthenticatedRequest } from "./authenticate";
 import { NotFoundError } from "../common/errors";
-import { TaskCommentParams } from "../modules/comments/comments.schemas";
+import { CommentDetailParams } from "../modules/comments/comments.schemas";
 import { WorkspaceDetailParams } from "../modules/workspaces/workspaces.schemas";
 import { ProjectSlugParam } from "../modules/projects/projects.schemas";
 
@@ -79,7 +79,7 @@ export const assertTaskToProject = async (
   next: NextFunction,
 ) => {
   const projectId = req.project!.id;
-  const { taskId } = req.validated!.params as TaskCommentParams;
+  const { taskId } = req.validated!.params as CommentDetailParams;
 
   const task = await prisma.task.findUnique({
     where: { id: taskId },

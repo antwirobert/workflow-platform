@@ -2,27 +2,27 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { tasksApi } from "../api";
 
 export function useDeleteTask(
-  orgId: string,
-  workspaceId: string,
-  projectId: string,
+  orgSlug: string,
+  workspaceSlug: string,
+  projectSlug: string,
 ) {
   const queryClient = useQueryClient();
   const listKey = [
     "organizations",
-    orgId,
+    orgSlug,
     "workspaces",
-    workspaceId,
+    workspaceSlug,
     "projects",
-    projectId,
+    projectSlug,
     "tasks",
   ];
 
   return useMutation({
     mutationFn: (taskId: string) =>
       tasksApi.delete(
-        orgId as string,
-        workspaceId as string,
-        projectId as string,
+        orgSlug as string,
+        workspaceSlug as string,
+        projectSlug as string,
         taskId,
       ),
     onSuccess: () => {

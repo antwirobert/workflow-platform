@@ -6,7 +6,7 @@ import type {
   WorkspacelistParams,
 } from "./types";
 
-const base = (orgId: string) => `/api/organizations/${orgId}/workspaces/`;
+const base = (orgSlug: string) => `/api/organizations/${orgSlug}/workspaces/`;
 
 export const workspacesApi = {
   create: (orgId: string, payload: CreateWorkspacePayload) =>

@@ -14,11 +14,11 @@ export function useActiveOrganization() {
   useEffect(() => {
     if (!organizations?.data || organizations.data.length === 0) return;
 
-    const stillValid = organizations.data.some((org) => org.id === activeOrgId);
-    if (!activeOrgId || !stillValid) {
-      setActiveOrgId(organizations.data[0].id);
+    const stillValid = organizations.some((org) => org.slug === activeOrgSlug);
+    if (!activeOrgSlug || !stillValid) {
+      setActiveOrgSlug(organizations[0].slug);
     }
-  }, [activeOrgId, organizations, setActiveOrgId]);
+  }, [activeOrgSlug, organizations, setActiveOrgSlug]);
 
   const activeOrganization =
     organizations?.data.find((org) => org.id === activeOrgId) ?? null;

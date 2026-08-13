@@ -27,21 +27,21 @@ const createProjectSchema = z.object({
 });
 
 interface CreateProjectFormProps {
-  orgId: string;
-  workspaceId: string;
+  orgSlug: string;
+  workspaceSlug: string;
   onClose: () => void;
 }
 
 const CreateProjectForm = ({
-  orgId,
-  workspaceId,
+  orgSlug,
+  workspaceSlug,
   onClose,
 }: CreateProjectFormProps) => {
   const {
     mutate: createProject,
     isPending,
     error,
-  } = useCreateProject(orgId, workspaceId);
+  } = useCreateProject(orgSlug, workspaceSlug);
 
   const form = useForm<CreateProjectValues>({
     resolver: zodResolver(createProjectSchema),

@@ -22,16 +22,19 @@ const createWorkspaceSchema = z.object({
 });
 
 interface CreateWorkspaceFormProps {
-  orgId: string;
+  orgSlug: string;
   onClose: () => void;
 }
 
-const CreateWorkspaceForm = ({ orgId, onClose }: CreateWorkspaceFormProps) => {
+const CreateWorkspaceForm = ({
+  orgSlug,
+  onClose,
+}: CreateWorkspaceFormProps) => {
   const {
     mutate: createWorkspace,
     isPending,
     error,
-  } = useCreateWorkspace(orgId);
+  } = useCreateWorkspace(orgSlug);
 
   const form = useForm<CreateWorkspaceValues>({
     resolver: zodResolver(createWorkspaceSchema),

@@ -12,8 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const ProjectsPage = () => {
   const { activeOrganization } = useActiveOrganization();
-  const activeWorkspaceId = useWorkspaceStore(
-    (state) => state.activeWorkspaceId,
+  const activeWorkspaceSlug = useWorkspaceStore(
+    (state) => state.activeWorkspaceSlug,
   );
 
   const {
@@ -22,9 +22,12 @@ const ProjectsPage = () => {
     isError,
     refetch,
     isFetching,
-  } = useProjects(activeOrganization?.id ?? null, activeWorkspaceId ?? null);
+  } = useProjects(
+    activeOrganization?.slug ?? null,
+    activeWorkspaceSlug ?? null,
+  );
 
-  if (!activeOrganization || !activeWorkspaceId) return null;
+  if (!activeOrganization || !activeWorkspaceSlug) return null;
 
   return (
     <PageHeader
@@ -32,8 +35,8 @@ const ProjectsPage = () => {
       description="Organize work into focused, cross-functional efforts."
       action={
         <CreateProjectDialog
-          orgId={activeOrganization.id}
-          workspaceId={activeWorkspaceId}
+          orgSlug={activeOrganization.slug}
+          workspaceSlug={activeWorkspaceSlug}
         />
       }
     >
@@ -90,8 +93,8 @@ const ProjectsPage = () => {
           {projects.map((project) => (
             <ProjectCard
               key={project.id}
-              targetOrgId={activeOrganization.id}
-              targetWorkspaceId={activeWorkspaceId}
+              targetOrgSlug={activeOrganization.slug}
+              targetWorkspaceSlug={activeWorkspaceSlug}
               {...project}
             />
           ))}

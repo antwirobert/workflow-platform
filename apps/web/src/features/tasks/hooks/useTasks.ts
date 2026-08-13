@@ -3,18 +3,18 @@ import { tasksApi } from "../api";
 import type { TasklistParams } from "../types";
 
 export function useTasks(
-  orgId: string | null,
-  workspaceId: string | null,
-  projectId: string | null,
+  orgSlug: string | null,
+  workspaceSlug: string | null,
+  projectSlug: string | null,
   filters: TasklistParams,
 ) {
   const listKey = [
     "organizations",
-    orgId,
+    orgSlug,
     "workspaces",
-    workspaceId,
+    workspaceSlug,
     "projects",
-    projectId,
+    projectSlug,
     "tasks",
     filters,
   ];
@@ -23,12 +23,12 @@ export function useTasks(
     queryKey: listKey,
     queryFn: () =>
       tasksApi.list(
-        orgId as string,
-        workspaceId as string,
-        projectId as string,
+        orgSlug as string,
+        workspaceSlug as string,
+        projectSlug as string,
         filters,
       ),
-    enabled: !!orgId && !!workspaceId && !!projectId,
+    enabled: !!orgSlug && !!workspaceSlug && !!projectSlug,
     placeholderData: keepPreviousData,
   });
 }

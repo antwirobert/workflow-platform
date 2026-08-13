@@ -2,18 +2,18 @@ import { useQuery } from "@tanstack/react-query";
 import { tasksApi } from "../api";
 
 export function useTask(
-  orgId: string | null,
-  workspaceId: string | null,
-  projectId: string | null,
+  orgSlug: string | null,
+  workspaceSlug: string | null,
+  projectSlug: string | null,
   taskId: string | null,
 ) {
   const detailKey = [
     "organizations",
-    orgId,
+    orgSlug,
     "workspaces",
-    workspaceId,
+    workspaceSlug,
     "projects",
-    projectId,
+    projectSlug,
     "tasks",
     taskId,
   ];
@@ -22,11 +22,11 @@ export function useTask(
     queryKey: detailKey,
     queryFn: () =>
       tasksApi.getById(
-        orgId as string,
-        workspaceId as string,
-        projectId as string,
+        orgSlug as string,
+        workspaceSlug as string,
+        projectSlug as string,
         taskId as string,
       ),
-    enabled: !!orgId && !!workspaceId && !!projectId && !!taskId,
+    enabled: !!orgSlug && !!workspaceSlug && !!projectSlug && !!taskId,
   });
 }

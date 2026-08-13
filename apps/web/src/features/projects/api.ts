@@ -2,14 +2,17 @@ import { apiClient } from "@/lib/api/client";
 import type { CreateProjectPaylaod } from "./types";
 import type { Project } from "@/types/project";
 
-const base = (orgId: string, workspaceId: string) =>
-  `/api/organizations/${orgId}/workspaces/${workspaceId}/projects/`;
+const base = (orgSlug: string, workspaceSlug: string) =>
+  `/api/organizations/${orgSlug}/workspaces/${workspaceSlug}/projects/`;
 
 export const projectsApi = {
-  create: (orgId: string, workspaceId: string, payload: CreateProjectPaylaod) =>
-    apiClient.post<Project>(base(orgId, workspaceId), payload),
-  list: (orgId: string, workspaceId: string) =>
-    apiClient.get<Project[]>(base(orgId, workspaceId)),
-  getById: (orgId: string, workspaceId: string, projectId: string) =>
-    apiClient.get<Project>(`${base(orgId, workspaceId)}${projectId}`),
+  create: (
+    orgSlug: string,
+    workspaceSlug: string,
+    payload: CreateProjectPaylaod,
+  ) => apiClient.post<Project>(base(orgSlug, workspaceSlug), payload),
+  list: (orgSlug: string, workspaceSlug: string) =>
+    apiClient.get<Project[]>(base(orgSlug, workspaceSlug)),
+  getById: (orgSlug: string, workspaceSlug: string, projectSlug: string) =>
+    apiClient.get<Project>(`${base(orgSlug, workspaceSlug)}${projectSlug}`),
 };

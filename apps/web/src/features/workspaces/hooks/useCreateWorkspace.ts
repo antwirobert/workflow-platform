@@ -5,19 +5,19 @@ import { workspacesApi } from "../api";
 import type { Workspace } from "@/types/workspace";
 import type { ApiError } from "@/lib/api/client";
 
-export function useCreateWorkspace(orgId: string) {
+export function useCreateWorkspace(orgSlug: string) {
   const queryClient = useQueryClient();
 
   return useMutation<Workspace, ApiError, Omit<CreateWorkspacePayload, "slug">>(
     {
       mutationFn: (payload: Omit<CreateWorkspacePayload, "slug">) =>
-        workspacesApi.create(orgId, {
+        workspacesApi.create(orgSlug, {
           ...payload,
           slug: generateSlug(payload.name),
         }),
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ["organizations", orgId, "workspaces"],
+          queryKey: ["organizations", orgSlug, "workspaces"],
         });
       },
     },

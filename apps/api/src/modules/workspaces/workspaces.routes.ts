@@ -8,11 +8,7 @@ import {
   workspaceUpdateSchema,
 } from "./workspaces.schemas";
 import projectsRouter from "../projects/projects.routes";
-import { authenticate } from "../../middleware/authenticate";
-import {
-  assertOrgMembership,
-  assertWorkspaceToOrg,
-} from "../../middleware/guards";
+import { assertWorkspaceToOrg } from "../../middleware/guards";
 import { requireRole } from "../../middleware/requireRole";
 
 const router = Router({ mergeParams: true });

@@ -2,14 +2,14 @@ import ActionDialog from "@/components/ActionDialog";
 import EditOrganizationForm from "./EditOrganizationForm";
 
 interface EditOrganizationDialogProps {
-  orgSlug: string;
+  slug: string;
   name: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 const EditOrganizationDialog = ({
-  orgSlug,
+  slug,
   name,
   open,
   onOpenChange,
@@ -21,7 +21,7 @@ const EditOrganizationDialog = ({
       title="Edit organization"
     >
       <EditOrganizationForm
-        orgSlug={orgSlug}
+        slug={slug}
         name={name}
         onClose={() => onOpenChange(false)}
       />

@@ -10,7 +10,6 @@ export interface CreateOrganizationInput extends CreateOrganizationPayload {
 
 export interface UpdateOrganizationInput extends UpdateOrganizationPayload {
   organizationId: string;
-  userId: string;
 }
 
 export interface OrganizationResult {

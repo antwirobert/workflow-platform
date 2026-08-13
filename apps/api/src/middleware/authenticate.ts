@@ -7,12 +7,22 @@ import jwt, {
 } from "jsonwebtoken";
 import { config } from "../config/env";
 import { OrgRole } from "../generated/prisma/enums";
+import {
+  Organization,
+  OrganizationMember,
+  Project,
+  Workspace,
+} from "../generated/prisma/client";
 
 export interface AuthenticatedRequest extends Request {
   user?: {
     userId: string;
     orgRole?: OrgRole;
   };
+  organization?: Organization;
+  membership?: OrganizationMember;
+  workspace?: Workspace;
+  project?: Project;
 }
 
 function isValidPayload(payload: unknown): payload is { userId: string } {

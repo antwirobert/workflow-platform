@@ -1,16 +1,18 @@
 import { useOrgStore } from "@/stores/orgStore";
 import { useOrganizations } from "./useOrganizations";
 import { useEffect } from "react";
+import { DEFAULT_PAGE, DEFAULT_SIDEBAR_LIMIT } from "@/constants";
 
 export function useActiveOrganization() {
-  const { data: organizations } = useOrganizations();
-  const activeOrgSlug = useOrgStore((state) => state.activeOrgSlug);
-  const setActiveOrgSlug = useOrgStore((state) => state.setActiveOrgSlug);
-
-  console.log(organizations);
+  const { data: organizations } = useOrganizations({
+    page: DEFAULT_PAGE,
+    limit: DEFAULT_SIDEBAR_LIMIT,
+  });
+  const activeOrgId = useOrgStore((state) => state.activeOrgId);
+  const setActiveOrgId = useOrgStore((state) => state.setActiveOrgId);
 
   useEffect(() => {
-    if (!organizations || organizations.length === 0) return;
+    if (!organizations?.data || organizations.data.length === 0) return;
 
     const stillValid = organizations.some((org) => org.slug === activeOrgSlug);
     if (!activeOrgSlug || !stillValid) {
@@ -19,7 +21,7 @@ export function useActiveOrganization() {
   }, [activeOrgSlug, organizations, setActiveOrgSlug]);
 
   const activeOrganization =
-    organizations?.find((org) => org.slug === activeOrgSlug) ?? null;
+    organizations?.data.find((org) => org.id === activeOrgId) ?? null;
 
   return { organizations, activeOrganization };
 }

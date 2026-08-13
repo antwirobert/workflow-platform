@@ -20,6 +20,7 @@ import { Skeleton } from "../ui/skeleton";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { useProjects } from "@/features/projects/hooks/useProjects";
 import OrganizationSwitcher from "@/features/organizations/components/OrganizationSwitcher ";
+import { DEFAULT_PAGE, DEFAULT_SIDEBAR_LIMIT } from "@/constants";
 
 const AppSidebar = () => {
   const navigate = useNavigate();
@@ -38,7 +39,10 @@ const AppSidebar = () => {
     isError: workspacesError,
     refetch: workspacesRefetch,
     isFetching: workspacesFetching,
-  } = useWorkspaces(activeOrganization?.slug ?? null);
+  } = useWorkspaces(activeOrganization?.id ?? null, {
+    page: DEFAULT_PAGE,
+    limit: DEFAULT_SIDEBAR_LIMIT,
+  });
 
   const {
     data: projects,
@@ -112,7 +116,7 @@ const AppSidebar = () => {
 
               {!workspacesLoading &&
                 !workspacesError &&
-                (workspaces ?? []).length === 0 && (
+                (workspaces?.data ?? []).length === 0 && (
                   <div className="mx-2 flex flex-col items-center gap-2 rounded-lg border border-dashed border-border/80 px-3 py-4 text-center">
                     <p className="text-xs leading-relaxed text-muted-foreground">
                       No workspaces yet.
@@ -131,7 +135,7 @@ const AppSidebar = () => {
 
               {!workspacesLoading &&
                 !workspacesError &&
-                (workspaces ?? []).map((workspace) => {
+                (workspaces?.data ?? []).map((workspace) => {
                   const workspaceColor = getIdentityColor(workspace.id);
                   const isWorkspaceActive =
                     workspace.id === activeWorkspaceSlug;
@@ -158,7 +162,7 @@ const AppSidebar = () => {
 
             {!workspacesLoading &&
               !workspacesError &&
-              (workspaces ?? []).length > 0 && (
+              (workspaces?.data ?? []).length > 0 && (
                 <SidebarMenu className="mt-1">
                   <SidebarMenuItem>
                     <SidebarMenuButton

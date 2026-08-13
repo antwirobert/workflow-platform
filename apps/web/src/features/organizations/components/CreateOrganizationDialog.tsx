@@ -1,12 +1,17 @@
-import { useState } from "react";
 import ActionDialog from "@/components/ActionDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import CreateOrganizationForm from "./CreateOrganizationForm";
 
-const CreateOrganizationDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface CreateOrganizationDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
+const CreateOrganizationDialog = ({
+  open,
+  onOpenChange,
+}: CreateOrganizationDialogProps) => {
   return (
     <ActionDialog
       trigger={
@@ -17,10 +22,10 @@ const CreateOrganizationDialog = () => {
       }
       title="Create organization"
       description="Organizations group your workspaces, projects, and teammates."
-      open={isOpen}
-      onOpenChange={setIsOpen}
+      open={open}
+      onOpenChange={onOpenChange}
     >
-      <CreateOrganizationForm onClose={() => setIsOpen(false)} />
+      <CreateOrganizationForm onClose={() => onOpenChange(false)} />
     </ActionDialog>
   );
 };

@@ -14,6 +14,7 @@ import { Check, Plus } from "lucide-react";
 import OrganizationSwitcherTrigger from "./OrganizationSwitcherTrigger ";
 import { useOrgStore } from "@/stores/orgStore";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
+import { Link } from "react-router-dom";
 
 const OrganizationSwitcher = () => {
   const { activeOrganization, organizations } = useActiveOrganization();
@@ -39,7 +40,7 @@ const OrganizationSwitcher = () => {
             Organizations
           </DropdownMenuLabel>
 
-          {organizations?.map((org) => {
+          {organizations?.data.map((org) => {
             const orgColor = getIdentityColor(org.id);
             const isActive = org.id === activeOrganization?.id;
 
@@ -85,7 +86,9 @@ const OrganizationSwitcher = () => {
             <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-dashed border-border bg-muted/40">
               <Plus className="size-3.5" strokeWidth={2.5} />
             </div>
-            <span className="text-sm font-medium">New organization</span>
+            <Link to="/organizations" className="text-sm font-medium">
+              New organization
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

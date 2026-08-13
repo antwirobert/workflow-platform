@@ -1,28 +1,26 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { prisma } from "../lib/prisma";
-import { OrganizationIdParams } from "../modules/organizations/organizations.schemas";
+import { OrganizationSlugParams } from "../modules/organizations/organizations.schemas";
 import { AuthenticatedRequest } from "./authenticate";
 import { NotFoundError } from "../common/errors";
+import { CommentDetailParams } from "../modules/comments/comments.schemas";
 import { WorkspaceDetailParams } from "../modules/workspaces/workspaces.schemas";
-import { ProjectTaskParams } from "../modules/tasks/tasks.schemas";
-import { TaskCommentParams } from "../modules/comments/comments.schemas";
+import { ProjectSlugParam } from "../modules/projects/projects.schemas";
 
 export const assertOrgMembership = async (
   req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction,
 ) => {
-  const { orgId: organizationId } = req.validated!
-    .params as OrganizationIdParams;
+  const { orgSlug } = req.validated!.params as OrganizationSlugParams;
   const userId = req.user!.userId;
 
-  const membership = await prisma.organizationMember.findUnique({
+  const membership = await prisma.organizationMember.findFirst({
     where: {
-      organizationId_userId: {
-        organizationId,
-        userId,
-      },
+      userId,
+      organization: { slug: orgSlug },
     },
+    include: { organization: true },
   });
 
   if (!membership) {
@@ -30,53 +28,58 @@ export const assertOrgMembership = async (
   }
 
   req.user!.orgRole = membership.role;
-
+  req.organization = membership.organization;
+  req.membership = membership;
   next();
 };
 
 export const assertWorkspaceToOrg = async (
-  req: Request,
+  req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction,
 ) => {
-  const { orgId: organizationId, workspaceId } = req.validated!
-    .params as WorkspaceDetailParams;
+  const { workspaceSlug } = req.validated!.params as WorkspaceDetailParams;
+  const organizationId = req.organization!.id;
 
-  const workspace = await prisma.workspace.findUnique({
-    where: { id: workspaceId },
+  const workspace = await prisma.workspace.findFirst({
+    where: { slug: workspaceSlug, organizationId },
   });
 
-  if (!workspace || workspace.organizationId !== organizationId) {
+  if (!workspace) {
     throw new NotFoundError("Workspace");
   }
 
+  req.workspace = workspace;
   next();
 };
 
 export const assertProjectToWorkspace = async (
-  req: Request,
+  req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction,
 ) => {
-  const { workspaceId, projectId } = req.validated!.params as ProjectTaskParams;
+  const workspaceId = req.workspace!.id;
+  const { projectSlug } = req.validated!.params as ProjectSlugParam;
 
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
+  const project = await prisma.project.findFirst({
+    where: { slug: projectSlug, workspaceId },
   });
 
-  if (!project || project.workspaceId !== workspaceId) {
+  if (!project) {
     throw new NotFoundError("Project");
   }
 
+  req.project = project;
   next();
 };
 
 export const assertTaskToProject = async (
-  req: Request,
+  req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction,
 ) => {
-  const { projectId, taskId } = req.validated!.params as TaskCommentParams;
+  const projectId = req.project!.id;
+  const { taskId } = req.validated!.params as CommentDetailParams;
 
   const task = await prisma.task.findUnique({
     where: { id: taskId },

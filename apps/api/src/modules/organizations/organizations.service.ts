@@ -95,30 +95,8 @@ export class OrganizationsService {
     };
   }
 
-  async getById(
-    organizationId: string,
-    userId: string,
-  ): Promise<OrganizationResult> {
-    // Check composite key to ensure the requesting user belongs to the organization
-    const membership = await prisma.organizationMember.findUnique({
-      where: {
-        organizationId_userId: {
-          organizationId,
-          userId,
-        },
-      },
-      include: { organization: true },
-    });
-
-    if (!membership) {
-      throw new NotFoundError("Organization");
-    }
-
-    return this.buildOrganizationResult(membership.organization, membership);
-  }
-
   async update(input: UpdateOrganizationInput): Promise<OrganizationResult> {
-    const { organizationId, name, slug, userId } = input;
+    const { organizationId, name, slug } = input;
 
     const organization = await prisma.organization.findUnique({
       where: { id: organizationId },
@@ -201,7 +179,7 @@ export class OrganizationsService {
   }
 
   // Combines model and membership records into a unified public API response format
-  private buildOrganizationResult(
+  buildOrganizationResult(
     organization: Organization,
     membership?: OrganizationMember,
     counts?: { workspaceCount: number; memberCount: number },

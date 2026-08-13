@@ -15,14 +15,38 @@ export function generateSlug(name: string): string {
 }
 
 const PALETTE = [
-  { bg: "bg-blue-500", text: "text-white" },
-  { bg: "bg-green-500", text: "text-white" },
-  { bg: "bg-purple-500", text: "text-white" },
-  { bg: "bg-orange-500", text: "text-white" },
-  { bg: "bg-pink-500", text: "text-white" },
-  { bg: "bg-teal-500", text: "text-white" },
-  { bg: "bg-amber-500", text: "text-white" },
-  { bg: "bg-indigo-500", text: "text-white" },
+  {
+    bg: "bg-blue-600 dark:bg-blue-500",
+    text: "text-white",
+  },
+  {
+    bg: "bg-emerald-600 dark:bg-emerald-500",
+    text: "text-white",
+  },
+  {
+    bg: "bg-violet-600 dark:bg-violet-500",
+    text: "text-white",
+  },
+  {
+    bg: "bg-orange-600 dark:bg-orange-500",
+    text: "text-white",
+  },
+  {
+    bg: "bg-rose-600 dark:bg-rose-500",
+    text: "text-white",
+  },
+  {
+    bg: "bg-teal-600 dark:bg-teal-500",
+    text: "text-white",
+  },
+  {
+    bg: "bg-amber-600 dark:bg-amber-500",
+    text: "text-white",
+  },
+  {
+    bg: "bg-indigo-600 dark:bg-indigo-500",
+    text: "text-white",
+  },
 ];
 
 export function getIdentityColor(seed: string) {

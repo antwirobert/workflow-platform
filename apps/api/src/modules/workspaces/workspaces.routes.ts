@@ -8,11 +8,7 @@ import {
   workspaceUpdateSchema,
 } from "./workspaces.schemas";
 import projectsRouter from "../projects/projects.routes";
-import { authenticate } from "../../middleware/authenticate";
-import {
-  assertOrgMembership,
-  assertWorkspaceToOrg,
-} from "../../middleware/guards";
+import { assertWorkspaceToOrg } from "../../middleware/guards";
 import { requireRole } from "../../middleware/requireRole";
 
 const router = Router({ mergeParams: true });
@@ -31,33 +27,33 @@ router.get(
 );
 
 router.get(
-  "/:workspaceId",
+  "/:workspaceSlug",
   validate(workspaceDetailParamsSchema, "params"),
+  assertWorkspaceToOrg,
   workspacesController.getById,
 );
 
 router.patch(
-  "/:workspaceId",
+  "/:workspaceSlug",
   validate(workspaceDetailParamsSchema, "params"),
+  assertWorkspaceToOrg,
   validate(workspaceUpdateSchema),
   requireRole("ADMIN"),
   workspacesController.update,
 );
 
 router.delete(
-  "/:workspaceId",
+  "/:workspaceSlug",
   validate(workspaceDetailParamsSchema, "params"),
+  assertWorkspaceToOrg,
   requireRole("ADMIN"),
   workspacesController.delete,
 );
 
 // Mount nested projects router with strict tenancy validation middleware
 router.use(
-  "/:workspaceId/projects",
-  authenticate,
-  // Validate path parameters before passing control to subsequent route handlers
+  "/:workspaceSlug/projects",
   validate(workspaceDetailParamsSchema, "params"),
-  assertOrgMembership,
   assertWorkspaceToOrg,
   projectsRouter,
 );

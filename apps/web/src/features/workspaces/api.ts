@@ -9,15 +9,15 @@ import type {
 const base = (orgSlug: string) => `/api/organizations/${orgSlug}/workspaces/`;
 
 export const workspacesApi = {
-  create: (orgId: string, payload: CreateWorkspacePayload) =>
-    apiClient.post<Workspace>(base(`${orgId}`), payload),
-  list: (orgId: string, params: WorkspacelistParams) =>
-    apiClient.get<PaginatedResponse<Workspace>>(base(`${orgId}`), {
+  create: (orgSlug: string, payload: CreateWorkspacePayload) =>
+    apiClient.post<Workspace>(base(`${orgSlug}`), payload),
+  list: (orgSlug: string, params: WorkspacelistParams) =>
+    apiClient.get<PaginatedResponse<Workspace>>(base(`${orgSlug}`), {
       params: {
         page: String(params.page),
         limit: String(params.limit),
       },
     }),
-  getById: (orgId: string, workspaceId: string) =>
-    apiClient.get<Workspace>(base(`${orgId}${workspaceId}`)),
+  getById: (orgSlug: string, workspaceSlug: string) =>
+    apiClient.get<Workspace>(base(`${orgSlug}${workspaceSlug}`)),
 };

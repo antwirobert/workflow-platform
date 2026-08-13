@@ -39,7 +39,7 @@ const AppSidebar = () => {
     isError: workspacesError,
     refetch: workspacesRefetch,
     isFetching: workspacesFetching,
-  } = useWorkspaces(activeOrganization?.id ?? null, {
+  } = useWorkspaces(activeOrganization?.slug ?? null, {
     page: DEFAULT_PAGE,
     limit: DEFAULT_SIDEBAR_LIMIT,
   });

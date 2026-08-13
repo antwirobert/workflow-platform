@@ -23,13 +23,13 @@ const editOrgSchema = z.object({
 });
 
 interface EditOrganizationFormProps {
-  id: string;
+  orgSlug: string;
   name: string;
   onClose: () => void;
 }
 
 const EditOrganizationForm = ({
-  id,
+  orgSlug,
   name,
   onClose,
 }: EditOrganizationFormProps) => {
@@ -37,7 +37,7 @@ const EditOrganizationForm = ({
     mutate: editOrganization,
     isPending,
     error,
-  } = useUpdateOrganization(id);
+  } = useUpdateOrganization(orgSlug);
 
   const form = useForm<EditOrgValues>({
     resolver: zodResolver(editOrgSchema),

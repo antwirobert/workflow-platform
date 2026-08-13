@@ -8,8 +8,12 @@ import WorkspaceCard from "../components/WorkspaceCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import ErrorState from "@/components/ErrorState";
+import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
+import { useState } from "react";
 
 const WorkspacesPage = () => {
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
   const { activeOrganization } = useActiveOrganization();
 
   const {
@@ -18,7 +22,10 @@ const WorkspacesPage = () => {
     isError,
     refetch,
     isFetching,
-  } = useWorkspaces(activeOrganization?.slug ?? null);
+  } = useWorkspaces(activeOrganization?.slug ?? null, {
+    page,
+    limit,
+  });
 
   if (!activeOrganization) return null;
 
@@ -77,7 +84,7 @@ const WorkspacesPage = () => {
         />
       )}
 
-      {workspaces && workspaces.length === 0 && (
+      {workspaces && workspaces.data.length === 0 && (
         <EmptyState
           title="No workspaces yet"
           description="Create a workspace to organize projects for a team or initiative."
@@ -86,9 +93,9 @@ const WorkspacesPage = () => {
         />
       )}
 
-      {workspaces && workspaces.length > 0 && (
+      {workspaces && workspaces.data.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {workspaces.map((workspace) => (
+          {workspaces.data.map((workspace) => (
             <WorkspaceCard key={workspace.id} {...workspace} />
           ))}
         </div>

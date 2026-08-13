@@ -5,7 +5,7 @@ export function useDeleteOrganization() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (orgId: string) => organizationsApi.delete(orgId),
+    mutationFn: (orgSlug: string) => organizationsApi.delete(orgSlug),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },

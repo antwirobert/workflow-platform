@@ -19,8 +19,9 @@ export const organizationsApi = {
         limit: String(params.limit),
       },
     }),
-  getById: (orgId: string) => apiClient.get<Organization>(`${base}${orgId}`),
-  update: (orgId: string, payload: UpdateOrganizationPayload) =>
-    apiClient.patch<Organization>(`${base}${orgId}`, payload),
-  delete: (orgId: string) => apiClient.delete<void>(`${base}${orgId}`),
+  getById: (orgSlug: string) =>
+    apiClient.get<Organization>(`${base}${orgSlug}`),
+  update: (orgSlug: string, payload: UpdateOrganizationPayload) =>
+    apiClient.patch<Organization>(`${base}${orgSlug}`, payload),
+  delete: (orgSlug: string) => apiClient.delete<void>(`${base}${orgSlug}`),
 };

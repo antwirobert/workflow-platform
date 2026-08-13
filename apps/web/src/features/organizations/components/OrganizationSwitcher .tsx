@@ -23,8 +23,8 @@ const OrganizationSwitcher = () => {
     (state) => state.setActiveWorkspaceSlug,
   );
 
-  const handleSwitch = (orgId: string) => {
-    setActiveOrgSlug(orgId);
+  const handleSwitch = (slug: string) => {
+    setActiveOrgSlug(slug);
     setActiveWorkspaceSlug(null);
   };
 
@@ -48,7 +48,7 @@ const OrganizationSwitcher = () => {
               <DropdownMenuItem
                 key={org.id}
                 className="group flex items-center justify-between gap-2 rounded-md px-2 py-2 cursor-pointer focus:bg-accent"
-                onClick={() => handleSwitch(org.id)}
+                onClick={() => handleSwitch(org.slug)}
               >
                 <div className="flex min-w-0 items-center gap-2.5">
                   <TextAvatar

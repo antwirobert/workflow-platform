@@ -45,14 +45,14 @@ export const updateProjectSchema = z
     message: "At least one field is required to update a project",
   });
 
-export const workspaceIdParamSchema = z.object({
-  workspaceId: z.string().uuid("Invalid workspaceId format"),
+export const projectSlugParamSchema = z.object({
+  projectSlug: z.string().min(1),
 });
 
 export const projectDetailParamsSchema = z.object({
-  orgId: z.string().uuid("Invalid orgId format"),
-  workspaceId: z.string().uuid("Invalid workspaceId format"),
-  projectId: z.string().uuid("Invalid projectId format"),
+  orgSlug: z.string().min(1),
+  workspaceSlug: z.string().min(1),
+  projectSlug: z.string().min(1),
 });
 
 export const listProjectsQuerySchema = z.object({
@@ -62,6 +62,6 @@ export const listProjectsQuerySchema = z.object({
 
 export type CreateProjectPayload = z.infer<typeof createProjectSchema>;
 export type UpdateProjectPayload = z.infer<typeof updateProjectSchema>;
-export type WorkspaceIdParams = z.infer<typeof workspaceIdParamSchema>;
+export type ProjectSlugParam = z.infer<typeof projectSlugParamSchema>;
 export type ProjectDetailParams = z.infer<typeof projectDetailParamsSchema>;
 export type ListProjectsQueryInput = z.infer<typeof listProjectsQuerySchema>;

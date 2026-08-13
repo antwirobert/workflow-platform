@@ -8,12 +8,7 @@ import {
   updateProjectSchema,
 } from "./projects.schemas";
 import tasksRouter from "../tasks/tasks.routes";
-import { authenticate } from "../../middleware/authenticate";
-import {
-  assertOrgMembership,
-  assertProjectToWorkspace,
-  assertWorkspaceToOrg,
-} from "../../middleware/guards";
+import { assertProjectToWorkspace } from "../../middleware/guards";
 import { requireRole } from "../../middleware/requireRole";
 
 // Preserves req.params from parent routers
@@ -33,26 +28,33 @@ router.get(
 );
 
 router.get(
-  "/:projectId",
+  "/:projectSlug",
   validate(projectDetailParamsSchema, "params"),
+  assertProjectToWorkspace,
   projectsController.getById,
 );
 
 router.patch(
-  "/:projectId",
+  "/:projectSlug",
   validate(projectDetailParamsSchema, "params"),
+  assertProjectToWorkspace,
   validate(updateProjectSchema),
   requireRole("ADMIN"),
   projectsController.update,
 );
 
+router.delete(
+  "/:projectSlug",
+  validate(projectDetailParamsSchema, "params"),
+  assertProjectToWorkspace,
+  requireRole("ADMIN"),
+  projectsController.delete,
+);
+
 // Cascading nested security checks for task access
 router.use(
-  "/:projectId/tasks",
+  "/:projectSlug/tasks",
   validate(projectDetailParamsSchema, "params"),
-  authenticate,
-  assertOrgMembership,
-  assertWorkspaceToOrg,
   assertProjectToWorkspace,
   tasksRouter,
 );

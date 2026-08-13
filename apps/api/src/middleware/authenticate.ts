@@ -10,6 +10,7 @@ import { OrgRole } from "../generated/prisma/enums";
 import {
   Organization,
   OrganizationMember,
+  Project,
   Workspace,
 } from "../generated/prisma/client";
 
@@ -21,6 +22,7 @@ export interface AuthenticatedRequest extends Request {
   organization?: Organization;
   membership?: OrganizationMember;
   workspace?: Workspace;
+  project?: Project;
 }
 
 function isValidPayload(payload: unknown): payload is { userId: string } {

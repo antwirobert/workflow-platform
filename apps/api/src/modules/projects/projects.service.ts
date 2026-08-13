@@ -140,6 +140,18 @@ export class ProjectsService {
     return this.buildProjectResult(project);
   }
 
+  async delete(workspaceId: string, projectId: string): Promise<void> {
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project || project.workspaceId !== workspaceId) {
+      throw new NotFoundError("project");
+    }
+
+    await prisma.project.delete({ where: { id: projectId } });
+  }
+
   // Maps database model to public API response format
   private buildProjectResult(
     project: Project,

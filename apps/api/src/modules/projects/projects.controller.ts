@@ -1,25 +1,27 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import {
   CreateProjectPayload,
   ListProjectsQueryInput,
-  ProjectDetailParams,
   UpdateProjectPayload,
-  WorkspaceIdParams,
 } from "./projects.schemas";
 import { projectsService } from "./projects.service";
+import { AuthenticatedRequest } from "../../middleware/authenticate";
 
 export class ProjectsController {
-  create = async (req: Request, res: Response, next: NextFunction) => {
+  create = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const { name, slug, description } = req.validated!
         .body as CreateProjectPayload;
-      const { workspaceId } = req.validated!.params as WorkspaceIdParams;
 
       const project = await projectsService.create({
         name,
         slug,
         description,
-        workspaceId,
+        workspaceId: req.workspace!.id,
       });
 
       res.status(201).json(project);
@@ -28,12 +30,19 @@ export class ProjectsController {
     }
   };
 
-  list = async (req: Request, res: Response, next: NextFunction) => {
+  list = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      const { workspaceId } = req.validated!.params as WorkspaceIdParams;
       const { page, limit } = req.validated!.query as ListProjectsQueryInput;
 
-      const projects = await projectsService.list({ page, limit, workspaceId });
+      const projects = await projectsService.list({
+        page,
+        limit,
+        workspaceId: req.workspace!.id,
+      });
 
       res.status(200).json(projects);
     } catch (error) {
@@ -41,12 +50,16 @@ export class ProjectsController {
     }
   };
 
-  getById = async (req: Request, res: Response, next: NextFunction) => {
+  getById = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      const { workspaceId, projectId } = req.validated!
-        .params as ProjectDetailParams;
-
-      const project = await projectsService.getById(workspaceId, projectId);
+      const project = await projectsService.getById(
+        req.workspace!.id,
+        req.project!.id,
+      );
 
       res.status(200).json(project);
     } catch (error) {
@@ -54,23 +67,37 @@ export class ProjectsController {
     }
   };
 
-  update = async (req: Request, res: Response, next: NextFunction) => {
+  update = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      const { workspaceId, projectId } = req.validated!
-        .params as ProjectDetailParams;
-
       const { name, slug, description } = req.validated!
         .body as UpdateProjectPayload;
 
       const project = await projectsService.update({
-        workspaceId,
-        projectId,
+        workspaceId: req.workspace!.id,
+        projectId: req.project!.id,
         name,
         slug,
         description,
       });
 
       res.status(200).json(project);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  delete = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      await projectsService.delete(req.organization!.id, req.workspace!.id);
+      res.status(204).send();
     } catch (error) {
       next(error);
     }

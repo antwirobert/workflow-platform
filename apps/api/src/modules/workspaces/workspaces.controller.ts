@@ -88,7 +88,7 @@ export class WorkspacesController {
     next: NextFunction,
   ) => {
     try {
-      await workspacesService.delete(req.workspace!.id);
+      await workspacesService.delete(req.organization!.id, req.workspace!.id);
       res.status(204).send();
     } catch (error) {
       next(error);

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { OrganizationSlugParams } from "../modules/organizations/organizations.schemas";
 import { AuthenticatedRequest } from "./authenticate";
@@ -74,11 +74,12 @@ export const assertProjectToWorkspace = async (
 };
 
 export const assertTaskToProject = async (
-  req: Request,
+  req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction,
 ) => {
-  const { projectId, taskId } = req.validated!.params as TaskCommentParams;
+  const projectId = req.project!.id;
+  const { taskId } = req.validated!.params as TaskCommentParams;
 
   const task = await prisma.task.findUnique({
     where: { id: taskId },

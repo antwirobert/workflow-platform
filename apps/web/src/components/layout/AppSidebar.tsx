@@ -25,11 +25,11 @@ const AppSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { activeOrganization } = useActiveOrganization();
-  const activeWorkspaceId = useWorkspaceStore(
-    (state) => state.activeWorkspaceId,
+  const activeWorkspaceSlug = useWorkspaceStore(
+    (state) => state.activeWorkspaceSlug,
   );
-  const setActiveWorkspaceId = useWorkspaceStore(
-    (state) => state.setActiveWorkspaceId,
+  const setActiveWorkspaceSlug = useWorkspaceStore(
+    (state) => state.setActiveWorkspaceSlug,
   );
 
   const {
@@ -38,7 +38,7 @@ const AppSidebar = () => {
     isError: workspacesError,
     refetch: workspacesRefetch,
     isFetching: workspacesFetching,
-  } = useWorkspaces(activeOrganization?.id ?? null);
+  } = useWorkspaces(activeOrganization?.slug ?? null);
 
   const {
     data: projects,
@@ -46,16 +46,19 @@ const AppSidebar = () => {
     isError: projectsError,
     refetch: projectsRefetch,
     isFetching: projectsFetching,
-  } = useProjects(activeOrganization?.id ?? null, activeWorkspaceId ?? null);
+  } = useProjects(
+    activeOrganization?.slug ?? null,
+    activeWorkspaceSlug ?? null,
+  );
 
-  const allWorkspacesPath = `/organizations/${activeOrganization?.id}/workspaces`;
-  const allProjectsPath = `/organizations/${activeOrganization?.id}/workspaces/${activeWorkspaceId}/projects`;
+  const allWorkspacesPath = `/organizations/${activeOrganization?.slug}/workspaces`;
+  const allProjectsPath = `/organizations/${activeOrganization?.slug}/workspaces/${activeWorkspaceSlug}/projects`;
 
   const isAllWorkspacesActive = location.pathname === allWorkspacesPath;
   const isAllProjectsActive = location.pathname === allProjectsPath;
 
   const handleWorkspaceClick = (id: string) => {
-    setActiveWorkspaceId(id);
+    setActiveWorkspaceSlug(id);
     navigate(`${allWorkspacesPath}/${id}`);
   };
 
@@ -130,7 +133,8 @@ const AppSidebar = () => {
                 !workspacesError &&
                 (workspaces ?? []).map((workspace) => {
                   const workspaceColor = getIdentityColor(workspace.id);
-                  const isWorkspaceActive = workspace.id === activeWorkspaceId;
+                  const isWorkspaceActive =
+                    workspace.id === activeWorkspaceSlug;
 
                   return (
                     <SidebarMenuItem key={workspace.id}>
@@ -160,7 +164,7 @@ const AppSidebar = () => {
                     <SidebarMenuButton
                       asChild
                       isActive={isAllWorkspacesActive}
-                      onClick={() => setActiveWorkspaceId(null)}
+                      onClick={() => setActiveWorkspaceSlug(null)}
                     >
                       <Link
                         to={allWorkspacesPath}

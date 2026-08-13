@@ -1,11 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { workspacesApi } from "../api";
 
-export function useWorkspace(orgId: string | null, workspaceId: string | null) {
+export function useWorkspace(
+  orgSlug: string | null,
+  workspaceSlug: string | null,
+) {
   return useQuery({
-    queryKey: ["organizations", orgId, "workspaces", workspaceId],
+    queryKey: ["organizations", orgSlug, "workspaces", workspaceSlug],
     queryFn: () =>
-      workspacesApi.getById(orgId as string, workspaceId as string),
-    enabled: !!orgId && !!workspaceId,
+      workspacesApi.getById(orgSlug as string, workspaceSlug as string),
+    enabled: !!orgSlug && !!workspaceSlug,
   });
 }

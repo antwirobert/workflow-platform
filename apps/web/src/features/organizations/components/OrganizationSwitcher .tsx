@@ -17,14 +17,14 @@ import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 const OrganizationSwitcher = () => {
   const { activeOrganization, organizations } = useActiveOrganization();
-  const setActiveOrgId = useOrgStore((state) => state.setActiveOrgId);
-  const setActiveWorkspaceId = useWorkspaceStore(
-    (state) => state.setActiveWorkspaceId,
+  const setActiveOrgSlug = useOrgStore((state) => state.setActiveOrgSlug);
+  const setActiveWorkspaceSlug = useWorkspaceStore(
+    (state) => state.setActiveWorkspaceSlug,
   );
 
   const handleSwitch = (orgId: string) => {
-    setActiveOrgId(orgId);
-    setActiveWorkspaceId(null);
+    setActiveOrgSlug(orgId);
+    setActiveWorkspaceSlug(null);
   };
 
   return (

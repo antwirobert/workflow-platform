@@ -14,20 +14,20 @@ const LIMIT = 20;
 
 const TasksPage = () => {
   const { activeOrganization } = useActiveOrganization();
-  const activeWorkspaceId = useWorkspaceStore(
-    (state) => state.activeWorkspaceId,
+  const activeWorkspaceSlug = useWorkspaceStore(
+    (state) => state.activeWorkspaceSlug,
   );
-  const { projectId } = useParams<{
-    projectId: string;
+  const { projectSlug } = useParams<{
+    projectSlug: string;
   }>();
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<TaskStatus | "ALL">("ALL");
   const [priority, setPriority] = useState<Priority | "ALL">("ALL");
 
   const { data, isLoading, isFetching, isError } = useTasks(
-    activeOrganization?.id ?? null,
-    activeWorkspaceId ?? null,
-    projectId ?? null,
+    activeOrganization?.slug ?? null,
+    activeWorkspaceSlug ?? null,
+    projectSlug ?? null,
     {
       page,
       limit: LIMIT,

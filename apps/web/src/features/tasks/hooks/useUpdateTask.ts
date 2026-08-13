@@ -4,38 +4,38 @@ import type { UpdateTaskPayload } from "../types";
 import type { Task } from "@/types/task";
 
 export function useUpdateTask(
-  orgId: string,
-  workspaceId: string,
-  projectId: string,
+  orgSlug: string,
+  workspaceSlug: string,
+  projectSlug: string,
   taskId: string,
 ) {
   const queryClient = useQueryClient();
   const detailKey = [
     "organizations",
-    orgId,
+    orgSlug,
     "workspaces",
-    workspaceId,
+    workspaceSlug,
     "projects",
-    projectId,
+    projectSlug,
     "tasks",
     taskId,
   ];
   const listKey = [
     "organizations",
-    orgId,
+    orgSlug,
     "workspaces",
-    workspaceId,
+    workspaceSlug,
     "projects",
-    projectId,
+    projectSlug,
     "tasks",
   ];
 
   return useMutation({
     mutationFn: (payload: UpdateTaskPayload) =>
       tasksApi.update(
-        orgId as string,
-        workspaceId as string,
-        projectId as string,
+        orgSlug as string,
+        workspaceSlug as string,
+        projectSlug as string,
         taskId as string,
         payload,
       ),

@@ -5,12 +5,12 @@ import { projectsApi } from "../api";
 import type { CreateProjectPaylaod } from "../types";
 import { generateSlug } from "@/lib/utils";
 
-export function useCreateProject(orgId: string, workspaceId: string) {
+export function useCreateProject(orgSlug: string, workspaceSlug: string) {
   const queryClient = useQueryClient();
 
   return useMutation<Project, ApiError, Omit<CreateProjectPaylaod, "slug">>({
     mutationFn: (payload: Omit<CreateProjectPaylaod, "slug">) =>
-      projectsApi.create(orgId, workspaceId, {
+      projectsApi.create(orgSlug, workspaceSlug, {
         ...payload,
         slug: generateSlug(payload.name),
       }),
@@ -18,9 +18,9 @@ export function useCreateProject(orgId: string, workspaceId: string) {
       queryClient.invalidateQueries({
         queryKey: [
           "organizations",
-          orgId,
+          orgSlug,
           "workspaces",
-          workspaceId,
+          workspaceSlug,
           "projects",
         ],
       });

@@ -25,22 +25,22 @@ export const router = createBrowserRouter([
         handle: { title: "Organizations" },
       },
       {
-        path: "/organizations/:orgId/workspaces",
+        path: "/organizations/:orgSlug/workspaces",
         element: <WorkspacesPage />,
         handle: { title: "Workspaces" },
       },
       {
-        path: "/organizations/:orgId/workspaces/:workspaceId",
+        path: "/organizations/:orgSlug/workspaces/:workspaceSlug",
         element: <div>Workspace Detail Page</div>,
         handle: { title: "Workspaces" },
       },
       {
-        path: "/organizations/:orgId/workspaces/:workspaceId/projects",
+        path: "/organizations/:orgSlug/workspaces/:workspaceSlug/projects",
         element: <ProjectsPage />,
         handle: { title: "Workspaces" },
       },
       {
-        path: "/organizations/:orgId/workspaces/:workspaceId/projects/:projectId",
+        path: "/organizations/:orgSlug/workspaces/:workspaceSlug/projects/:projectSlug",
         element: <ProjectTasksPage />,
         handle: { title: "Projects" },
       },

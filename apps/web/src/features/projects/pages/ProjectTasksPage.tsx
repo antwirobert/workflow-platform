@@ -16,10 +16,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const ProjectTasksPage = () => {
   const { activeOrganization } = useActiveOrganization();
-  const activeWorkspaceId = useWorkspaceStore(
-    (state) => state.activeWorkspaceId,
+  const activeWorkspaceSlug = useWorkspaceStore(
+    (state) => state.activeWorkspaceSlug,
   );
-  const { projectId } = useParams<{ projectId: string }>();
+  const { projectSlug } = useParams<{ projectSlug: string }>();
 
   const {
     data: project,
@@ -28,12 +28,12 @@ const ProjectTasksPage = () => {
     refetch,
     isFetching,
   } = useProject(
-    activeOrganization?.id ?? null,
-    activeWorkspaceId ?? null,
-    projectId ?? null,
+    activeOrganization?.slug ?? null,
+    activeWorkspaceSlug ?? null,
+    projectSlug ?? null,
   );
 
-  if (!activeOrganization || !activeWorkspaceId || !projectId) return null;
+  if (!activeOrganization || !activeWorkspaceSlug || !projectSlug) return null;
 
   if (isLoading) {
     return (

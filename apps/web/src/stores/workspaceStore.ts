@@ -2,15 +2,15 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface WorkspaceState {
-  activeWorkspaceId: string | null;
-  setActiveWorkspaceId: (id: string | null) => void;
+  activeWorkspaceSlug: string | null;
+  setActiveWorkspaceSlug: (slug: string | null) => void;
 }
 
 export const useWorkspaceStore = create<WorkspaceState>()(
   persist(
     (set) => ({
-      activeWorkspaceId: null,
-      setActiveWorkspaceId: (id) => set({ activeWorkspaceId: id }),
+      activeWorkspaceSlug: null,
+      setActiveWorkspaceSlug: (slug) => set({ activeWorkspaceSlug: slug }),
     }),
     { name: "workspace-storage" },
   ),

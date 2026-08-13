@@ -3,24 +3,26 @@ import { Link } from "react-router-dom";
 
 interface ProjectCardProps {
   id: string;
+  slug: string;
   name: string;
   description: string | null;
-  targetOrgId: string;
-  targetWorkspaceId: string;
+  targetOrgSlug: string;
+  targetWorkspaceSlug: string;
 }
 
 const ProjectCard = ({
   id,
+  slug,
   name,
   description,
-  targetOrgId,
-  targetWorkspaceId,
+  targetOrgSlug,
+  targetWorkspaceSlug,
 }: ProjectCardProps) => {
   const color = getIdentityColor(id);
 
   return (
     <Link
-      to={`/organizations/${targetOrgId}/workspaces/${targetWorkspaceId}/projects/${id}`}
+      to={`/organizations/${targetOrgSlug}/workspaces/${targetWorkspaceSlug}/projects/${slug}`}
       className="group relative flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md"
     >
       <div className="flex items-start justify-between gap-3">

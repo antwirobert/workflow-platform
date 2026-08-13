@@ -2,15 +2,15 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface OrgState {
-  activeOrgId: string | null;
-  setActiveOrgId: (id: string) => void;
+  activeOrgSlug: string | null;
+  setActiveOrgSlug: (slug: string) => void;
 }
 
 export const useOrgStore = create<OrgState>()(
   persist(
     (set) => ({
-      activeOrgId: null,
-      setActiveOrgId: (id) => set({ activeOrgId: id }),
+      activeOrgSlug: null,
+      setActiveOrgSlug: (slug) => set({ activeOrgSlug: slug }),
     }),
     { name: "organization-storage" },
   ),

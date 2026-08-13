@@ -1,6 +1,5 @@
 import PageHeader from "@/components/PageHeader";
 import CreateWorkspaceDialog from "../components/CreateWorkspaceDialog";
-import { useParams } from "react-router-dom";
 import { useWorkspaces } from "../hooks/useWorkspaces";
 import EmptyState from "@/components/EmptyState";
 import { Layers, Search } from "lucide-react";
@@ -11,12 +10,7 @@ import { Input } from "@/components/ui/input";
 import ErrorState from "@/components/ErrorState";
 
 const WorkspacesPage = () => {
-  const { orgId } = useParams<{
-    orgId: string;
-  }>();
-
   const { activeOrganization } = useActiveOrganization();
-  const effectiveOrgId = activeOrganization?.id ?? orgId ?? null;
 
   const {
     data: workspaces,
@@ -24,15 +18,15 @@ const WorkspacesPage = () => {
     isError,
     refetch,
     isFetching,
-  } = useWorkspaces(effectiveOrgId);
+  } = useWorkspaces(activeOrganization?.slug ?? null);
 
-  if (!effectiveOrgId) return null;
+  if (!activeOrganization) return null;
 
   return (
     <PageHeader
       title="Workspaces"
       description={`Workspaces inside ${activeOrganization?.name}. Group projects by team or initiative.`}
-      action={<CreateWorkspaceDialog orgId={effectiveOrgId} />}
+      action={<CreateWorkspaceDialog orgSlug={activeOrganization.slug} />}
     >
       {isLoading && (
         <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">

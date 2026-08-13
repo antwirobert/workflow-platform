@@ -1,10 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { projectsApi } from "../api";
 
-export function useProjects(orgId: string | null, workspaceId: string | null) {
+export function useProjects(
+  orgSlug: string | null,
+  workspaceSlug: string | null,
+) {
   return useQuery({
-    queryKey: ["organizations", orgId, "workspaces", workspaceId, "projects"],
-    queryFn: () => projectsApi.list(orgId as string, workspaceId as string),
-    enabled: !!orgId && !!workspaceId,
+    queryKey: [
+      "organizations",
+      orgSlug,
+      "workspaces",
+      workspaceSlug,
+      "projects",
+    ],
+    queryFn: () => projectsApi.list(orgSlug as string, workspaceSlug as string),
+    enabled: !!orgSlug && !!workspaceSlug,
   });
 }

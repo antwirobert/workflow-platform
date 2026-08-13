@@ -5,11 +5,11 @@ import { useState } from "react";
 import CreateProjectForm from "./CreateProjectForm";
 
 const CreateProjectDialog = ({
-  orgId,
-  workspaceId,
+  orgSlug,
+  workspaceSlug,
 }: {
-  orgId: string;
-  workspaceId: string;
+  orgSlug: string;
+  workspaceSlug: string;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -27,8 +27,8 @@ const CreateProjectDialog = ({
       onOpenChange={setIsOpen}
     >
       <CreateProjectForm
-        orgId={orgId}
-        workspaceId={workspaceId}
+        orgSlug={orgSlug}
+        workspaceSlug={workspaceSlug}
         onClose={() => setIsOpen(false)}
       />
     </ActionDialog>

@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import CreateWorkspaceForm from "./CreateWorkspaceForm";
 
-const CreateWorkspaceDialog = ({ orgId }: { orgId: string }) => {
+const CreateWorkspaceDialog = ({ orgSlug }: { orgSlug: string }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -20,7 +20,7 @@ const CreateWorkspaceDialog = ({ orgId }: { orgId: string }) => {
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      <CreateWorkspaceForm onClose={() => setIsOpen(false)} orgId={orgId} />
+      <CreateWorkspaceForm onClose={() => setIsOpen(false)} orgSlug={orgSlug} />
     </ActionDialog>
   );
 };

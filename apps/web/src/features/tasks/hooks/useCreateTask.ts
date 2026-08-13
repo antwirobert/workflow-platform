@@ -3,27 +3,27 @@ import { tasksApi } from "../api";
 import type { CreateTaskPaylaod } from "../types";
 
 export function useCreateTask(
-  orgId: string,
-  workspaceId: string,
-  projectId: string,
+  orgSlug: string,
+  workspaceSlug: string,
+  projectSlug: string,
 ) {
   const queryClient = useQueryClient();
   const listKey = [
     "organizations",
-    orgId,
+    orgSlug,
     "workspaces",
-    workspaceId,
+    workspaceSlug,
     "projects",
-    projectId,
+    projectSlug,
     "tasks",
   ];
 
   return useMutation({
     mutationFn: (payload: CreateTaskPaylaod) =>
       tasksApi.create(
-        orgId as string,
-        workspaceId as string,
-        projectId as string,
+        orgSlug as string,
+        workspaceSlug as string,
+        projectSlug as string,
         payload,
       ),
     onSuccess: () => {

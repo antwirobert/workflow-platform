@@ -5,7 +5,6 @@ import { validate } from "../../middleware/validate";
 import {
   createOrganizationSchema,
   listOrganizationsQuerySchema,
-  orgIdParamSchema,
   orgSlugParamSchema,
 } from "./organizations.schemas";
 import { updateOrganizationSchema } from "./organizations.schemas";
@@ -78,7 +77,7 @@ router.use(
 
 router.use(
   "/:orgSlug/search",
-  validate(orgIdParamSchema, "params"),
+  validate(orgSlugParamSchema, "params"),
   authenticate,
   assertOrgMembership,
   searchRouter,
@@ -86,7 +85,7 @@ router.use(
 
 router.use(
   "/:orgSlug/invitations",
-  validate(orgIdParamSchema, "params"),
+  validate(orgSlugParamSchema, "params"),
   authenticate,
   assertOrgMembership,
   invitationsRouter,

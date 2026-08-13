@@ -4,10 +4,7 @@ import { workspacesService } from "./workspaces.service";
 import {
   CreateWorkspacePayload,
   listWorkspacesQueryInput,
-  OrganizationIdParams,
   UpdateWorkspacePayload,
-  WorkspaceDetailParams,
-  WorkspaceIdParams,
 } from "./workspaces.schemas";
 
 export class WorkspacesController {
@@ -17,14 +14,12 @@ export class WorkspacesController {
     next: NextFunction,
   ) => {
     try {
-      const { orgId: organizationId } = req.validated!
-        .params as OrganizationIdParams;
       const { name, slug } = req.validated!.body as CreateWorkspacePayload;
 
       const workspace = await workspacesService.create({
         name,
         slug,
-        organizationId,
+        organizationId: req.organization!.id,
       });
       res.status(201).json(workspace);
     } catch (error) {
@@ -39,13 +34,11 @@ export class WorkspacesController {
   ) => {
     try {
       const { page, limit } = req.validated!.query as listWorkspacesQueryInput;
-      const { orgId: organizationId } = req.validated!
-        .params as OrganizationIdParams;
 
       const workspaces = await workspacesService.list({
         page,
         limit,
-        organizationId,
+        organizationId: req.organization!.id,
       });
       res.status(200).json(workspaces);
     } catch (error) {
@@ -59,10 +52,10 @@ export class WorkspacesController {
     next: NextFunction,
   ) => {
     try {
-      const { orgId, workspaceId } = req.validated!
-        .params as WorkspaceDetailParams;
-
-      const workspace = await workspacesService.getById(orgId, workspaceId);
+      const workspace = await workspacesService.getById(
+        req.organization!.id,
+        req.workspace!.id,
+      );
       res.status(200).json(workspace);
     } catch (error) {
       next(error);
@@ -75,15 +68,13 @@ export class WorkspacesController {
     next: NextFunction,
   ) => {
     try {
-      const { orgId: organizationId, workspaceId } = req.validated!
-        .params as WorkspaceDetailParams;
       const { name, slug } = req.validated!.body as UpdateWorkspacePayload;
 
       const workspace = await workspacesService.update({
         name,
         slug,
-        organizationId,
-        workspaceId,
+        organizationId: req.organization!.id,
+        workspaceId: req.workspace!.id,
       });
       res.status(200).json(workspace);
     } catch (error) {
@@ -97,9 +88,7 @@ export class WorkspacesController {
     next: NextFunction,
   ) => {
     try {
-      const { workspaceId } = req.validated!.params as WorkspaceIdParams;
-
-      await workspacesService.delete(workspaceId);
+      await workspacesService.delete(req.workspace!.id);
       res.status(204).send();
     } catch (error) {
       next(error);

@@ -159,12 +159,12 @@ export class WorkspacesService {
     return this.buildWorkspaceResult(workspace);
   }
 
-  async delete(workspaceId: string): Promise<void> {
+  async delete(organizationId: string, workspaceId: string): Promise<void> {
     const workspace = await prisma.workspace.findUnique({
       where: { id: workspaceId },
     });
 
-    if (!workspace) {
+    if (!workspace || workspace.organizationId !== organizationId) {
       throw new NotFoundError("Workspace");
     }
 

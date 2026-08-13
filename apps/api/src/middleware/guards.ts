@@ -3,9 +3,9 @@ import { prisma } from "../lib/prisma";
 import { OrganizationSlugParams } from "../modules/organizations/organizations.schemas";
 import { AuthenticatedRequest } from "./authenticate";
 import { NotFoundError } from "../common/errors";
-import { ProjectTaskParams } from "../modules/tasks/tasks.schemas";
 import { TaskCommentParams } from "../modules/comments/comments.schemas";
 import { WorkspaceDetailParams } from "../modules/workspaces/workspaces.schemas";
+import { ProjectSlugParam } from "../modules/projects/projects.schemas";
 
 export const assertOrgMembership = async (
   req: AuthenticatedRequest,
@@ -54,20 +54,22 @@ export const assertWorkspaceToOrg = async (
 };
 
 export const assertProjectToWorkspace = async (
-  req: Request,
+  req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction,
 ) => {
-  const { workspaceId, projectId } = req.validated!.params as ProjectTaskParams;
+  const workspaceId = req.workspace!.id;
+  const { projectSlug } = req.validated!.params as ProjectSlugParam;
 
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
+  const project = await prisma.project.findFirst({
+    where: { slug: projectSlug, workspaceId },
   });
 
-  if (!project || project.workspaceId !== workspaceId) {
+  if (!project) {
     throw new NotFoundError("Project");
   }
 
+  req.project = project;
   next();
 };
 

@@ -14,6 +14,13 @@ export function generateSlug(name: string): string {
     .replace(/-+/g, "-");
 }
 
+export function sanitizeSlugInput(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-");
+}
+
 const PALETTE = [
   {
     bg: "bg-blue-600 dark:bg-blue-500",

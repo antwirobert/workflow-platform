@@ -5,6 +5,7 @@ export interface CreateOrganizationPayload {
 
 export interface UpdateOrganizationPayload {
   name?: string;
+  slug?: string;
 }
 
 export interface OrganizationlistParams {

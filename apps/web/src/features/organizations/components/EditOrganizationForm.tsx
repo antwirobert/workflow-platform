@@ -12,46 +12,64 @@ import { Input } from "@/components/ui/input";
 import type { ApiError } from "@/lib/api/client";
 import { ERROR_CODES } from "@/lib/api/constatnts";
 import { toast } from "@/components/ui/toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Pencil, TriangleAlert } from "lucide-react";
 import { useUpdateOrganization } from "../hooks/useUpdateOrganization";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useOrgStore } from "@/stores/orgStore";
+import { sanitizeSlugInput } from "@/lib/utils";
 
 type EditOrgValues = z.infer<typeof editOrgSchema>;
 
 const editOrgSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
+  slug: z.string().min(2, "Slug must be at least 2 characters."),
 });
 
 interface EditOrganizationFormProps {
-  orgSlug: string;
+  slug: string;
   name: string;
   onClose: () => void;
 }
 
 const EditOrganizationForm = ({
-  orgSlug,
+  slug,
   name,
   onClose,
 }: EditOrganizationFormProps) => {
+  const [isEditingSlug, setIsEditingSlug] = useState(false);
+  const setActiveOrgSlug = useOrgStore((s) => s.setActiveOrgSlug);
+  const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
   const {
     mutate: editOrganization,
     isPending,
     error,
-  } = useUpdateOrganization(orgSlug);
+  } = useUpdateOrganization(slug);
 
   const form = useForm<EditOrgValues>({
     resolver: zodResolver(editOrgSchema),
-    defaultValues: { name },
+    defaultValues: { name, slug },
   });
 
   useEffect(() => {
     form.reset({ name });
   }, [name, form]);
 
+  const slugValue = form.watch("slug");
+
   function onSubmit(data: EditOrgValues) {
+    const payload: { name?: string; slug?: string } = {};
+
+    if (form.formState.dirtyFields.name) payload.name = data.name;
+    if (isEditingSlug && form.formState.dirtyFields.slug)
+      payload.slug = data.slug;
+
     editOrganization(data, {
-      onSuccess: () => {
+      onSuccess: (updated) => {
+        if (activeOrgSlug === slug && updated.slug !== slug) {
+          setActiveOrgSlug(updated.slug);
+        }
         onClose();
+        setIsEditingSlug(false);
         toast.add({
           type: "success",
           description: "Organization updated",
@@ -86,6 +104,64 @@ const EditOrganizationForm = ({
                 aria-invalid={fieldState.invalid}
                 placeholder="Vanguard HQ"
               />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+
+        <Controller
+          name="slug"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <div className="flex items-center justify-between">
+                <FieldLabel htmlFor="org-slug" className="font-semibold">
+                  URL
+                </FieldLabel>
+                {!isEditingSlug && (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingSlug(true)}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <Pencil className="h-3 w-3" />
+                    Edit
+                  </button>
+                )}
+              </div>
+
+              {isEditingSlug ? (
+                <>
+                  <div className="flex items-center gap-1 text-sm">
+                    <span className="text-muted-foreground">
+                      /organizations/
+                    </span>
+                    <Input
+                      {...field}
+                      id="org-slug"
+                      aria-invalid={fieldState.invalid}
+                      onChange={(e) =>
+                        form.setValue(
+                          "slug",
+                          sanitizeSlugInput(e.target.value),
+                          { shouldDirty: true },
+                        )
+                      }
+                      className="h-8"
+                    />
+                  </div>
+                  <p className="mt-1.5 flex items-start gap-1.5 text-xs text-amber-600">
+                    <TriangleAlert className="mt-0.5 h-3 w-3 shrink-0" />
+                    Changing this will break any existing bookmarks or shared
+                    links to this organization.
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  /organizations/{slugValue}
+                </p>
+              )}
+
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

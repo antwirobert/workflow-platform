@@ -1,9 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../../middleware/authenticate";
 import {
   CreateTaskPayload,
   ListTasksQueryInput,
-  ProjectTaskParams,
   TaskDetailParams,
   UpdateTaskPayload,
 } from "./tasks.schemas";
@@ -16,12 +15,11 @@ export class TasksController {
     next: NextFunction,
   ) => {
     try {
-      const { projectId } = req.validated!.params as ProjectTaskParams;
       const { title, description, status, priority, assigneeId, dueDate } = req
         .validated!.body as CreateTaskPayload;
 
       const task = await tasksService.create({
-        projectId,
+        projectId: req.project!.id,
         title,
         description,
         status,
@@ -37,9 +35,12 @@ export class TasksController {
     }
   };
 
-  list = async (req: Request, res: Response, next: NextFunction) => {
+  list = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      const { projectId } = req.validated!.params as ProjectTaskParams;
       const { page, limit, status, priority, assigneeId, sortBy, order } = req
         .validated!.query as ListTasksQueryInput;
 
@@ -51,7 +52,7 @@ export class TasksController {
         assigneeId,
         sortBy,
         order,
-        projectId,
+        projectId: req.project!.id,
       });
 
       res.status(200).json(tasks);
@@ -60,41 +61,50 @@ export class TasksController {
     }
   };
 
-  getById = async (req: Request, res: Response, next: NextFunction) => {
+  getById = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      const { projectId, taskId } = req.validated!.params as TaskDetailParams;
+      const { taskId } = req.validated!.params as TaskDetailParams;
 
-      const task = await tasksService.getById(projectId, taskId);
-
+      const task = await tasksService.getById(req.project!.id, taskId);
       res.status(200).json(task);
     } catch (error) {
       next(error);
     }
   };
 
-  update = async (req: Request, res: Response, next: NextFunction) => {
+  update = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      const { projectId, taskId } = req.validated!.params as TaskDetailParams;
+      const { taskId } = req.validated!.params as TaskDetailParams;
       const body = req.validated!.body as UpdateTaskPayload;
 
       const task = await tasksService.update({
-        projectId,
+        projectId: req.project!.id,
         taskId,
         ...body,
       });
-
       res.status(200).json(task);
     } catch (error) {
       next(error);
     }
   };
 
-  delete = async (req: Request, res: Response, next: NextFunction) => {
+  delete = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      const { projectId, taskId } = req.validated!.params as TaskDetailParams;
+      const { taskId } = req.validated!.params as TaskDetailParams;
 
-      const task = await tasksService.delete(projectId, taskId);
-
+      const task = await tasksService.delete(req.project!.id, taskId);
       res.status(200).json(task);
     } catch (error) {
       next(error);

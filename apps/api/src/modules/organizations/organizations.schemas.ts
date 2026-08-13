@@ -29,10 +29,6 @@ export const updateOrganizationSchema = z.object({
     .optional(),
 });
 
-export const orgIdParamSchema = z.object({
-  orgId: z.string().uuid("Invalid orgId format"),
-});
-
 export const orgSlugParamSchema = z.object({
   orgSlug: z.string().min(1),
 });
@@ -48,7 +44,6 @@ export type CreateOrganizationPayload = z.infer<
 export type UpdateOrganizationPayload = z.infer<
   typeof updateOrganizationSchema
 >;
-export type OrganizationIdParams = z.infer<typeof orgIdParamSchema>;
 export type OrganizationSlugParams = z.infer<typeof orgSlugParamSchema>;
 export type ListOrganizationsQueryInput = z.infer<
   typeof listOrganizationsQuerySchema

@@ -5,7 +5,6 @@ import {
   CreateOrganizationPayload,
   UpdateOrganizationPayload,
   ListOrganizationsQueryInput,
-  OrganizationIdParams,
 } from "./organizations.schemas";
 
 export class OrganizationsController {

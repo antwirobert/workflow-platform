@@ -3,7 +3,6 @@ import { OrgRole } from "../generated/prisma/enums";
 import { prisma } from "../lib/prisma";
 import { AuthenticatedRequest } from "./authenticate";
 import { ForbiddenError } from "../common/errors";
-import { OrganizationIdParams } from "../modules/organizations/organizations.schemas";
 
 const ROLE_HIERARCHY: Record<OrgRole, number> = {
   MEMBER: 1,
@@ -18,13 +17,12 @@ export const requireRole = (...roles: OrgRole[]) => {
     next: NextFunction,
   ) => {
     try {
-      const { orgId } = req.validated!.params as OrganizationIdParams;
       const userId = req.user!.userId;
 
       const membership = await prisma.organizationMember.findUnique({
         where: {
           organizationId_userId: {
-            organizationId: orgId,
+            organizationId: req.organization!.id,
             userId,
           },
         },
@@ -33,7 +31,7 @@ export const requireRole = (...roles: OrgRole[]) => {
       if (!membership) {
         return next(
           new ForbiddenError(
-            "You do not have permission to access this resource.",
+            "You do not have permission to perform this action.",
           ),
         );
       }

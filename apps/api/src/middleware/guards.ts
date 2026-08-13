@@ -3,9 +3,9 @@ import { prisma } from "../lib/prisma";
 import { OrganizationSlugParams } from "../modules/organizations/organizations.schemas";
 import { AuthenticatedRequest } from "./authenticate";
 import { NotFoundError } from "../common/errors";
-import { WorkspaceDetailParams } from "../modules/workspaces/workspaces.schemas";
 import { ProjectTaskParams } from "../modules/tasks/tasks.schemas";
 import { TaskCommentParams } from "../modules/comments/comments.schemas";
+import { WorkspaceDetailParams } from "../modules/workspaces/workspaces.schemas";
 
 export const assertOrgMembership = async (
   req: AuthenticatedRequest,
@@ -30,26 +30,26 @@ export const assertOrgMembership = async (
   req.user!.orgRole = membership.role;
   req.organization = membership.organization;
   req.membership = membership;
-
   next();
 };
 
 export const assertWorkspaceToOrg = async (
-  req: Request,
+  req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction,
 ) => {
-  const { orgId: organizationId, workspaceId } = req.validated!
-    .params as WorkspaceDetailParams;
+  const { workspaceSlug } = req.validated!.params as WorkspaceDetailParams;
+  const organizationId = req.organization!.id;
 
-  const workspace = await prisma.workspace.findUnique({
-    where: { id: workspaceId },
+  const workspace = await prisma.workspace.findFirst({
+    where: { slug: workspaceSlug, organizationId },
   });
 
-  if (!workspace || workspace.organizationId !== organizationId) {
+  if (!workspace) {
     throw new NotFoundError("Workspace");
   }
 
+  req.workspace = workspace;
   next();
 };
 

@@ -10,8 +10,10 @@ import { Input } from "@/components/ui/input";
 import ErrorState from "@/components/ErrorState";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import { useState } from "react";
+import PaginationControls from "@/components/PaginationControls";
 
 const WorkspacesPage = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
   const { activeOrganization } = useActiveOrganization();
@@ -33,7 +35,13 @@ const WorkspacesPage = () => {
     <PageHeader
       title="Workspaces"
       description={`Workspaces inside ${activeOrganization?.name}. Group projects by team or initiative.`}
-      action={<CreateWorkspaceDialog orgSlug={activeOrganization.slug} />}
+      action={
+        <CreateWorkspaceDialog
+          open={isOpen}
+          onOpenChange={setIsOpen}
+          orgSlug={activeOrganization && activeOrganization.slug}
+        />
+      }
     >
       {isLoading && (
         <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -84,21 +92,32 @@ const WorkspacesPage = () => {
         />
       )}
 
-      {workspaces && workspaces.data.length === 0 && (
+      {workspaces?.data && workspaces.data.length === 0 && (
         <EmptyState
           title="No workspaces yet"
           description="Create a workspace to organize projects for a team or initiative."
           btnCaption="New workspace"
           icon={Layers}
+          onOpenChange={() => setIsOpen(true)}
         />
       )}
 
-      {workspaces && workspaces.data.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {workspaces.data.map((workspace) => (
-            <WorkspaceCard key={workspace.id} {...workspace} />
-          ))}
-        </div>
+      {!isError && (workspaces?.data.length ?? 0) > 0 && (
+        <>
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {workspaces?.data.map((workspace) => (
+              <WorkspaceCard key={workspace.id} {...workspace} />
+            ))}
+          </div>
+
+          <PaginationControls
+            currentPage={workspaces!.meta.page}
+            totalPages={workspaces!.meta.totalPages}
+            totalItems={workspaces!.meta.total}
+            onPageChange={setPage}
+            onPageSizeChange={setLimit}
+          />
+        </>
       )}
     </PageHeader>
   );

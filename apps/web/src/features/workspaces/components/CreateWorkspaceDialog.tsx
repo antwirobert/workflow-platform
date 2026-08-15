@@ -1,12 +1,19 @@
 import ActionDialog from "@/components/ActionDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
 import CreateWorkspaceForm from "./CreateWorkspaceForm";
 
-const CreateWorkspaceDialog = ({ orgSlug }: { orgSlug: string }) => {
-  const [isOpen, setIsOpen] = useState(false);
+interface CreateWorkspaceDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  orgSlug: string;
+}
 
+const CreateWorkspaceDialog = ({
+  open,
+  onOpenChange,
+  orgSlug,
+}: CreateWorkspaceDialogProps) => {
   return (
     <ActionDialog
       trigger={
@@ -17,10 +24,13 @@ const CreateWorkspaceDialog = ({ orgSlug }: { orgSlug: string }) => {
       }
       title="Create workspace"
       description="Workspaces group projects by team or initiative."
-      open={isOpen}
-      onOpenChange={setIsOpen}
+      open={open}
+      onOpenChange={onOpenChange}
     >
-      <CreateWorkspaceForm onClose={() => setIsOpen(false)} orgSlug={orgSlug} />
+      <CreateWorkspaceForm
+        onClose={() => onOpenChange(false)}
+        orgSlug={orgSlug}
+      />
     </ActionDialog>
   );
 };

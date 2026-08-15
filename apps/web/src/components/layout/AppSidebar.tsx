@@ -9,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import { Separator } from "../ui/separator";
 import { Archive, Hash, Plus, RotateCw } from "lucide-react";
@@ -16,9 +17,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 import { useWorkspaces } from "@/features/workspaces/hooks/useWorkspaces";
 import { cn, getIdentityColor } from "@/lib/utils";
-import { Skeleton } from "../ui/skeleton";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
-import { useProjects } from "@/features/projects/hooks/useProjects";
+// import { useProjects } from "@/features/projects/hooks/useProjects";
 import OrganizationSwitcher from "@/features/organizations/components/OrganizationSwitcher ";
 import { DEFAULT_PAGE, DEFAULT_SIDEBAR_LIMIT } from "@/constants";
 
@@ -44,22 +44,22 @@ const AppSidebar = () => {
     limit: DEFAULT_SIDEBAR_LIMIT,
   });
 
-  const {
-    data: projects,
-    isLoading: projectsLoading,
-    isError: projectsError,
-    refetch: projectsRefetch,
-    isFetching: projectsFetching,
-  } = useProjects(
-    activeOrganization?.slug ?? null,
-    activeWorkspaceSlug ?? null,
-  );
+  // const {
+  //   data: projects,
+  //   isLoading: projectsLoading,
+  //   isError: projectsError,
+  //   refetch: projectsRefetch,
+  //   isFetching: projectsFetching,
+  // } = useProjects(
+  //   activeOrganization?.slug ?? null,
+  //   activeWorkspaceSlug ?? null,
+  // );
 
   const allWorkspacesPath = `/organizations/${activeOrganization?.slug}/workspaces`;
   const allProjectsPath = `/organizations/${activeOrganization?.slug}/workspaces/${activeWorkspaceSlug}/projects`;
 
   const isAllWorkspacesActive = location.pathname === allWorkspacesPath;
-  const isAllProjectsActive = location.pathname === allProjectsPath;
+  // const isAllProjectsActive = location.pathname === allProjectsPath;
 
   const handleWorkspaceClick = (id: string) => {
     setActiveWorkspaceSlug(id);
@@ -84,12 +84,9 @@ const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {workspacesLoading &&
-                Array.from({ length: 3 }).map((_, i) => (
-                  <SidebarMenuItem key={i}>
-                    <SidebarMenuButton className="gap-2.5 pointer-events-none">
-                      <Skeleton className="size-2.5 shrink-0 rounded-full" />
-                      <Skeleton className="h-3.5 w-full" />
-                    </SidebarMenuButton>
+                Array.from({ length: 3 }).map((_, index) => (
+                  <SidebarMenuItem key={index}>
+                    <SidebarMenuSkeleton />
                   </SidebarMenuItem>
                 ))}
 
@@ -166,17 +163,15 @@ const AppSidebar = () => {
                 <SidebarMenu className="mt-1">
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      asChild
+                      onClick={() => {
+                        setActiveWorkspaceSlug(null);
+                        navigate(allWorkspacesPath);
+                      }}
                       isActive={isAllWorkspacesActive}
-                      onClick={() => setActiveWorkspaceSlug(null)}
+                      className="flex gap-2.5 text-muted-foreground"
                     >
-                      <Link
-                        to={allWorkspacesPath}
-                        className="flex gap-2.5 text-muted-foreground"
-                      >
-                        <Archive className="size-4 opacity-70" />
-                        <span>All workspaces</span>
-                      </Link>
+                      <Archive className="size-4 opacity-70" />
+                      <span>All workspaces</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
@@ -196,7 +191,7 @@ const AppSidebar = () => {
             </Link>
           </SidebarGroupLabel>
 
-          <SidebarGroupContent>
+          {/* <SidebarGroupContent>
             <SidebarMenu>
               {projectsLoading &&
                 Array.from({ length: 3 }).map((_, i) => (
@@ -286,7 +281,7 @@ const AppSidebar = () => {
                   </SidebarMenuItem>
                 </SidebarMenu>
               )}
-          </SidebarGroupContent>
+          </SidebarGroupContent> */}
         </SidebarGroup>
       </SidebarContent>
 

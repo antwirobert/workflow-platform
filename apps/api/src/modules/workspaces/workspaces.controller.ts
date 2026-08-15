@@ -39,6 +39,7 @@ export class WorkspacesController {
         page,
         limit,
         organizationId: req.organization!.id,
+        userId: req.user!.userId,
       });
       res.status(200).json(workspaces);
     } catch (error) {

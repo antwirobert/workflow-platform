@@ -43,7 +43,7 @@ export class WorkspacesService {
   async list(
     query: listWorkspacesQuery,
   ): Promise<ListWorkspacesQueryResult<WorkspaceResult>> {
-    const { page, limit, organizationId } = query;
+    const { page, limit, organizationId, userId } = query;
 
     const skip = (page - 1) * limit;
 
@@ -57,7 +57,9 @@ export class WorkspacesService {
         orderBy: { createdAt: "desc" },
         include: {
           _count: { select: { projects: true } },
-          projects: true,
+          organization: {
+            select: { members: { where: { userId }, select: { role: true } } },
+          },
         },
       }),
 
@@ -67,8 +69,7 @@ export class WorkspacesService {
     return {
       data: workspaces.map((w) =>
         this.buildWorkspaceResult(w, {
-          count: w._count.projects,
-          names: w.projects.map((p) => p.name),
+          projectCount: w._count.projects,
         }),
       ),
       meta: {
@@ -102,20 +103,14 @@ export class WorkspacesService {
       throw new NotFoundError("Workspace");
     }
 
-    return this.buildWorkspaceResult(
-      workspace,
-      {
-        count: workspace._count.projects,
-        names: workspace.projects.map((project) => project.name),
-      },
-      {
-        taskCount: workspace.projects.reduce(
-          (acc, project) => acc + project._count.tasks,
-          0,
-        ),
-        memberCount: workspace.organization._count.members,
-      },
-    );
+    return this.buildWorkspaceResult(workspace, {
+      projectCount: workspace._count.projects,
+      taskCount: workspace.projects.reduce(
+        (acc, project) => acc + project._count.tasks,
+        0,
+      ),
+      memberCount: workspace.organization._count.members,
+    });
   }
 
   async update(input: UpdateWorkspaceInput): Promise<WorkspaceResult> {
@@ -174,8 +169,11 @@ export class WorkspacesService {
   // Maps database model to public API response format
   private buildWorkspaceResult(
     workspace: Workspace,
-    projects?: { count: number; names: string[] },
-    counts?: { taskCount: number; memberCount: number },
+    counts?: {
+      projectCount?: number;
+      taskCount?: number;
+      memberCount?: number;
+    },
   ): WorkspaceResult {
     return {
       id: workspace.id,
@@ -184,9 +182,12 @@ export class WorkspacesService {
       organizationId: workspace.organizationId,
       createdAt: workspace.createdAt,
       updatedAt: workspace.updatedAt,
-      ...(projects ? { projects } : {}),
       ...(counts
-        ? { taskCount: counts.taskCount, memberCount: counts.memberCount }
+        ? {
+            projectCount: counts.projectCount,
+            taskCount: counts.taskCount,
+            memberCount: counts.memberCount,
+          }
         : {}),
     };
   }

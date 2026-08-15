@@ -15,10 +15,7 @@ export interface WorkspaceResult {
   organizationId: string;
   createdAt: Date;
   updatedAt: Date;
-  projects?: {
-    count: number;
-    names: string[];
-  };
+  projectCount?: number;
   taskCount?: number;
   memberCount?: number;
 }
@@ -30,6 +27,7 @@ export interface UpdateWorkspaceInput extends UpdateWorkspacePayload {
 
 export interface listWorkspacesQuery extends listWorkspacesQueryInput {
   organizationId: string;
+  userId: string;
 }
 
 export interface ListWorkspacesQueryResult<T> {

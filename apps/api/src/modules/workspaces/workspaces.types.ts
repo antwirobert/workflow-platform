@@ -15,6 +15,7 @@ export interface WorkspaceResult {
   organizationId: string;
   createdAt: Date;
   updatedAt: Date;
+  role?: string;
   projectCount?: number;
   taskCount?: number;
   memberCount?: number;

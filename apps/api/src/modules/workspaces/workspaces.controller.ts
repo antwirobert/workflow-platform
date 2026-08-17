@@ -56,6 +56,7 @@ export class WorkspacesController {
       const workspace = await workspacesService.getById(
         req.organization!.id,
         req.workspace!.id,
+        req.user!.userId,
       );
       res.status(200).json(workspace);
     } catch (error) {

@@ -68,7 +68,7 @@ export class WorkspacesService {
 
     return {
       data: workspaces.map((w) =>
-        this.buildWorkspaceResult(w, {
+        this.buildWorkspaceResult(w, w.organization.members[0].role, {
           projectCount: w._count.projects,
         }),
       ),
@@ -84,6 +84,7 @@ export class WorkspacesService {
   async getById(
     organizationId: string,
     workspaceId: string,
+    userId: string,
   ): Promise<WorkspaceResult> {
     const workspace = await prisma.workspace.findUnique({
       where: { id: workspaceId },
@@ -93,7 +94,13 @@ export class WorkspacesService {
           select: { id: true, name: true, _count: { select: { tasks: true } } },
         },
         organization: {
-          select: { _count: { select: { members: true } } },
+          select: {
+            _count: { select: { members: true } },
+            members: {
+              where: { userId },
+              select: { role: true },
+            },
+          },
         },
       },
     });
@@ -103,14 +110,18 @@ export class WorkspacesService {
       throw new NotFoundError("Workspace");
     }
 
-    return this.buildWorkspaceResult(workspace, {
-      projectCount: workspace._count.projects,
-      taskCount: workspace.projects.reduce(
-        (acc, project) => acc + project._count.tasks,
-        0,
-      ),
-      memberCount: workspace.organization._count.members,
-    });
+    return this.buildWorkspaceResult(
+      workspace,
+      workspace.organization.members[0].role,
+      {
+        projectCount: workspace._count.projects,
+        taskCount: workspace.projects.reduce(
+          (acc, project) => acc + project._count.tasks,
+          0,
+        ),
+        memberCount: workspace.organization._count.members,
+      },
+    );
   }
 
   async update(input: UpdateWorkspaceInput): Promise<WorkspaceResult> {
@@ -169,6 +180,7 @@ export class WorkspacesService {
   // Maps database model to public API response format
   private buildWorkspaceResult(
     workspace: Workspace,
+    role?: string,
     counts?: {
       projectCount?: number;
       taskCount?: number;
@@ -180,6 +192,7 @@ export class WorkspacesService {
       name: workspace.name,
       slug: workspace.slug,
       organizationId: workspace.organizationId,
+      role,
       createdAt: workspace.createdAt,
       updatedAt: workspace.updatedAt,
       ...(counts

@@ -29,17 +29,18 @@ const WorkspacesPage = () => {
     limit,
   });
 
-  if (!activeOrganization) return null;
+  if (!activeOrganization) return;
 
   return (
     <PageHeader
       title="Workspaces"
-      description={`Workspaces inside ${activeOrganization?.name}. Group projects by team or initiative.`}
+      description={`Workspaces inside ${activeOrganization.name}. Group projects by team or initiative.`}
       action={
         <CreateWorkspaceDialog
           open={isOpen}
           onOpenChange={setIsOpen}
           orgSlug={activeOrganization && activeOrganization.slug}
+          role={activeOrganization.role}
         />
       }
     >
@@ -50,12 +51,19 @@ const WorkspacesPage = () => {
               key={i}
               className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4"
             >
-              <div className="flex items-center gap-2.5">
-                <Skeleton className="size-2.5 shrink-0 rounded-full" />
-                <Skeleton className="h-4 w-28" />
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <Skeleton className="size-2.5 shrink-0 rounded-full" />
+                  <Skeleton className="h-4 w-28" />
+                </div>
+                <Skeleton className="size-8 shrink-0 rounded-md" />
               </div>
-              <Skeleton className="h-3 w-24" />
-              <div className="mt-1 flex flex-col gap-1.5">
+
+              <Skeleton className="h-5 w-16 rounded-md" />
+
+              <Skeleton className="h-3 w-28" />
+
+              <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-2">
                   <Skeleton className="size-3.5 shrink-0 rounded-sm" />
                   <Skeleton className="h-3 w-32" />

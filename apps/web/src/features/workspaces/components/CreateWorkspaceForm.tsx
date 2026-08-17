@@ -45,12 +45,12 @@ const CreateWorkspaceForm = ({
 
   function onSubmit(data: CreateWorkspaceValues) {
     createWorkspace(data, {
-      onSuccess: (data) => {
+      onSuccess: () => {
         form.reset();
         onClose();
         toast.add({
           type: "success",
-          description: `${data.name} created successfully`,
+          title: "Workspace created",
         });
       },
       onError: (err: ApiError) => {

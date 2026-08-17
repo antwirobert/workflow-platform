@@ -5,4 +5,6 @@ export interface Workspace {
   organizationId: string;
   createdAt: string;
   updatedAt: string;
+  role?: string;
+  projectCount?: number;
 }

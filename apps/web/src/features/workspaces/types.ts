@@ -3,6 +3,11 @@ export interface CreateWorkspacePayload {
   slug: string;
 }
 
+export interface UpdateWorkspacePayload {
+  name?: string;
+  slug?: string;
+}
+
 export interface WorkspacelistParams {
   page: number;
   limit: number;

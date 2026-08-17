@@ -1,5 +1,6 @@
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_SIDEBAR_LIMIT = 5;
+export const DEFAULT_WORKSPACE_PROJECTS_LIMIT = 3;
 export const DEFAULT_TABLE_LIMIT = 20;
 
 export const ROLE_OWNER = "OWNER";

@@ -7,4 +7,6 @@ export interface Workspace {
   updatedAt: string;
   role?: string;
   projectCount?: number;
+  taskCount?: number;
+  memberCount?: number;
 }

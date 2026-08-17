@@ -61,9 +61,9 @@ const AppSidebar = () => {
   const isAllWorkspacesActive = location.pathname === allWorkspacesPath;
   // const isAllProjectsActive = location.pathname === allProjectsPath;
 
-  const handleWorkspaceClick = (id: string) => {
-    setActiveWorkspaceSlug(id);
-    navigate(`${allWorkspacesPath}/${id}`);
+  const handleWorkspaceClick = (slug: string) => {
+    setActiveWorkspaceSlug(slug);
+    navigate(`${allWorkspacesPath}/${slug}`);
   };
 
   return (
@@ -135,13 +135,13 @@ const AppSidebar = () => {
                 (workspaces?.data ?? []).map((workspace) => {
                   const workspaceColor = getIdentityColor(workspace.id);
                   const isWorkspaceActive =
-                    workspace.id === activeWorkspaceSlug;
+                    workspace.slug === activeWorkspaceSlug;
 
                   return (
                     <SidebarMenuItem key={workspace.id}>
                       <SidebarMenuButton
                         className="gap-2.5"
-                        onClick={() => handleWorkspaceClick(workspace.id)}
+                        onClick={() => handleWorkspaceClick(workspace.slug)}
                         isActive={isWorkspaceActive}
                       >
                         <div

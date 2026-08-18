@@ -12,12 +12,11 @@ import {
   DEFAULT_WORKSPACE_PROJECTS_LIMIT,
   ROLES_MANAGEMENT,
 } from "@/constants";
-import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 import { useProjects } from "@/features/projects/hooks/useProjects";
 import { cn, getIdentityColor } from "@/lib/utils";
 import { Ellipsis, Hash, Lock, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import EditWorkspaceDialog from "./EditWorkspaceDialog";
 import DeleteWorkspaceDialog from "./DeleteWorkspaceDialog";
 
@@ -38,21 +37,18 @@ const WorkspaceCard = ({
 }: WorkspaceCardProps) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const { orgSlug } = useParams<{ orgSlug: string }>();
+  const { data: projects, isError } = useProjects(orgSlug ?? null, slug, {
+    page: DEFAULT_PAGE,
+    limit: DEFAULT_WORKSPACE_PROJECTS_LIMIT,
+  });
+
   const color = getIdentityColor(id);
-  const { activeOrganization } = useActiveOrganization();
-  const { data: projects, isError } = useProjects(
-    activeOrganization!.slug,
-    slug,
-    {
-      page: DEFAULT_PAGE,
-      limit: DEFAULT_WORKSPACE_PROJECTS_LIMIT,
-    },
-  );
 
   return (
     <div className="min-w-0 h-full">
       <Link
-        to={`/organizations/${activeOrganization!.slug}/workspaces/${slug}`}
+        to={`/organizations/${orgSlug}/workspaces/${slug}`}
         className="group cursor-pointer relative h-full flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md"
       >
         <div className="flex items-center justify-between gap-2">

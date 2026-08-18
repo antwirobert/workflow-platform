@@ -11,11 +11,13 @@ import ErrorState from "@/components/ErrorState";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import { useState } from "react";
 import PaginationControls from "@/components/PaginationControls";
+import { useParams } from "react-router-dom";
 
 const WorkspacesPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
+  const { orgSlug } = useParams<{ orgSlug: string }>();
   const { activeOrganization } = useActiveOrganization();
 
   const {
@@ -24,7 +26,7 @@ const WorkspacesPage = () => {
     isError,
     refetch,
     isFetching,
-  } = useWorkspaces(activeOrganization?.slug ?? null, {
+  } = useWorkspaces(orgSlug ?? null, {
     page,
     limit,
   });
@@ -39,7 +41,7 @@ const WorkspacesPage = () => {
         <CreateWorkspaceDialog
           open={isOpen}
           onOpenChange={setIsOpen}
-          orgSlug={activeOrganization && activeOrganization.slug}
+          orgSlug={orgSlug!}
           role={activeOrganization.role}
         />
       }

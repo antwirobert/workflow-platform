@@ -1,8 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TasksListView from "../components/TasksListView";
 import { useTasks } from "../hooks/useTasks";
-import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
-import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import type { Priority, TaskStatus } from "@/types/task";
@@ -13,11 +11,9 @@ import TaskFilters from "../components/TaskFilters";
 const LIMIT = 20;
 
 const TasksPage = () => {
-  const { activeOrganization } = useActiveOrganization();
-  const activeWorkspaceSlug = useWorkspaceStore(
-    (state) => state.activeWorkspaceSlug,
-  );
-  const { projectSlug } = useParams<{
+  const { orgSlug, workspaceSlug, projectSlug } = useParams<{
+    orgSlug: string;
+    workspaceSlug: string;
     projectSlug: string;
   }>();
   const [page, setPage] = useState(1);
@@ -25,8 +21,8 @@ const TasksPage = () => {
   const [priority, setPriority] = useState<Priority | "ALL">("ALL");
 
   const { data, isLoading, isFetching, isError } = useTasks(
-    activeOrganization?.slug ?? null,
-    activeWorkspaceSlug ?? null,
+    orgSlug ?? null,
+    workspaceSlug ?? null,
     projectSlug ?? null,
     {
       page,

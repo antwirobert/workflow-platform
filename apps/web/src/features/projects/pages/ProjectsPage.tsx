@@ -1,7 +1,5 @@
 import PageHeader from "@/components/PageHeader";
 import CreateProjectDialog from "../components/CeateProjectDialog";
-import { useWorkspaceStore } from "@/stores/workspaceStore";
-import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 import { FolderOpen, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ErrorState from "@/components/ErrorState";
@@ -9,12 +7,13 @@ import { useProjects } from "../hooks/useProjects";
 import EmptyState from "@/components/EmptyState";
 import ProjectCard from "../components/ProjectCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useParams } from "react-router-dom";
 
 const ProjectsPage = () => {
-  const { activeOrganization } = useActiveOrganization();
-  const activeWorkspaceSlug = useWorkspaceStore(
-    (state) => state.activeWorkspaceSlug,
-  );
+  const { orgSlug, workspaceSlug } = useParams<{
+    orgSlug: string;
+    workspaceSlug: string;
+  }>();
 
   const {
     data: projects,
@@ -22,12 +21,7 @@ const ProjectsPage = () => {
     isError,
     refetch,
     isFetching,
-  } = useProjects(
-    activeOrganization?.slug ?? null,
-    activeWorkspaceSlug ?? null,
-  );
-
-  if (!activeOrganization || !activeWorkspaceSlug) return null;
+  } = useProjects(orgSlug ?? null, workspaceSlug ?? null);
 
   return (
     <PageHeader
@@ -35,8 +29,8 @@ const ProjectsPage = () => {
       description="Organize work into focused, cross-functional efforts."
       action={
         <CreateProjectDialog
-          orgSlug={activeOrganization.slug}
-          workspaceSlug={activeWorkspaceSlug}
+          orgSlug={orgSlug!}
+          workspaceSlug={workspaceSlug!}
         />
       }
     >
@@ -93,8 +87,8 @@ const ProjectsPage = () => {
           {projects.map((project) => (
             <ProjectCard
               key={project.id}
-              targetOrgSlug={activeOrganization.slug}
-              targetWorkspaceSlug={activeWorkspaceSlug}
+              targetOrgSlug={orgSlug}
+              targetWorkspaceSlug={workspaceSlug}
               {...project}
             />
           ))}

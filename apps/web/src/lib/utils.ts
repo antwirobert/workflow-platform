@@ -1,3 +1,4 @@
+import { PALETTE } from "@/constants";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -21,41 +22,6 @@ export function sanitizeSlugInput(value: string): string {
     .replace(/-+/g, "-");
 }
 
-const PALETTE = [
-  {
-    bg: "bg-blue-600 dark:bg-blue-500",
-    text: "text-white",
-  },
-  {
-    bg: "bg-emerald-600 dark:bg-emerald-500",
-    text: "text-white",
-  },
-  {
-    bg: "bg-violet-600 dark:bg-violet-500",
-    text: "text-white",
-  },
-  {
-    bg: "bg-orange-600 dark:bg-orange-500",
-    text: "text-white",
-  },
-  {
-    bg: "bg-rose-600 dark:bg-rose-500",
-    text: "text-white",
-  },
-  {
-    bg: "bg-teal-600 dark:bg-teal-500",
-    text: "text-white",
-  },
-  {
-    bg: "bg-amber-600 dark:bg-amber-500",
-    text: "text-white",
-  },
-  {
-    bg: "bg-indigo-600 dark:bg-indigo-500",
-    text: "text-white",
-  },
-];
-
 export function getIdentityColor(seed: string) {
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
@@ -72,4 +38,14 @@ export function getInitials(name: string) {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+}
+
+export function timeAgo(iso: string) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }

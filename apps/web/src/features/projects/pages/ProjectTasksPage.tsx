@@ -2,8 +2,6 @@ import { Button } from "@/components/ui/button";
 import { cn, getIdentityColor, getInitials } from "@/lib/utils";
 import { useProject } from "../hooks/useProject";
 import { useParams } from "react-router-dom";
-import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
-import { useWorkspaceStore } from "@/stores/workspaceStore";
 import {
   Ellipsis,
   Loader2,
@@ -15,11 +13,11 @@ import TasksPage from "@/features/tasks/pages/TasksPage";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ProjectTasksPage = () => {
-  const { activeOrganization } = useActiveOrganization();
-  const activeWorkspaceSlug = useWorkspaceStore(
-    (state) => state.activeWorkspaceSlug,
-  );
-  const { projectSlug } = useParams<{ projectSlug: string }>();
+  const { orgSlug, workspaceSlug, projectSlug } = useParams<{
+    orgSlug: string;
+    workspaceSlug: string;
+    projectSlug: string;
+  }>();
 
   const {
     data: project,
@@ -27,13 +25,7 @@ const ProjectTasksPage = () => {
     isError,
     refetch,
     isFetching,
-  } = useProject(
-    activeOrganization?.slug ?? null,
-    activeWorkspaceSlug ?? null,
-    projectSlug ?? null,
-  );
-
-  if (!activeOrganization || !activeWorkspaceSlug || !projectSlug) return null;
+  } = useProject(orgSlug ?? null, workspaceSlug ?? null, projectSlug ?? null);
 
   if (isLoading) {
     return (

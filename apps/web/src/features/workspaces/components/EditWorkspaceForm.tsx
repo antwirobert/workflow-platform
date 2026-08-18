@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { sanitizeSlugInput } from "@/lib/utils";
 import { useUpdateWorkspace } from "../hooks/useUpdateWorkspace";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
-import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
+import { useParams } from "react-router-dom";
 
 type EditWorkspaceValues = z.infer<typeof editWorkspaceSchema>;
 
@@ -38,7 +38,7 @@ const EditWorkspaceForm = ({
   onClose,
 }: EditWorkspaceFormProps) => {
   const [isEditingSlug, setIsEditingSlug] = useState(false);
-  const { activeOrganization } = useActiveOrganization();
+  const { orgSlug } = useParams<{ orgSlug: string }>();
   const setActiveWorkspaceSlug = useWorkspaceStore(
     (s) => s.setActiveWorkspaceSlug,
   );
@@ -47,7 +47,7 @@ const EditWorkspaceForm = ({
     mutate: editWorkspace,
     isPending,
     error,
-  } = useUpdateWorkspace(activeOrganization!.slug, workspaceSlug);
+  } = useUpdateWorkspace(orgSlug!, workspaceSlug);
 
   const form = useForm<EditWorkspaceValues>({
     resolver: zodResolver(editWorkspaceSchema),

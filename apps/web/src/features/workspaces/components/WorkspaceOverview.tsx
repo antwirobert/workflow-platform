@@ -26,11 +26,11 @@ const WorkspaceOverview = ({
   projectsError,
   projectsFetching,
   refetchProjects,
+  onProjectPageChange,
   members,
   membersError,
   membersFetching,
   refetchMembers,
-  onProjectPageChange,
   onMemberPageChange,
 }: WorkspaceOverviewProps) => {
   return (

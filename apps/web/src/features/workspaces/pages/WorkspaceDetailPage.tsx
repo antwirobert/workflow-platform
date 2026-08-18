@@ -18,6 +18,7 @@ import { useOrganizationMembers } from "@/features/organizations/hooks/useOrgani
 const WorkspaceDetailPage = () => {
   const [projectPage, setProjectPage] = useState(DEFAULT_PAGE);
   const [projectLimit, setProjectLimit] = useState(DEFAULT_SUB_TABLE_LIMIT);
+  const [memberLimit, setMemberLimit] = useState(DEFAULT_SUB_TABLE_LIMIT);
   const [memberPage, setMemberPage] = useState(1);
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
@@ -48,7 +49,7 @@ const WorkspaceDetailPage = () => {
     refetch: refetchMembers,
   } = useOrganizationMembers(orgSlug ?? null, {
     page: memberPage,
-    limit: DEFAULT_SUB_TABLE_LIMIT,
+    limit: memberLimit,
   });
 
   if (isLoading) {
@@ -228,11 +229,11 @@ const WorkspaceDetailPage = () => {
                 projectsError={isProjectsError}
                 projectsFetching={isProjectsFetching}
                 refetchProjects={refetchProjects}
+                onProjectPageChange={setProjectPage}
                 members={orgMembers}
                 membersError={isMembersError}
                 membersFetching={isMembersFetching}
                 refetchMembers={refetchMembers}
-                onProjectPageChange={setProjectPage}
                 onMemberPageChange={setMemberPage}
               />
             </TabsContent>
@@ -254,12 +255,21 @@ const WorkspaceDetailPage = () => {
             </TabsContent>
           )}
 
-          <TabsContent
-            value="members"
-            className="mt-6 focus-visible:outline-none"
-          >
-            <WorkspaceMembers />
-          </TabsContent>
+          {orgMembers && (
+            <TabsContent
+              value="members"
+              className="mt-6 focus-visible:outline-none"
+            >
+              <WorkspaceMembers
+                members={orgMembers}
+                membersError={isMembersError}
+                membersFetching={isMembersFetching}
+                refetchMembers={refetchMembers}
+                onMemberPageChange={setMemberPage}
+                onMemberPageSizeChange={setMemberLimit}
+              />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </section>

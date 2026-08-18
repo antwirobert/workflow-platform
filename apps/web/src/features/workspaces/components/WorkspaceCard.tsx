@@ -164,7 +164,7 @@ const WorkspaceCard = ({
 
         <div className="flex flex-col gap-1.5">
           {!isError &&
-            (projects?.data.length ?? 0 > 0) &&
+            (projects?.data.length ?? 0) > 0 &&
             projects?.data.map((project) => (
               <div
                 key={project.id}

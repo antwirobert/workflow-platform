@@ -1,43 +1,38 @@
-import { useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { DEFAULT_SUB_TABLE_LIMIT } from "@/constants";
-import { useProjects } from "@/features/projects/hooks/useProjects";
 import PaginationControls from "@/components/PaginationControls";
 import TextAvatar from "@/components/TextAvatar";
-import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
 import { getIdentityColor, timeAgo } from "@/lib/utils";
 import ErrorState from "@/components/ErrorState";
+import type { PaginatedResponse } from "@/features/projects/types";
+import type { Project } from "@/types/project";
+import type { Member } from "@/types/organization";
 
 interface WorkspaceOverviewProps {
-  orgSlug: string;
-  workspaceSlug: string;
+  projects: PaginatedResponse<Project>;
+  projectsError: boolean;
+  projectsFetching: boolean;
+  refetchProjects: () => void;
+  members: PaginatedResponse<Member>;
+  membersError: boolean;
+  membersFetching: boolean;
+  refetchMembers: () => void;
+  onProjectPageChange: Dispatch<SetStateAction<number>>;
+  onMemberPageChange: Dispatch<SetStateAction<number>>;
 }
 
 const WorkspaceOverview = ({
-  orgSlug,
-  workspaceSlug,
+  projects,
+  projectsError,
+  projectsFetching,
+  refetchProjects,
+  members,
+  membersError,
+  membersFetching,
+  refetchMembers,
+  onProjectPageChange,
+  onMemberPageChange,
 }: WorkspaceOverviewProps) => {
-  const [projectPage, setProjectPage] = useState(1);
-  const [memberPage, setMemberPage] = useState(1);
-  const {
-    data: projects,
-    isError: isProjectsError,
-    isFetching: isProjectsFetching,
-    refetch: refetchProjects,
-  } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
-    page: projectPage,
-    limit: DEFAULT_SUB_TABLE_LIMIT,
-  });
-
-  const {
-    data: orgMembers,
-    isError: isMembersError,
-    isFetching: isMembersFetching,
-    refetch: refetchMembers,
-  } = useOrganizationMembers(orgSlug ?? null, {
-    page: memberPage,
-    limit: DEFAULT_SUB_TABLE_LIMIT,
-  });
-
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
       {/* Main column */}
@@ -48,24 +43,24 @@ const WorkspaceOverview = ({
             Recent projects
           </h3>
 
-          {isProjectsError && (
+          {projectsError && (
             <ErrorState
               title="Couldn't load projects"
               description="Something went wrong fetching projects for this workspace."
               onRetry={refetchProjects}
-              isRetrying={isProjectsFetching}
+              isRetrying={projectsFetching}
             />
           )}
 
-          {!isProjectsError && (projects?.data.length ?? 0) > 0 ? (
+          {!projectsError && projects.data.length > 0 ? (
             <div className="space-y-3">
-              {projects?.data.map((project) => {
-                const { name, description, updatedAt, taskCount } = project;
-                const color = getIdentityColor(project.id);
+              {projects.data.map((project) => {
+                const { id, name, description, updatedAt, taskCount } = project;
+                const color = getIdentityColor(id);
 
                 return (
                   <div
-                    key={project.id}
+                    key={id}
                     className="group flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md"
                   >
                     <div className="flex min-w-0 items-center gap-3.5">
@@ -99,11 +94,11 @@ const WorkspaceOverview = ({
               })}
 
               <PaginationControls
-                currentPage={projects!.meta.page}
-                totalPages={projects!.meta.totalPages}
-                totalItems={projects!.meta.total}
+                currentPage={projects.meta.page}
+                totalPages={projects.meta.totalPages}
+                totalItems={projects.meta.total}
                 limit={DEFAULT_SUB_TABLE_LIMIT}
-                onPageChange={setProjectPage}
+                onPageChange={onProjectPageChange}
               />
             </div>
           ) : (
@@ -143,38 +138,39 @@ const WorkspaceOverview = ({
             Members
           </h3>
 
-          {isMembersError && (
+          {membersError && (
             <ErrorState
               title="Couldn't load members"
               description="Something went wrong fetching members for this workspace."
               onRetry={refetchMembers}
-              isRetrying={isMembersFetching}
+              isRetrying={membersFetching}
             />
           )}
 
           <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
-            {!isMembersError && (orgMembers?.data.length ?? 0) > 0 ? (
+            {!membersError && members.data.length > 0 ? (
               <div className="space-y-3">
-                {orgMembers?.data.map((member) => {
-                  const color = getIdentityColor(member.user.id);
+                {members.data.map((member) => {
+                  const {
+                    user: { id, name },
+                    role,
+                  } = member;
+                  const color = getIdentityColor(id);
 
                   return (
-                    <div
-                      key={member.user.id}
-                      className="flex items-center gap-2.5"
-                    >
+                    <div key={id} className="flex items-center gap-2.5">
                       <TextAvatar
-                        name={member.user.name}
+                        name={name}
                         colorClass={color.bg}
                         textClass={color.text}
                         className="size-8 shrink-0 rounded-full text-xs font-semibold"
                       />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">
-                          {member.user.name}
+                          {name}
                         </p>
                         <p className="text-[11px] capitalize text-muted-foreground">
-                          {member.role.toLowerCase()}
+                          {role.toLowerCase()}
                         </p>
                       </div>
                     </div>
@@ -193,15 +189,13 @@ const WorkspaceOverview = ({
             )}
           </div>
 
-          {orgMembers && (
-            <PaginationControls
-              currentPage={orgMembers.meta.page}
-              totalPages={orgMembers.meta.totalPages}
-              totalItems={orgMembers.meta.total}
-              limit={DEFAULT_SUB_TABLE_LIMIT}
-              onPageChange={setMemberPage}
-            />
-          )}
+          <PaginationControls
+            currentPage={members.meta.page}
+            totalPages={members.meta.totalPages}
+            totalItems={members.meta.total}
+            limit={DEFAULT_SUB_TABLE_LIMIT}
+            onPageChange={onMemberPageChange}
+          />
         </section>
 
         {/* At a glance */}

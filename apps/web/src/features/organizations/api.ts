@@ -5,7 +5,7 @@ import type {
   PaginatedResponse,
   UpdateOrganizationPayload,
 } from "./types";
-import type { Organization } from "@/types/organization";
+import type { Member, Organization } from "@/types/organization";
 
 const base = "/api/organizations/";
 
@@ -24,4 +24,11 @@ export const organizationsApi = {
   update: (orgSlug: string, payload: UpdateOrganizationPayload) =>
     apiClient.patch<Organization>(`${base}${orgSlug}`, payload),
   delete: (orgSlug: string) => apiClient.delete<void>(`${base}${orgSlug}`),
+  listOrgMembers: (orgSlug: string, params: OrganizationlistParams) =>
+    apiClient.get<PaginatedResponse<Member>>(`${base}${orgSlug}/members`, {
+      params: {
+        page: String(params.page),
+        limit: String(params.limit),
+      },
+    }),
 };

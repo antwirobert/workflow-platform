@@ -9,3 +9,12 @@ export interface Organization {
   workspaceCount?: number;
   memberCount?: number;
 }
+
+export interface Member {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  role: OrgRole;
+}

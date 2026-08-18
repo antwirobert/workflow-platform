@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useWorkspace } from "../hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,14 @@ import WorkspaceMembers from "../components/WorkspaceMembers ";
 import { cn, getIdentityColor } from "@/lib/utils";
 import ErrorState from "@/components/ErrorState";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useProjects } from "@/features/projects/hooks/useProjects";
+import { DEFAULT_PAGE, DEFAULT_SUB_TABLE_LIMIT } from "@/constants";
+import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
 
 const WorkspaceDetailPage = () => {
+  const [projectPage, setProjectPage] = useState(DEFAULT_PAGE);
+  const [projectLimit, setProjectLimit] = useState(DEFAULT_SUB_TABLE_LIMIT);
+  const [memberPage, setMemberPage] = useState(1);
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
@@ -23,6 +30,26 @@ const WorkspaceDetailPage = () => {
     refetch,
     isFetching,
   } = useWorkspace(orgSlug ?? null, workspaceSlug ?? null);
+
+  const {
+    data: projects,
+    isError: isProjectsError,
+    isFetching: isProjectsFetching,
+    refetch: refetchProjects,
+  } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
+    page: projectPage,
+    limit: projectLimit,
+  });
+
+  const {
+    data: orgMembers,
+    isError: isMembersError,
+    isFetching: isMembersFetching,
+    refetch: refetchMembers,
+  } = useOrganizationMembers(orgSlug ?? null, {
+    page: memberPage,
+    limit: DEFAULT_SUB_TABLE_LIMIT,
+  });
 
   if (isLoading) {
     return (
@@ -191,22 +218,41 @@ const WorkspaceDetailPage = () => {
 
           <Separator className="-mt-2" />
 
-          <TabsContent
-            value="overview"
-            className="mt-6 focus-visible:outline-none"
-          >
-            <WorkspaceOverview
-              orgSlug={orgSlug}
-              workspaceSlug={workspaceSlug}
-            />
-          </TabsContent>
+          {projects && orgMembers && (
+            <TabsContent
+              value="overview"
+              className="mt-6 focus-visible:outline-none"
+            >
+              <WorkspaceOverview
+                projects={projects}
+                projectsError={isProjectsError}
+                projectsFetching={isProjectsFetching}
+                refetchProjects={refetchProjects}
+                members={orgMembers}
+                membersError={isMembersError}
+                membersFetching={isMembersFetching}
+                refetchMembers={refetchMembers}
+                onProjectPageChange={setProjectPage}
+                onMemberPageChange={setMemberPage}
+              />
+            </TabsContent>
+          )}
 
-          <TabsContent
-            value="projects"
-            className="mt-6 focus-visible:outline-none"
-          >
-            <WorkspaceProjects />
-          </TabsContent>
+          {projects && (
+            <TabsContent
+              value="projects"
+              className="mt-6 focus-visible:outline-none"
+            >
+              <WorkspaceProjects
+                projects={projects}
+                projectsError={isProjectsError}
+                projectsFetching={isProjectsFetching}
+                refetchProjects={refetchProjects}
+                onProjectPageChange={setProjectPage}
+                onProjectPageSizeChange={setProjectLimit}
+              />
+            </TabsContent>
+          )}
 
           <TabsContent
             value="members"

@@ -1,5 +1,110 @@
-const WorkspaceProjects = () => {
-  return <div>WorkspaceProjects</div>;
+import type { Dispatch, SetStateAction } from "react";
+import type { PaginatedResponse } from "@/features/projects/types";
+import type { Project } from "@/types/project";
+import TextAvatar from "@/components/TextAvatar";
+import { getIdentityColor, timeAgo } from "@/lib/utils";
+import PaginationControls from "@/components/PaginationControls";
+import ErrorState from "@/components/ErrorState";
+import { DEFAULT_SUB_TABLE_LIMIT } from "@/constants";
+
+interface WorkspaceProjectsProps {
+  projects: PaginatedResponse<Project>;
+  projectsError: boolean;
+  projectsFetching: boolean;
+  refetchProjects: () => void;
+  onProjectPageChange: Dispatch<SetStateAction<number>>;
+  onProjectPageSizeChange: Dispatch<SetStateAction<number>>;
+}
+
+const WorkspaceProjects = ({
+  projects,
+  projectsError,
+  projectsFetching,
+  refetchProjects,
+  onProjectPageChange,
+  onProjectPageSizeChange,
+}: WorkspaceProjectsProps) => {
+  return (
+    <div className="space-y-6">
+      {projectsError && (
+        <ErrorState
+          title="Couldn't load projects"
+          description="Something went wrong fetching projects for this workspace."
+          onRetry={refetchProjects}
+          isRetrying={projectsFetching}
+        />
+      )}
+
+      {!projectsError && projects.data.length > 0 && (
+        <>
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {projects.data.map((project) => {
+              const { id, name, description, updatedAt } = project;
+              const color = getIdentityColor(id);
+
+              return (
+                <div
+                  key={id}
+                  className="group relative flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md"
+                >
+                  {/* Header */}
+                  <div className="flex items-start justify-between gap-3">
+                    <TextAvatar
+                      name={name}
+                      colorClass={color.bg}
+                      textClass={color.text}
+                      className="size-10 shrink-0 rounded-lg text-sm font-semibold"
+                    />
+                    <span className="text-[11px] text-muted-foreground tabular-nums">
+                      updated {timeAgo(updatedAt)}
+                    </span>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <h3 className="truncate text-sm font-semibold tracking-tight text-foreground">
+                      {name}
+                    </h3>
+                    {description ? (
+                      <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                        {description}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground/70">
+                        No description
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <PaginationControls
+            currentPage={projects.meta.page}
+            totalPages={projects.meta.totalPages}
+            totalItems={projects.meta.total}
+            limit={DEFAULT_SUB_TABLE_LIMIT}
+            onPageChange={onProjectPageChange}
+            onPageSizeChange={onProjectPageSizeChange}
+          />
+        </>
+      )}
+
+      {projects.data && projects.data.length === 0 && (
+        <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              No projects yet
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Projects created in this workspace will appear here.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default WorkspaceProjects;

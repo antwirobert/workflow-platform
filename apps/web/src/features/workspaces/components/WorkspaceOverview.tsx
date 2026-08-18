@@ -5,6 +5,7 @@ import PaginationControls from "@/components/PaginationControls";
 import TextAvatar from "@/components/TextAvatar";
 import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
 import { getIdentityColor, timeAgo } from "@/lib/utils";
+import ErrorState from "@/components/ErrorState";
 
 interface WorkspaceOverviewProps {
   orgSlug: string;
@@ -17,16 +18,22 @@ const WorkspaceOverview = ({
 }: WorkspaceOverviewProps) => {
   const [projectPage, setProjectPage] = useState(1);
   const [memberPage, setMemberPage] = useState(1);
-  const { data: projects, isError } = useProjects(
-    orgSlug ?? null,
-    workspaceSlug ?? null,
-    {
-      page: projectPage,
-      limit: DEFAULT_SUB_TABLE_LIMIT,
-    },
-  );
+  const {
+    data: projects,
+    isError: isProjectsError,
+    isFetching: isProjectsFetching,
+    refetch: refetchProjects,
+  } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
+    page: projectPage,
+    limit: DEFAULT_SUB_TABLE_LIMIT,
+  });
 
-  const { data: orgMembers } = useOrganizationMembers(orgSlug ?? null, {
+  const {
+    data: orgMembers,
+    isError: isMembersError,
+    isFetching: isMembersFetching,
+    refetch: refetchMembers,
+  } = useOrganizationMembers(orgSlug ?? null, {
     page: memberPage,
     limit: DEFAULT_SUB_TABLE_LIMIT,
   });
@@ -41,7 +48,16 @@ const WorkspaceOverview = ({
             Recent projects
           </h3>
 
-          {!isError && (projects?.data.length ?? 0) > 0 ? (
+          {isProjectsError && (
+            <ErrorState
+              title="Couldn't load projects"
+              description="Something went wrong fetching projects for this workspace."
+              onRetry={refetchProjects}
+              isRetrying={isProjectsFetching}
+            />
+          )}
+
+          {!isProjectsError && (projects?.data.length ?? 0) > 0 ? (
             <div className="space-y-3">
               {projects?.data.map((project) => {
                 const { name, description, updatedAt, taskCount } = project;
@@ -127,8 +143,17 @@ const WorkspaceOverview = ({
             Members
           </h3>
 
+          {isMembersError && (
+            <ErrorState
+              title="Couldn't load members"
+              description="Something went wrong fetching members for this workspace."
+              onRetry={refetchMembers}
+              isRetrying={isMembersFetching}
+            />
+          )}
+
           <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
-            {!isError && (orgMembers?.data.length ?? 0) > 0 ? (
+            {!isMembersError && (orgMembers?.data.length ?? 0) > 0 ? (
               <div className="space-y-3">
                 {orgMembers?.data.map((member) => {
                   const color = getIdentityColor(member.user.id);

@@ -41,6 +41,7 @@ export class ProjectsController {
       const projects = await projectsService.list({
         page,
         limit,
+        userId: req.user!.userId,
         workspaceId: req.workspace!.id,
       });
 

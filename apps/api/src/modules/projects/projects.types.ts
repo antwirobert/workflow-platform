@@ -16,6 +16,7 @@ export interface ProjectResult {
   id: string;
   createdAt: Date;
   updatedAt: Date;
+  role?: string;
   taskCount?: number;
 }
 
@@ -25,6 +26,7 @@ export interface UpdateProjectInput extends UpdateProjectPayload {
 }
 
 export interface ListProjectsQuery extends ListProjectsQueryInput {
+  userId: string;
   workspaceId: string;
 }
 

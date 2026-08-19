@@ -4,14 +4,13 @@ const AuthSidebar = () => {
   return (
     <div className="relative hidden min-h-screen w-full flex-col justify-between overflow-hidden bg-black px-12 py-16 text-white md:flex md:w-1/2">
       <div
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-[0.20]"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 25% 20%, #0070f3 0%, transparent 45%), radial-gradient(circle at 80% 75%, #ff0080 0%, transparent 45%)",
+            "radial-gradient(circle at 25% 20%, #0070f3 0%, transparent 45%), radial-gradient(circle at 80% 75%, #7928ca 0%, transparent 45%)",
         }}
       />
 
-      {/* Subtle grid overlay */}
       <div
         className="absolute inset-0 opacity-[0.06]"
         style={{

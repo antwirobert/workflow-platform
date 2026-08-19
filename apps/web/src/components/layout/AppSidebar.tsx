@@ -18,7 +18,7 @@ import { useActiveOrganization } from "@/features/organizations/hooks/useActiveO
 import { useWorkspaces } from "@/features/workspaces/hooks/useWorkspaces";
 import { cn, getIdentityColor } from "@/lib/utils";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
-// import { useProjects } from "@/features/projects/hooks/useProjects";
+import { useProjects } from "@/features/projects/hooks/useProjects";
 import OrganizationSwitcher from "@/features/organizations/components/OrganizationSwitcher ";
 import { DEFAULT_PAGE, DEFAULT_SIDEBAR_LIMIT } from "@/constants";
 
@@ -44,22 +44,26 @@ const AppSidebar = () => {
     limit: DEFAULT_SIDEBAR_LIMIT,
   });
 
-  // const {
-  //   data: projects,
-  //   isLoading: projectsLoading,
-  //   isError: projectsError,
-  //   refetch: projectsRefetch,
-  //   isFetching: projectsFetching,
-  // } = useProjects(
-  //   activeOrganization?.slug ?? null,
-  //   activeWorkspaceSlug ?? null,
-  // );
+  const {
+    data: projects,
+    isLoading: projectsLoading,
+    isError: projectsError,
+    refetch: projectsRefetch,
+    isFetching: projectsFetching,
+  } = useProjects(
+    activeOrganization?.slug ?? null,
+    activeWorkspaceSlug ?? null,
+    {
+      page: DEFAULT_PAGE,
+      limit: DEFAULT_SIDEBAR_LIMIT,
+    },
+  );
 
   const allWorkspacesPath = `/organizations/${activeOrganization?.slug}/workspaces`;
   const allProjectsPath = `/organizations/${activeOrganization?.slug}/workspaces/${activeWorkspaceSlug}/projects`;
 
   const isAllWorkspacesActive = location.pathname === allWorkspacesPath;
-  // const isAllProjectsActive = location.pathname === allProjectsPath;
+  const isAllProjectsActive = location.pathname === allProjectsPath;
 
   const handleWorkspaceClick = (slug: string) => {
     setActiveWorkspaceSlug(slug);
@@ -77,7 +81,7 @@ const AppSidebar = () => {
       <SidebarContent>
         {/* Workspaces */}
         <SidebarGroup>
-          <SidebarGroupLabel className="px-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             <span>Workspaces</span>
           </SidebarGroupLabel>
 
@@ -181,25 +185,16 @@ const AppSidebar = () => {
 
         {/* Projects */}
         <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center justify-between px-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            <span>Projects</span>
-            <Link
-              to={allProjectsPath}
-              className="rounded-md p-0.5 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            >
-              <Plus className="size-3.5" strokeWidth={2.5} />
-            </Link>
+          <SidebarGroupLabel className="px-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Projects
           </SidebarGroupLabel>
 
-          {/* <SidebarGroupContent>
+          <SidebarGroupContent>
             <SidebarMenu>
               {projectsLoading &&
-                Array.from({ length: 3 }).map((_, i) => (
-                  <SidebarMenuItem key={i}>
-                    <SidebarMenuButton className="gap-2.5 pointer-events-none">
-                      <Skeleton className="size-2.5 shrink-0 rounded-full" />
-                      <Skeleton className="h-3.5 w-full" />
-                    </SidebarMenuButton>
+                Array.from({ length: 3 }).map((_, index) => (
+                  <SidebarMenuItem key={index}>
+                    <SidebarMenuSkeleton />
                   </SidebarMenuItem>
                 ))}
 
@@ -226,7 +221,7 @@ const AppSidebar = () => {
 
               {!projectsLoading &&
                 !projectsError &&
-                (projects ?? []).length === 0 && (
+                (projects?.data ?? []).length === 0 && (
                   <div className="mx-2 flex flex-col items-center gap-2 rounded-lg border border-dashed border-border/80 px-3 py-4 text-center">
                     <p className="text-xs leading-relaxed text-muted-foreground">
                       No projects in this workspace yet.
@@ -243,16 +238,16 @@ const AppSidebar = () => {
 
               {!projectsLoading &&
                 !projectsError &&
-                (projects ?? []).map((project) => {
+                (projects?.data ?? []).map((project) => {
                   const isProjectActive =
-                    location.pathname === `${allProjectsPath}/${project.id}`;
+                    location.pathname === `${allProjectsPath}/${project.slug}`;
 
                   return (
                     <SidebarMenuItem key={project.id}>
                       <SidebarMenuButton
                         className="gap-2.5"
                         onClick={() =>
-                          navigate(`${allProjectsPath}/${project.id}`)
+                          navigate(`${allProjectsPath}/${project.slug}`)
                         }
                         isActive={isProjectActive}
                       >
@@ -266,7 +261,7 @@ const AppSidebar = () => {
 
             {!projectsLoading &&
               !projectsError &&
-              (projects ?? []).length > 0 && (
+              (projects?.data ?? []).length > 0 && (
                 <SidebarMenu className="mt-1">
                   <SidebarMenuItem>
                     <SidebarMenuButton
@@ -281,7 +276,7 @@ const AppSidebar = () => {
                   </SidebarMenuItem>
                 </SidebarMenu>
               )}
-          </SidebarGroupContent> */}
+          </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 

@@ -15,77 +15,76 @@ import { toast } from "@/components/ui/toast";
 import { Loader2, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { sanitizeSlugInput } from "@/lib/utils";
-import { useUpdateWorkspace } from "../hooks/useUpdateWorkspace";
-import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { useParams } from "react-router-dom";
+import { useUpdateProject } from "../hooks/useUpdateProject";
+import { Textarea } from "@/components/ui/textarea";
 
-type EditWorkspaceValues = z.infer<typeof editWorkspaceSchema>;
+type EditProjectValues = z.infer<typeof editProjectSchema>;
 
-const editWorkspaceSchema = z.object({
+const editProjectSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").optional(),
   slug: z.string().min(2, "Slug must be at least 2 characters.").optional(),
+  description: z
+    .string()
+    .max(500, "Description cannot exceed 500 characters")
+    .optional(),
 });
 
-interface EditWorkspaceFormProps {
+interface EditProjectFormProps {
   name: string;
-  workspaceSlug: string;
+  description: string;
+  projectSlug: string;
   onClose: () => void;
 }
 
-const EditWorkspaceForm = ({
-  workspaceSlug,
+const EditProjectForm = ({
   name,
+  description,
+  projectSlug,
   onClose,
-}: EditWorkspaceFormProps) => {
+}: EditProjectFormProps) => {
   const [isEditingSlug, setIsEditingSlug] = useState(false);
-  const { orgSlug } = useParams<{ orgSlug: string }>();
-  const setActiveWorkspaceSlug = useWorkspaceStore(
-    (s) => s.setActiveWorkspaceSlug,
-  );
-  const activeWorkspaceSlug = useWorkspaceStore((s) => s.activeWorkspaceSlug);
+  const { orgSlug, workspaceSlug } = useParams<{
+    orgSlug: string;
+    workspaceSlug: string;
+  }>();
   const {
-    mutate: editWorkspace,
+    mutate: editProject,
     isPending,
     error,
-  } = useUpdateWorkspace(orgSlug!, workspaceSlug);
+  } = useUpdateProject(orgSlug!, workspaceSlug!, projectSlug);
 
-  const form = useForm<EditWorkspaceValues>({
-    resolver: zodResolver(editWorkspaceSchema),
-    defaultValues: { name, slug: workspaceSlug },
+  const form = useForm<EditProjectValues>({
+    resolver: zodResolver(editProjectSchema),
+    defaultValues: { name, slug: projectSlug, description },
   });
 
   useEffect(() => {
-    form.reset({ name });
-  }, [name, form]);
+    form.reset({ name, description });
+  }, [name, description, form]);
 
   const slugValue = form.watch("slug");
 
-  function onSubmit(data: EditWorkspaceValues) {
+  function onSubmit(data: EditProjectValues) {
     const payload: { name?: string; slug?: string } = {};
 
     if (form.formState.dirtyFields.name) payload.name = data.name;
     if (isEditingSlug && form.formState.dirtyFields.slug)
       payload.slug = data.slug;
 
-    editWorkspace(data, {
-      onSuccess: (updated) => {
-        if (
-          activeWorkspaceSlug === workspaceSlug &&
-          updated.slug !== workspaceSlug
-        ) {
-          setActiveWorkspaceSlug(updated.slug);
-        }
+    editProject(data, {
+      onSuccess: () => {
         onClose();
         setIsEditingSlug(false);
         toast.add({
           type: "success",
-          title: "Workspace updated",
+          title: "Project updated",
         });
       },
       onError: (err: ApiError) => {
         if (err.code === ERROR_CODES.VALIDATION && err.details) {
           Object.entries(err.details).forEach(([field, messages]) =>
-            form.setError(field as keyof EditWorkspaceValues, {
+            form.setError(field as keyof EditProjectValues, {
               message: messages[0],
             }),
           );
@@ -102,14 +101,14 @@ const EditWorkspaceForm = ({
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="workspace-name" className="font-semibold">
+              <FieldLabel htmlFor="project-name" className="font-semibold">
                 Name
               </FieldLabel>
               <Input
                 {...field}
-                id="workspace-name"
+                id="project-name"
                 aria-invalid={fieldState.invalid}
-                placeholder="Growth"
+                placeholder="Payments Platform"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -122,7 +121,7 @@ const EditWorkspaceForm = ({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <div className="flex items-center justify-between">
-                <FieldLabel htmlFor="workspace-slug" className="font-semibold">
+                <FieldLabel htmlFor="project-slug" className="font-semibold">
                   URL
                 </FieldLabel>
                 {!isEditingSlug && (
@@ -140,10 +139,10 @@ const EditWorkspaceForm = ({
               {isEditingSlug ? (
                 <>
                   <div className="flex items-center gap-1 text-sm">
-                    <span className="text-muted-foreground">/workspaces/</span>
+                    <span className="text-muted-foreground">/projects/</span>
                     <Input
                       {...field}
-                      id="workspace-slug"
+                      id="project-slug"
                       aria-invalid={fieldState.invalid}
                       onChange={(e) =>
                         form.setValue(
@@ -158,10 +157,32 @@ const EditWorkspaceForm = ({
                 </>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  /workspaces/{slugValue}
+                  /projects/{slugValue}
                 </p>
               )}
 
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+
+        <Controller
+          name="description"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel
+                htmlFor="project-description"
+                className="font-semibold"
+              >
+                Description
+              </FieldLabel>
+              <Textarea
+                {...field}
+                id="project-description"
+                aria-invalid={fieldState.invalid}
+                placeholder="What is this project about?"
+              />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
@@ -197,4 +218,4 @@ const EditWorkspaceForm = ({
   );
 };
 
-export default EditWorkspaceForm;
+export default EditProjectForm;

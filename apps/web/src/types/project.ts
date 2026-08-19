@@ -6,5 +6,6 @@ export interface Project {
   workspaceId: string;
   createdAt: string;
   updatedAt: string;
+  role?: string;
   taskCount?: number;
 }

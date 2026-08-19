@@ -4,6 +4,7 @@ import { SidebarTrigger } from "../ui/sidebar";
 import { useMatches } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Fragment } from "react";
+import ThemeToggle from "./ThemeToggle";
 
 type Match = {
   handle?: {
@@ -78,6 +79,8 @@ const Topbar = () => {
             <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-destructive" />
             <span className="sr-only">Notifications</span>
           </Button>
+
+          <ThemeToggle />
         </div>
       </div>
     </header>

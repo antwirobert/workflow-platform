@@ -97,7 +97,7 @@ export class ProjectsController {
     next: NextFunction,
   ) => {
     try {
-      await projectsService.delete(req.organization!.id, req.workspace!.id);
+      await projectsService.delete(req.workspace!.id, req.project!.id);
       res.status(204).send();
     } catch (error) {
       next(error);

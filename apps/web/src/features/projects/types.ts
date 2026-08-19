@@ -1,6 +1,12 @@
-export interface CreateProjectPaylaod {
+export interface CreateProjectPayload {
   name: string;
   slug: string;
+  description?: string;
+}
+
+export interface UpdateProjectPayload {
+  name?: string;
+  slug?: string;
   description?: string;
 }
 

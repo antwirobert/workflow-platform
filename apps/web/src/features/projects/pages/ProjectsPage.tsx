@@ -8,8 +8,14 @@ import EmptyState from "@/components/EmptyState";
 import ProjectCard from "../components/ProjectCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useParams } from "react-router-dom";
+import { useState } from "react";
+import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
+import PaginationControls from "@/components/PaginationControls";
 
 const ProjectsPage = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
@@ -21,7 +27,10 @@ const ProjectsPage = () => {
     isError,
     refetch,
     isFetching,
-  } = useProjects(orgSlug ?? null, workspaceSlug ?? null);
+  } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
+    page,
+    limit,
+  });
 
   return (
     <PageHeader
@@ -29,6 +38,8 @@ const ProjectsPage = () => {
       description="Organize work into focused, cross-functional efforts."
       action={
         <CreateProjectDialog
+          open={isOpen}
+          onOpenChange={setIsOpen}
           orgSlug={orgSlug!}
           workspaceSlug={workspaceSlug!}
         />
@@ -73,26 +84,37 @@ const ProjectsPage = () => {
         />
       )}
 
-      {projects && projects.length === 0 && (
+      {projects?.data && projects.data.length === 0 && (
         <EmptyState
           title="No projects yet"
           description="Projects group related tasks. Create your first one to get started."
           btnCaption="New project"
           icon={FolderOpen}
+          onOpenChange={() => setIsOpen(true)}
         />
       )}
 
-      {projects && projects.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              targetOrgSlug={orgSlug}
-              targetWorkspaceSlug={workspaceSlug}
-              {...project}
-            />
-          ))}
-        </div>
+      {!isError && (projects?.data.length ?? 0) > 0 && (
+        <>
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {projects?.data.map((project) => (
+              <ProjectCard
+                key={project.id}
+                targetOrgSlug={orgSlug!}
+                targetWorkspaceSlug={workspaceSlug!}
+                {...project}
+              />
+            ))}
+          </div>
+
+          <PaginationControls
+            currentPage={projects!.meta.page}
+            totalPages={projects!.meta.totalPages}
+            totalItems={projects!.meta.total}
+            onPageChange={setPage}
+            onPageSizeChange={setLimit}
+          />
+        </>
       )}
     </PageHeader>
   );

@@ -1,18 +1,21 @@
 import ActionDialog from "@/components/ActionDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
 import CreateProjectForm from "./CreateProjectForm";
 
-const CreateProjectDialog = ({
-  orgSlug,
-  workspaceSlug,
-}: {
+interface CreateProjectDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   orgSlug: string;
   workspaceSlug: string;
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
+}
 
+const CreateProjectDialog = ({
+  open,
+  onOpenChange,
+  orgSlug,
+  workspaceSlug,
+}: CreateProjectDialogProps) => {
   return (
     <ActionDialog
       trigger={
@@ -23,13 +26,13 @@ const CreateProjectDialog = ({
       }
       title="Create project"
       description="Projects organize work into focused, cross-functional efforts."
-      open={isOpen}
-      onOpenChange={setIsOpen}
+      open={open}
+      onOpenChange={onOpenChange}
     >
       <CreateProjectForm
         orgSlug={orgSlug}
         workspaceSlug={workspaceSlug}
-        onClose={() => setIsOpen(false)}
+        onClose={() => onOpenChange(false)}
       />
     </ActionDialog>
   );

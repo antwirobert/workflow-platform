@@ -14,9 +14,9 @@ const ProtectedLayout = () => {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="flex min-h-screen w-full flex-col overflow-hidden">
+      <main className="flex h-screen w-full flex-col overflow-hidden">
         <Topbar />
-        <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
           <Outlet />
         </div>
       </main>

@@ -53,12 +53,12 @@ const CreateProjectForm = ({
 
   function onSubmit(data: CreateProjectValues) {
     createProject(data, {
-      onSuccess: (data) => {
+      onSuccess: () => {
         form.reset();
         onClose();
         toast.add({
           type: "success",
-          description: `${data.name} created successfully`,
+          description: "Project created",
         });
       },
       onError: (err: ApiError) => {
@@ -111,6 +111,7 @@ const CreateProjectForm = ({
                 id="project-description"
                 aria-invalid={fieldState.invalid}
                 placeholder="What is this project about?"
+                className="min-h-25"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>

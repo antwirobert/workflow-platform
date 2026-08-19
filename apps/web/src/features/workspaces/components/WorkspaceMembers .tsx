@@ -15,10 +15,10 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { columns } from "./Columns";
 import PaginationControls from "@/components/PaginationControls";
 import { DEFAULT_SUB_TABLE_LIMIT } from "@/constants";
 import ErrorState from "@/components/ErrorState";
+import { columns } from "./Columns";
 
 interface WorkspaceMembersProps {
   members: PaginatedResponse<Member>;
@@ -117,6 +117,7 @@ const WorkspaceMembers = ({
           </Table>
         </div>
       </div>
+
       <PaginationControls
         currentPage={members.meta.page}
         totalPages={members.meta.totalPages}

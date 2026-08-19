@@ -7,23 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Priority, TaskStatus } from "@/types/task";
-
-const ALL_STATUSES = [
-  { label: "All statuses", value: "ALL" },
-  { label: "Todo", value: "TODO" },
-  { label: "In Progress", value: "IN_PROGRESS" },
-  { label: "In Review", value: "IN_REVIEW" },
-  { label: "Done", value: "DONE" },
-  { label: "Cancelled", value: "CANCELLED" },
-];
-
-const ALL_PRIORITIES = [
-  { label: "All priorities", value: "ALL" },
-  { label: "Urgent", value: "URGENT" },
-  { label: "High", value: "HIGH" },
-  { label: "Medium", value: "MEDIUM" },
-  { label: "Low", value: "LOW" },
-];
+import { ALL_PRIORITY_OPTIONS, ALL_STATUS_OPTIONS } from "../constants";
 
 interface TaskFiltersProps {
   status: TaskStatus | "ALL";
@@ -41,7 +25,7 @@ const TaskFilters = ({
   return (
     <div className="flex gap-2">
       <Select
-        items={ALL_STATUSES}
+        items={ALL_STATUS_OPTIONS}
         defaultValue="ALL"
         value={status}
         onValueChange={(value) => onStatusChange(value as TaskStatus | "ALL")}
@@ -51,7 +35,7 @@ const TaskFilters = ({
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            {ALL_STATUSES.map((status) => (
+            {ALL_STATUS_OPTIONS.map((status) => (
               <SelectItem key={status.value} value={status.value}>
                 {status.label}
               </SelectItem>
@@ -61,7 +45,7 @@ const TaskFilters = ({
       </Select>
 
       <Select
-        items={ALL_PRIORITIES}
+        items={ALL_PRIORITY_OPTIONS}
         defaultValue="ALL"
         value={priority}
         onValueChange={(value) => onPriorityChange(value as Priority | "ALL")}
@@ -71,7 +55,7 @@ const TaskFilters = ({
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            {ALL_PRIORITIES.map((priority) => (
+            {ALL_PRIORITY_OPTIONS.map((priority) => (
               <SelectItem key={priority.value} value={priority.value}>
                 {priority.label}
               </SelectItem>

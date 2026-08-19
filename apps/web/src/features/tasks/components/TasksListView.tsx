@@ -8,59 +8,15 @@ import {
 } from "@/components/ui/table";
 import type { Task } from "@/types/task";
 import {
-  createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { TaskPriorityBadge } from "./TaskPriorityBadge";
-import { TaskStatusBadge } from "./TaskStatusBadge";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import TaskDetailsSheet from "./TaskDetailsSheet";
 import { useState } from "react";
-
-const columnHelper = createColumnHelper<Task>();
-
-const columns = [
-  columnHelper.accessor("description", {
-    header: "Task",
-    cell: (info) => {
-      const value = info.getValue();
-
-      return (
-        <span
-          className={
-            value
-              ? "block max-w-120 truncate font-medium text-foreground"
-              : "text-muted-foreground"
-          }
-        >
-          {value || "Untitled task"}
-        </span>
-      );
-    },
-  }),
-  columnHelper.accessor("priority", {
-    header: "Priority",
-    cell: (info) => <TaskPriorityBadge priority={info.getValue()} />,
-  }),
-  columnHelper.accessor("status", {
-    header: "Status",
-    cell: (info) => <TaskStatusBadge status={info.getValue()} />,
-  }),
-  columnHelper.accessor("dueDate", {
-    header: "Due",
-    cell: (info) => {
-      const value = info.getValue();
-      return (
-        <span className="text-muted-foreground tabular-nums">
-          {value ? new Date(value).toLocaleDateString() : "—"}
-        </span>
-      );
-    },
-  }),
-];
+import { columns } from "./columns";
 
 interface TasksListViewProps {
   tasks: Task[];

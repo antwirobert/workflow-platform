@@ -1,6 +1,7 @@
 import { PALETTE } from "@/constants";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { format, isToday, isTomorrow, isThisYear, parseISO } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -31,7 +32,7 @@ export function getIdentityColor(seed: string) {
   return PALETTE[index];
 }
 
-export function getInitials(name: string) {
+export function getInitials(name: string): string {
   return name
     .split(" ")
     .map((part) => part[0])
@@ -40,7 +41,7 @@ export function getInitials(name: string) {
     .toUpperCase();
 }
 
-export function timeAgo(iso: string) {
+export function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diffMs / 60000);
   if (mins < 1) return "just now";
@@ -48,4 +49,19 @@ export function timeAgo(iso: string) {
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h ago`;
   return `${Math.floor(hours / 24)}d ago`;
+}
+
+export function formatDueDate(dateInput: string | null): string | null {
+  if (!dateInput) return null;
+
+  const date = parseISO(dateInput);
+
+  if (isToday(date)) return "Today";
+  if (isTomorrow(date)) return "Tomorrow";
+
+  if (isThisYear(date)) {
+    return format(date, "MMM d");
+  }
+
+  return format(date, "MMM d, yyyy");
 }

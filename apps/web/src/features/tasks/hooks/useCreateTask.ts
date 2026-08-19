@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { tasksApi } from "../api";
 import type { CreateTaskPaylaod } from "../types";
+import type { Task } from "@/types/task";
+import type { ApiError } from "@/lib/api/client";
 
 export function useCreateTask(
   orgSlug: string,
@@ -18,7 +20,7 @@ export function useCreateTask(
     "tasks",
   ];
 
-  return useMutation({
+  return useMutation<Task, ApiError, CreateTaskPaylaod>({
     mutationFn: (payload: CreateTaskPaylaod) =>
       tasksApi.create(
         orgSlug as string,

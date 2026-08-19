@@ -33,12 +33,22 @@ export const PALETTE = [
   },
 ];
 
+export const TASK_STATUSES = [
+  "TODO",
+  "IN_PROGRESS",
+  "IN_REVIEW",
+  "DONE",
+  "CANCELLED",
+] as const;
+export const PRIORITY = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
+
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_SIDEBAR_LIMIT = 5;
 export const DEFAULT_WORKSPACE_PROJECTS_LIMIT = 3;
 export const DEFAULT_SUB_TABLE_LIMIT = 10;
 export const DEFAULT_TABLE_LIMIT = 20;
+export const SELECT_ITEMS_LIMIT = 50;
+
 export const ROLE_OWNER = "OWNER";
 export const ROLE_ADMIN = "ADMIN";
-
 export const ROLES_MANAGEMENT = [ROLE_OWNER, ROLE_ADMIN];

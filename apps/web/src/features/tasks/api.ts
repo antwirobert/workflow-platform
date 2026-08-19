@@ -8,7 +8,7 @@ import type {
 } from "./types";
 
 const base = (orgSlug: string, workspaceSlug: string, projectSlug: string) =>
-  `/api/organizations/${orgSlug}/workspaces/${workspaceSlug}/projects/${projectSlug}/tasks`;
+  `/api/organizations/${orgSlug}/workspaces/${workspaceSlug}/projects/${projectSlug}/tasks/`;
 
 export const tasksApi = {
   create: (
@@ -41,7 +41,7 @@ export const tasksApi = {
     taskId: string,
   ) =>
     apiClient.get<Task>(
-      `${base(orgSlug, workspaceSlug, projectSlug)}/${taskId}`,
+      `${base(orgSlug, workspaceSlug, projectSlug)}${taskId}`,
     ),
   update: (
     orgSlug: string,
@@ -51,7 +51,7 @@ export const tasksApi = {
     payload: UpdateTaskPayload,
   ) =>
     apiClient.patch<Task>(
-      `${base(orgSlug, workspaceSlug, projectSlug)}/${taskId}`,
+      `${base(orgSlug, workspaceSlug, projectSlug)}${taskId}`,
       payload,
     ),
   delete: (
@@ -61,6 +61,6 @@ export const tasksApi = {
     taskId: string,
   ) =>
     apiClient.delete<void>(
-      `${base(orgSlug, workspaceSlug, projectSlug)}/${taskId}`,
+      `${base(orgSlug, workspaceSlug, projectSlug)}${taskId}`,
     ),
 };

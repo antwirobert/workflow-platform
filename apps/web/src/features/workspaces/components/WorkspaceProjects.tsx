@@ -35,6 +35,19 @@ const WorkspaceProjects = ({
         />
       )}
 
+      {projects.data && projects.data.length === 0 && (
+        <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              No projects yet
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Projects created in this workspace will appear here.
+            </p>
+          </div>
+        </div>
+      )}
+
       {!projectsError && projects.data.length > 0 && (
         <>
           <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -89,19 +102,6 @@ const WorkspaceProjects = ({
             onPageSizeChange={onProjectPageSizeChange}
           />
         </>
-      )}
-
-      {projects.data && projects.data.length === 0 && (
-        <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
-          <div>
-            <p className="text-sm font-medium text-foreground">
-              No projects yet
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Projects created in this workspace will appear here.
-            </p>
-          </div>
-        </div>
       )}
     </div>
   );

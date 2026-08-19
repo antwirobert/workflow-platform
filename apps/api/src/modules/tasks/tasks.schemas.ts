@@ -6,7 +6,7 @@ export const createTaskSchema = z.object({
   description: z
     .string()
     .trim()
-    .max(500, "Description cannot exceed 1000 characters")
+    .max(1000, "Description cannot exceed 1000 characters")
     .optional(),
   status: z.nativeEnum(TaskStatus).default("TODO"),
   priority: z.enum(Priority).default("MEDIUM"),
@@ -24,7 +24,7 @@ export const updateTaskSchema = z
     description: z
       .string()
       .trim()
-      .max(500, "Description cannot exceed 1000 characters")
+      .max(1000, "Description cannot exceed 1000 characters")
       .optional(),
     status: z.nativeEnum(TaskStatus).optional(),
     priority: z.enum(Priority).optional(),

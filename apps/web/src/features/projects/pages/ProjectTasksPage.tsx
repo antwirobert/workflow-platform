@@ -1,18 +1,14 @@
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { cn, getIdentityColor, getInitials } from "@/lib/utils";
 import { useProject } from "../hooks/useProject";
 import { useParams } from "react-router-dom";
-import {
-  Ellipsis,
-  Loader2,
-  Plus,
-  RefreshCw,
-  TriangleAlert,
-} from "lucide-react";
 import TasksPage from "@/features/tasks/pages/TasksPage";
 import { Skeleton } from "@/components/ui/skeleton";
+import ErrorState from "@/components/ErrorState";
+import CreateTaskDialog from "@/features/tasks/components/CreateTaskDialog";
 
 const ProjectTasksPage = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const { orgSlug, workspaceSlug, projectSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
@@ -27,10 +23,12 @@ const ProjectTasksPage = () => {
     isFetching,
   } = useProject(orgSlug ?? null, workspaceSlug ?? null, projectSlug ?? null);
 
+  if (!orgSlug || !workspaceSlug || !projectSlug) return null;
+
   if (isLoading) {
     return (
       <section className="px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-7xl">
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="max-w-xl space-y-3">
               <div className="flex items-center gap-3">
@@ -51,38 +49,13 @@ const ProjectTasksPage = () => {
 
   if (isError || !project) {
     return (
-      <section className="px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-destructive/20 bg-destructive/5 px-6 py-10 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-              <TriangleAlert className="h-6 w-6 text-destructive" />
-            </div>
-            <h3 className="text-base font-semibold text-foreground">
-              Couldn't load this project
-            </h3>
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              We hit a snag reaching the projects service. Try again in a
-              moment.
-            </p>
-            <Button
-              variant="destructive"
-              onClick={() => refetch()}
-              className="mt-2 text-white bg-destructive hover:bg-destructive/90"
-              disabled={isFetching}
-            >
-              {isFetching ? (
-                <>
-                  <Loader2 className="mr- h-4 w-4 animate-spin" /> Retrying...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-1 h-4 w-4" /> Retry
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </section>
+      <ErrorState
+        title="Couldn't load this project"
+        description="We couldn't reach the project data. Please try again."
+        onRetry={refetch}
+        isRetrying={isFetching}
+        className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8"
+      />
     );
   }
 
@@ -90,7 +63,7 @@ const ProjectTasksPage = () => {
 
   return (
     <section className="px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-xl space-y-1.5">
             <div className="flex items-center gap-3">
@@ -115,18 +88,20 @@ const ProjectTasksPage = () => {
             )}
           </div>
 
-          <div className="flex items-center shrink-0 gap-2">
-            <Button variant="outline" size="icon" className="size-9">
-              <Ellipsis className="size-4" />
-            </Button>
-            <Button className="gap-1.5">
-              <Plus className="size-4" />
-              New Task
-            </Button>
-          </div>
+          <CreateTaskDialog
+            open={isOpen}
+            onOpenChange={setIsOpen}
+            orgSlug={orgSlug}
+            workspaceSlug={workspaceSlug}
+            projectSlug={projectSlug}
+          />
         </div>
 
-        <TasksPage />
+        <TasksPage
+          orgSlug={orgSlug}
+          workspaceSlug={workspaceSlug}
+          projectSlug={projectSlug}
+        />
       </div>
     </section>
   );

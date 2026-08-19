@@ -6,7 +6,7 @@ export interface CreateTaskPaylaod {
   status: TaskStatus;
   priority: Priority;
   assigneeId?: string;
-  dueDate?: string;
+  dueDate?: Date;
 }
 
 export interface UpdateTaskPayload {
@@ -15,7 +15,7 @@ export interface UpdateTaskPayload {
   status?: TaskStatus;
   priority?: Priority;
   assigneeId?: string;
-  dueDate?: string;
+  dueDate?: Date;
 }
 
 export interface TasklistParams {

@@ -219,11 +219,11 @@ const WorkspaceDetailPage = () => {
 
           <Separator className="-mt-2" />
 
-          {projects && orgMembers && (
-            <TabsContent
-              value="overview"
-              className="mt-6 focus-visible:outline-none"
-            >
+          <TabsContent
+            value="overview"
+            className="mt-6 focus-visible:outline-none"
+          >
+            {projects && orgMembers && (
               <WorkspaceOverview
                 projects={projects}
                 projectsError={isProjectsError}
@@ -236,14 +236,14 @@ const WorkspaceDetailPage = () => {
                 refetchMembers={refetchMembers}
                 onMemberPageChange={setMemberPage}
               />
-            </TabsContent>
-          )}
+            )}
+          </TabsContent>
 
-          {projects && (
-            <TabsContent
-              value="projects"
-              className="mt-6 focus-visible:outline-none"
-            >
+          <TabsContent
+            value="projects"
+            className="mt-6 focus-visible:outline-none"
+          >
+            {projects && (
               <WorkspaceProjects
                 projects={projects}
                 projectsError={isProjectsError}
@@ -252,14 +252,14 @@ const WorkspaceDetailPage = () => {
                 onProjectPageChange={setProjectPage}
                 onProjectPageSizeChange={setProjectLimit}
               />
-            </TabsContent>
-          )}
+            )}
+          </TabsContent>
 
-          {orgMembers && (
-            <TabsContent
-              value="members"
-              className="mt-6 focus-visible:outline-none"
-            >
+          <TabsContent
+            value="members"
+            className="mt-6 focus-visible:outline-none"
+          >
+            {orgMembers && (
               <WorkspaceMembers
                 members={orgMembers}
                 membersError={isMembersError}
@@ -268,8 +268,8 @@ const WorkspaceDetailPage = () => {
                 onMemberPageChange={setMemberPage}
                 onMemberPageSizeChange={setMemberLimit}
               />
-            </TabsContent>
-          )}
+            )}
+          </TabsContent>
         </Tabs>
       </div>
     </section>

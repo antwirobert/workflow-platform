@@ -13,6 +13,7 @@
     "concurrently": "^10.0.4"
   },
   "dependencies": {
-    "@tanstack/react-table": "^8.21.3"
+    "@tanstack/react-table": "^8.21.3",
+    "date-fns": "^4.4.0"
   }
 }

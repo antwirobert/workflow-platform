@@ -16,27 +16,32 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import PaginationControls from "@/components/PaginationControls";
-import { DEFAULT_SUB_TABLE_LIMIT } from "@/constants";
 import ErrorState from "@/components/ErrorState";
-import { columns } from "./Columns";
+import { columns } from "./columns";
 
-interface WorkspaceMembersProps {
+interface MembersTableProps {
   members: PaginatedResponse<Member>;
-  membersError: boolean;
-  membersFetching: boolean;
-  refetchMembers: () => void;
-  onMemberPageChange: Dispatch<SetStateAction<number>>;
-  onMemberPageSizeChange: Dispatch<SetStateAction<number>>;
+  isError: boolean;
+  isFetching: boolean;
+  isPlaceholderData: boolean;
+  onRetry: () => void;
+  page: number;
+  limit: number;
+  onPageChange: Dispatch<SetStateAction<number>>;
+  onPageSizeChange: Dispatch<SetStateAction<number>>;
 }
 
-const WorkspaceMembers = ({
+const MembersTable = ({
   members,
-  membersError,
-  membersFetching,
-  refetchMembers,
-  onMemberPageChange,
-  onMemberPageSizeChange,
-}: WorkspaceMembersProps) => {
+  isError,
+  isFetching,
+  isPlaceholderData,
+  onRetry,
+  page,
+  limit,
+  onPageChange,
+  onPageSizeChange,
+}: MembersTableProps) => {
   const table = useReactTable({
     data: members.data,
     columns,
@@ -45,19 +50,19 @@ const WorkspaceMembers = ({
 
   return (
     <>
-      {membersError && (
+      {isError && (
         <ErrorState
           title="Couldn't load members"
-          description="Something went wrong fetching members for this workspace."
-          onRetry={refetchMembers}
-          isRetrying={membersFetching}
+          description="Something went wrong fetching members."
+          onRetry={onRetry}
+          isRetrying={isFetching}
         />
       )}
 
       <div
         className={cn(
           "flex h-full w-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm",
-          membersFetching ? "opacity-60 transition-opacity" : "",
+          isPlaceholderData ? "opacity-60 pointer-events-none" : "",
         )}
       >
         <div className="flex-1 overflow-auto">
@@ -109,7 +114,7 @@ const WorkspaceMembers = ({
                     colSpan={columns.length}
                     className="h-32 text-center text-sm text-muted-foreground"
                   >
-                    No tasks yet
+                    No members found
                   </TableCell>
                 </TableRow>
               )}
@@ -119,15 +124,15 @@ const WorkspaceMembers = ({
       </div>
 
       <PaginationControls
-        currentPage={members.meta.page}
-        totalPages={members.meta.totalPages}
+        currentPage={page}
+        limit={limit}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
         totalItems={members.meta.total}
-        limit={DEFAULT_SUB_TABLE_LIMIT}
-        onPageChange={onMemberPageChange}
-        onPageSizeChange={onMemberPageSizeChange}
+        totalPages={members.meta.totalPages}
       />
     </>
   );
 };
 
-export default WorkspaceMembers;
+export default MembersTable;

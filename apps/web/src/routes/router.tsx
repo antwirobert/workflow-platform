@@ -7,6 +7,7 @@ import WorkspacesPage from "@/features/workspaces/pages/WorkspacesPage";
 import ProjectsPage from "@/features/projects/pages/ProjectsPage";
 import ProjectTasksPage from "@/features/projects/pages/ProjectTasksPage";
 import WorkspaceDetailPage from "@/features/workspaces/pages/WorkspaceDetailPage";
+import OrganizationMembersPage from "@/features/organizations/pages/OrganizationMembersPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },
@@ -24,6 +25,11 @@ export const router = createBrowserRouter([
         path: "/organizations",
         element: <OrganizationsPage />,
         handle: { title: "Organizations" },
+      },
+      {
+        path: "/organizations/:orgSlug/members",
+        element: <OrganizationMembersPage />,
+        handle: { title: "Organization Members" },
       },
       {
         path: "/organizations/:orgSlug/workspaces",

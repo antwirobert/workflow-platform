@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import WorkspaceOverview from "../components/WorkspaceOverview";
 import WorkspaceProjects from "../components/WorkspaceProjects";
-import WorkspaceMembers from "../components/WorkspaceMembers ";
 import { cn, getIdentityColor } from "@/lib/utils";
 import ErrorState from "@/components/ErrorState";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,7 +17,7 @@ import { useOrganizationMembers } from "@/features/organizations/hooks/useOrgani
 const WorkspaceDetailPage = () => {
   const [projectPage, setProjectPage] = useState(DEFAULT_PAGE);
   const [projectLimit, setProjectLimit] = useState(DEFAULT_SUB_TABLE_LIMIT);
-  const [memberLimit, setMemberLimit] = useState(DEFAULT_SUB_TABLE_LIMIT);
+  // const [memberLimit, setMemberLimit] = useState(DEFAULT_SUB_TABLE_LIMIT);
   const [memberPage, setMemberPage] = useState(1);
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
@@ -49,7 +48,7 @@ const WorkspaceDetailPage = () => {
     refetch: refetchMembers,
   } = useOrganizationMembers(orgSlug ?? null, {
     page: memberPage,
-    limit: memberLimit,
+    limit: 10,
   });
 
   if (isLoading) {
@@ -259,7 +258,7 @@ const WorkspaceDetailPage = () => {
             value="members"
             className="mt-6 focus-visible:outline-none"
           >
-            {orgMembers && (
+            {/* {orgMembers && (
               <WorkspaceMembers
                 members={orgMembers}
                 membersError={isMembersError}
@@ -268,7 +267,7 @@ const WorkspaceDetailPage = () => {
                 onMemberPageChange={setMemberPage}
                 onMemberPageSizeChange={setMemberLimit}
               />
-            )}
+            )} */}
           </TabsContent>
         </Tabs>
       </div>

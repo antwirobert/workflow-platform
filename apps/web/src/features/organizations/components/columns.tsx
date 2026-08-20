@@ -8,8 +8,8 @@ const columnHelper = createColumnHelper<Member>();
 
 export const columns = [
   columnHelper.accessor("user", {
-    id: "member",
-    header: "Member",
+    id: "name",
+    header: "Name",
     cell: (info) => {
       const { id, name } = info.getValue();
       const color = getIdentityColor(id);
@@ -29,10 +29,6 @@ export const columns = [
       );
     },
   }),
-  columnHelper.accessor("role", {
-    header: "Role",
-    cell: (info) => <OrgRoleBadge role={info.getValue()} />,
-  }),
   columnHelper.accessor("user", {
     id: "email",
     header: "Email",
@@ -43,5 +39,9 @@ export const columns = [
         <span className="truncate text-sm text-muted-foreground">{email}</span>
       );
     },
+  }),
+  columnHelper.accessor("role", {
+    header: "Role",
+    cell: (info) => <OrgRoleBadge role={info.getValue()} />,
   }),
 ];

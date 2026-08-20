@@ -16,6 +16,7 @@ import { useState } from "react";
 import EditOrganizationDialog from "./EditOrganizationDialog";
 import DeleteOrganizationDialog from "./DeleteOrganizationDialog";
 import { ROLE_OWNER, ROLES_MANAGEMENT } from "@/constants";
+import { Link } from "react-router-dom";
 
 interface OrganizationCardProps {
   id: string;
@@ -79,13 +80,15 @@ const OrganizationCard = ({
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5">
-          <Button
-            variant="outline"
-            size="sm"
-            className="opacity-80 transition-opacity group-hover:opacity-100"
-          >
-            Manage
-          </Button>
+          <Link to={`/organizations/${slug}/members`}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="opacity-80 transition-opacity group-hover:opacity-100"
+            >
+              Manage
+            </Button>
+          </Link>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={

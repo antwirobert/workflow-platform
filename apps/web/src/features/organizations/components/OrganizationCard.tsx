@@ -40,7 +40,7 @@ const OrganizationCard = ({
 
   return (
     <>
-      <div className="group relative flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
+      <div className="group relative flex items-center justify-between gap-4 border-b border-border/40 p-4 transition-all hover:bg-muted/30 last:border-0">
         <div className="flex min-w-0 items-center gap-3.5">
           <TextAvatar
             name={name}
@@ -57,8 +57,9 @@ const OrganizationCard = ({
               <OrgRoleBadge role={role} />
               <Badge
                 variant="secondary"
-                className="h-5 shrink-0 rounded-md px-1.5 text-[11px] font-medium text-muted-foreground"
+                className="flex gap-[0.6px] h-5 shrink-0 rounded-md px-1.5 text-[11px] font-medium text-muted-foreground"
               >
+                <span>/</span>
                 {slug}
               </Badge>
             </div>

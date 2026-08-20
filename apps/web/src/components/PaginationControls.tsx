@@ -1,4 +1,4 @@
-import { DEFAULT_TABLE_LIMIT } from "@/constants";
+import { LIMIT_OPTIONS } from "@/constants";
 import { Button } from "./ui/button";
 import {
   Select,
@@ -16,27 +16,26 @@ import {
 
 interface PaginationControlsProps {
   currentPage: number;
-  totalPages: number;
-  totalItems: number;
-  limit?: number;
+  limit: number;
   onPageChange: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
+  totalItems: number;
+  totalPages: number;
 }
 
 const PaginationControls = ({
   currentPage,
-  totalPages,
-  totalItems,
-  limit = DEFAULT_TABLE_LIMIT,
+  limit,
   onPageChange,
   onPageSizeChange,
+  totalItems,
+  totalPages,
 }: PaginationControlsProps) => {
   const from = totalItems === 0 ? 0 : (currentPage - 1) * limit + 1;
   const to = Math.min(currentPage * limit, totalItems);
 
   return (
     <div className="mt-6 flex items-center justify-between gap-4">
-      {/* Left: summary */}
       <p className="hidden text-sm text-muted-foreground lg:block">
         {totalItems === 0
           ? "No results"
@@ -55,7 +54,7 @@ const PaginationControls = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {[10, 20, 30, 50].map((size) => (
+                {LIMIT_OPTIONS.map((size) => (
                   <SelectItem key={size} value={String(size)}>
                     {size}
                   </SelectItem>
@@ -95,7 +94,7 @@ const PaginationControls = ({
             size="icon"
             className="size-8"
             onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage >= totalPages}
+            disabled={totalPages === 0 || currentPage >= totalPages}
           >
             <ChevronRight className="size-4" />
           </Button>
@@ -105,7 +104,7 @@ const PaginationControls = ({
             size="icon"
             className="hidden size-8 lg:inline-flex"
             onClick={() => onPageChange(totalPages)}
-            disabled={currentPage >= totalPages}
+            disabled={totalPages === 0 || currentPage >= totalPages}
           >
             <ChevronsRight className="size-4" />
           </Button>

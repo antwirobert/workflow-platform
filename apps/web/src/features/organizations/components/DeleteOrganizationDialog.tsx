@@ -32,7 +32,7 @@ const DeleteOrganizationDialog = ({
         onOpenChange(false);
         toast.add({
           type: "success",
-          description: `Deleted ${name}`,
+          title: `Deleted ${name}`,
         });
       },
     });

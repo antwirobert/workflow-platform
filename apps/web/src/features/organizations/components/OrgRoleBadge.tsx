@@ -27,7 +27,7 @@ export const OrgRoleBadge = ({ role }: { role: OrgRole }) => {
     <Badge
       variant="outline"
       className={cn(
-        "h-5 rounded-md px-1.5 text-[11px] font-medium",
+        "h-5 rounded-md px-1.5 text-[11px] font-medium uppercase",
         config.className,
       )}
     >

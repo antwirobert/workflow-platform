@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { useOrganizations } from "../hooks/useOrganizations";
-import { Building2 } from "lucide-react";
+import { Building2, Search } from "lucide-react";
 import ErrorState from "@/components/ErrorState";
 import EmptyState from "@/components/EmptyState";
 import OrganizationCard from "../components/OrganizationCard";
-import { Skeleton } from "@/components/ui/skeleton";
 import CreateOrganizationDialog from "../components/CreateOrganizationDialog";
 import PageHeader from "@/components/PageHeader";
 import PaginationControls from "@/components/PaginationControls";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
+import OrganizationCardSkeleton from "../components/OrganizationCardSkeleton";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 const OrganizationsPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,6 +22,7 @@ const OrganizationsPage = () => {
     isError,
     refetch,
     isFetching,
+    isPlaceholderData,
   } = useOrganizations({
     page,
     limit,
@@ -33,7 +36,18 @@ const OrganizationsPage = () => {
         <CreateOrganizationDialog open={isOpen} onOpenChange={setIsOpen} />
       }
     >
-      {organizations?.data && organizations.data.length === 0 && (
+      {isLoading && <OrganizationCardSkeleton />}
+
+      {!isLoading && isError && (
+        <ErrorState
+          title="Couldn't load organizations"
+          description="We hit a snag reaching the organizations service. Try again in a moment."
+          onRetry={refetch}
+          isRetrying={isFetching}
+        />
+      )}
+
+      {!isLoading && !isError && (organizations?.data.length ?? 0) === 0 && (
         <EmptyState
           title="No organizations yet"
           description="Create your first organization to invite teammates and start collaborating."
@@ -43,58 +57,37 @@ const OrganizationsPage = () => {
         />
       )}
 
-      {isLoading && (
-        <div className="space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4"
-            >
-              <div className="flex min-w-0 items-center gap-3.5">
-                <Skeleton className="size-11 shrink-0 rounded-lg" />
-                <div className="flex min-w-0 flex-col gap-1.5">
-                  <div className="flex items-center gap-2">
-                    <Skeleton className="h-4 w-28" />
-                    <Skeleton className="h-5 w-14 rounded-md" />
-                    <Skeleton className="h-5 w-16 rounded-md" />
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Skeleton className="h-3 w-24" />
-                    <Skeleton className="h-3 w-20" />
-                  </div>
-                </div>
-              </div>
-              <div className="flex shrink-0 items-center gap-1.5">
-                <Skeleton className="h-8 w-20 rounded-md" />
-                <Skeleton className="size-8 rounded-md" />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {isError && (
-        <ErrorState
-          title="Couldn't load organizations"
-          description="We hit a snag reaching the organizations service. Try again in a moment."
-          onRetry={refetch}
-          isRetrying={isFetching}
+      <div className="relative mb-5">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Search organizations..."
+          className="w-full pl-9 pr-3 bg-muted/50 focus:bg-background transition"
         />
-      )}
+      </div>
 
-      {!isError && (organizations?.data.length ?? 0) > 0 && (
+      {!isLoading && !isError && (organizations?.data.length ?? 0) > 0 && (
         <>
-          <div className="space-y-3">
+          <div
+            className={cn(
+              "overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm",
+              isPlaceholderData ? "opacity-60 pointer-events-none" : "",
+            )}
+          >
             {organizations!.data.map((org) => (
               <OrganizationCard key={org.id} {...org} />
             ))}
           </div>
           <PaginationControls
-            currentPage={organizations!.meta.page}
-            totalPages={organizations!.meta.totalPages}
-            totalItems={organizations!.meta.total}
+            currentPage={page}
+            limit={limit}
             onPageChange={setPage}
-            onPageSizeChange={setLimit}
+            onPageSizeChange={(size) => {
+              setLimit(size);
+              setPage(DEFAULT_PAGE);
+            }}
+            totalItems={organizations!.meta.total}
+            totalPages={organizations!.meta.totalPages}
           />
         </>
       )}

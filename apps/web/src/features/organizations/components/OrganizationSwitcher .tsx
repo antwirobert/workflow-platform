@@ -14,9 +14,10 @@ import { Check, Plus } from "lucide-react";
 import OrganizationSwitcherTrigger from "./OrganizationSwitcherTrigger ";
 import { useOrgStore } from "@/stores/orgStore";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const OrganizationSwitcher = () => {
+  const navigate = useNavigate();
   const { activeOrganization, organizations } = useActiveOrganization();
   const setActiveOrgSlug = useOrgStore((state) => state.setActiveOrgSlug);
   const setActiveWorkspaceSlug = useWorkspaceStore(
@@ -82,13 +83,14 @@ const OrganizationSwitcher = () => {
         <DropdownMenuSeparator className="my-1.5" />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem className="flex items-center gap-2.5 rounded-md px-2 py-2 cursor-pointer text-muted-foreground hover:text-foreground focus:bg-accent">
+          <DropdownMenuItem
+            onClick={() => navigate("/organizations")}
+            className="flex items-center gap-2.5 rounded-md px-2 py-2 cursor-pointer text-muted-foreground hover:text-foreground focus:bg-accent"
+          >
             <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-dashed border-border bg-muted/40">
               <Plus className="size-3.5" strokeWidth={2.5} />
             </div>
-            <Link to="/organizations" className="text-sm font-medium">
-              New organization
-            </Link>
+            <span className="text-sm font-medium">New organization</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

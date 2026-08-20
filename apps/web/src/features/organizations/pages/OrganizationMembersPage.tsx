@@ -81,7 +81,7 @@ const OrganizationMembersPage = () => {
           </Button>
         </div>
 
-        <div className="mb-5 grid grid-cols-4 gap-2">
+        <div className="mb-5 sm:grid grid-cols-4 gap-x-2">
           <div className="col-span-3 relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -91,7 +91,9 @@ const OrganizationMembersPage = () => {
             />
           </div>
 
-          <RoleFilter />
+          <div className="mt-2 sm:mt-0">
+            <RoleFilter />
+          </div>
         </div>
 
         {!isMembersLoaading &&

@@ -36,6 +36,15 @@ const OrganizationsPage = () => {
         <CreateOrganizationDialog open={isOpen} onOpenChange={setIsOpen} />
       }
     >
+      <div className="relative mb-5">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Search organizations..."
+          className="w-full pl-9 pr-3 bg-muted/50 focus:bg-background transition"
+        />
+      </div>
+
       {isLoading && <OrganizationCardSkeleton />}
 
       {!isLoading && isError && (
@@ -56,15 +65,6 @@ const OrganizationsPage = () => {
           onOpenChange={() => setIsOpen(true)}
         />
       )}
-
-      <div className="relative mb-5">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="Search organizations..."
-          className="w-full pl-9 pr-3 bg-muted/50 focus:bg-background transition"
-        />
-      </div>
 
       {!isLoading && !isError && (organizations?.data.length ?? 0) > 0 && (
         <>

@@ -61,7 +61,7 @@ const MembersTable = ({
 
       <div
         className={cn(
-          "flex h-full w-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm",
+          "flex h-full w-full flex-col overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm",
           isPlaceholderData ? "opacity-60 pointer-events-none" : "",
         )}
       >

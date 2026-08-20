@@ -10,6 +10,7 @@ import MembersTable from "../components/MembersTable";
 import { useOrganizationMembers } from "../hooks/useOrganizationMembers";
 import { useState } from "react";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
+import OrganizationSkeleton from "../components/OrganizationSkeleton";
 
 const OrganizationMembersPage = () => {
   const [page, setPage] = useState(DEFAULT_PAGE);
@@ -35,7 +36,7 @@ const OrganizationMembersPage = () => {
   });
 
   if (isOrganizationloading) {
-    return <p>Loading...</p>;
+    return <OrganizationSkeleton />;
   }
 
   if (isOrganizationError || !organization) {

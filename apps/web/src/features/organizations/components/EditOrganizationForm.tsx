@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import type { ApiError } from "@/lib/api/client";
 import { ERROR_CODES } from "@/lib/api/constatnts";
 import { toast } from "@/components/ui/toast";
-import { Loader2, Pencil, TriangleAlert } from "lucide-react";
+import { Loader2, Pencil } from "lucide-react";
 import { useUpdateOrganization } from "../hooks/useUpdateOrganization";
 import { useEffect, useState } from "react";
 import { useOrgStore } from "@/stores/orgStore";
@@ -72,7 +72,7 @@ const EditOrganizationForm = ({
         setIsEditingSlug(false);
         toast.add({
           type: "success",
-          description: "Organization updated",
+          title: "Organization updated",
         });
       },
       onError: (err: ApiError) => {
@@ -96,7 +96,7 @@ const EditOrganizationForm = ({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="org-name" className="font-semibold">
-                Organization name
+                Name
               </FieldLabel>
               <Input
                 {...field}
@@ -131,31 +131,20 @@ const EditOrganizationForm = ({
               </div>
 
               {isEditingSlug ? (
-                <>
-                  <div className="flex items-center gap-1 text-sm">
-                    <span className="text-muted-foreground">
-                      /organizations/
-                    </span>
-                    <Input
-                      {...field}
-                      id="org-slug"
-                      aria-invalid={fieldState.invalid}
-                      onChange={(e) =>
-                        form.setValue(
-                          "slug",
-                          sanitizeSlugInput(e.target.value),
-                          { shouldDirty: true },
-                        )
-                      }
-                      className="h-8"
-                    />
-                  </div>
-                  <p className="mt-1.5 flex items-start gap-1.5 text-xs text-amber-600">
-                    <TriangleAlert className="mt-0.5 h-3 w-3 shrink-0" />
-                    Changing this will break any existing bookmarks or shared
-                    links to this organization.
-                  </p>
-                </>
+                <div className="flex items-center gap-1 text-sm">
+                  <span className="text-muted-foreground">/organizations/</span>
+                  <Input
+                    {...field}
+                    id="org-slug"
+                    aria-invalid={fieldState.invalid}
+                    onChange={(e) =>
+                      form.setValue("slug", sanitizeSlugInput(e.target.value), {
+                        shouldDirty: true,
+                      })
+                    }
+                    className="h-8"
+                  />
+                </div>
               ) : (
                 <p className="text-sm text-muted-foreground">
                   /organizations/{slugValue}

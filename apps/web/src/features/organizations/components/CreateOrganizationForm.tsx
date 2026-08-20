@@ -46,7 +46,7 @@ const CreateOrganizationForm = ({ onClose }: CreateOrganizationFormProps) => {
         onClose();
         toast.add({
           type: "success",
-          description: "Organization created",
+          title: "Organization created",
         });
       },
       onError: (err: ApiError) => {
@@ -70,7 +70,7 @@ const CreateOrganizationForm = ({ onClose }: CreateOrganizationFormProps) => {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="org-name" className="font-semibold">
-                Organization name
+                Name
               </FieldLabel>
               <Input
                 {...field}

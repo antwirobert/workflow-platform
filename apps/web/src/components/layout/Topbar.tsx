@@ -1,14 +1,17 @@
 import { Bell, Search } from "lucide-react";
 import { Input } from "../ui/input";
 import { SidebarTrigger } from "../ui/sidebar";
-import { useMatches } from "react-router-dom";
+import { Link, useMatches } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Fragment } from "react";
 import ThemeToggle from "./ThemeToggle";
+import { cn } from "@/lib/utils";
 
 type Match = {
+  pathname: string;
   handle?: {
     title?: string | ((data: unknown) => string);
+    clickable?: boolean;
   };
   data?: unknown;
 };
@@ -20,9 +23,14 @@ const Topbar = () => {
     .filter((match) => Boolean(match.handle?.title))
     .map((match) => {
       const title = match.handle?.title;
-      return typeof title === "function"
-        ? title(match.data)
-        : (title as string);
+      const label =
+        typeof title === "function" ? title(match.data) : (title as string);
+
+      return {
+        label,
+        to: match.pathname,
+        clickable: match.handle?.clickable ?? true,
+      };
     });
 
   return (
@@ -36,18 +44,28 @@ const Topbar = () => {
           <nav className="flex min-w-0 items-center gap-1.5 text-sm">
             {crumbs.map((crumb, index) => {
               const isLast = index === crumbs.length - 1;
+              const isClickable = crumb.clickable && !isLast;
 
               return (
-                <Fragment key={index}>
-                  <span
-                    className={
-                      isLast
-                        ? "truncate font-medium text-foreground"
-                        : "hidden truncate text-muted-foreground sm:inline"
-                    }
-                  >
-                    {crumb}
-                  </span>
+                <Fragment key={crumb.to}>
+                  {isClickable ? (
+                    <Link
+                      to={crumb.to}
+                      className="hidden truncate text-muted-foreground transition-colors hover:text-foreground sm:inline"
+                    >
+                      {crumb.label}
+                    </Link>
+                  ) : (
+                    <span
+                      className={cn(
+                        "truncate font-medium text-muted-foreground",
+                        isLast &&
+                          "hidden truncate text-muted-foreground sm:inline",
+                      )}
+                    >
+                      {crumb.label}
+                    </span>
+                  )}
 
                   {!isLast && (
                     <span className="hidden text-muted-foreground/40 sm:inline">

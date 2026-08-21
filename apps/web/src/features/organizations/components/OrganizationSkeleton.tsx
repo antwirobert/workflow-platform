@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import MembersTableSkeleton from "./MembersTableSkeleton";
 
 const OrganizationSkeleton = () => {
   return (
@@ -18,6 +19,7 @@ const OrganizationSkeleton = () => {
           <Skeleton className="col-span-3 h-10 w-full" />
           <Skeleton className="col-span-1 h-10 w-full" />
         </div>
+        <MembersTableSkeleton />
       </div>
     </section>
   );

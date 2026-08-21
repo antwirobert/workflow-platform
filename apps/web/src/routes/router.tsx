@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router";
+import { createBrowserRouter, Navigate, Outlet } from "react-router";
 import ProtectedLayout from "./ProtectedLayout";
 import RegisterPage from "@/features/auth/pages/RegisterPage";
 import LoginPage from "@/features/auth/pages/LoginPage";
@@ -8,6 +8,7 @@ import ProjectsPage from "@/features/projects/pages/ProjectsPage";
 import ProjectTasksPage from "@/features/projects/pages/ProjectTasksPage";
 import WorkspaceDetailPage from "@/features/workspaces/pages/WorkspaceDetailPage";
 import OrganizationMembersPage from "@/features/organizations/pages/OrganizationMembersPage";
+import { organizationLoader } from "@/features/organizations/loaders";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },
@@ -23,13 +24,30 @@ export const router = createBrowserRouter([
       },
       {
         path: "/organizations",
-        element: <OrganizationsPage />,
+        element: <Outlet />,
         handle: { title: "Organizations" },
-      },
-      {
-        path: "/organizations/:orgSlug/members",
-        element: <OrganizationMembersPage />,
-        handle: { title: "Organization Members" },
+        children: [
+          {
+            index: true,
+            element: <OrganizationsPage />,
+          },
+          {
+            path: ":orgSlug",
+            element: <Outlet />,
+            loader: organizationLoader,
+            handle: {
+              title: (org: { name: string } | undefined) => org?.name ?? "…",
+              clickable: false,
+            },
+            children: [
+              {
+                path: "members",
+                element: <OrganizationMembersPage />,
+                handle: { title: "Members" },
+              },
+            ],
+          },
+        ],
       },
       {
         path: "/organizations/:orgSlug/workspaces",

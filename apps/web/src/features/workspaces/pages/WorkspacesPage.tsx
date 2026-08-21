@@ -5,13 +5,14 @@ import EmptyState from "@/components/EmptyState";
 import { Layers, Search } from "lucide-react";
 import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 import WorkspaceCard from "../components/WorkspaceCard";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import ErrorState from "@/components/ErrorState";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import { useState } from "react";
 import PaginationControls from "@/components/PaginationControls";
 import { useParams } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import WorkspaceCardSkeleton from "../components/WorkspaceCardSkeleton";
 
 const WorkspacesPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,6 +27,7 @@ const WorkspacesPage = () => {
     isError,
     refetch,
     isFetching,
+    isPlaceholderData,
   } = useWorkspaces(orgSlug ?? null, {
     page,
     limit,
@@ -46,44 +48,6 @@ const WorkspacesPage = () => {
         />
       }
     >
-      {isLoading && (
-        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2.5">
-                  <Skeleton className="size-2.5 shrink-0 rounded-full" />
-                  <Skeleton className="h-4 w-28" />
-                </div>
-                <Skeleton className="size-8 shrink-0 rounded-md" />
-              </div>
-
-              <Skeleton className="h-5 w-16 rounded-md" />
-
-              <Skeleton className="h-3 w-28" />
-
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="size-3.5 shrink-0 rounded-sm" />
-                  <Skeleton className="h-3 w-32" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Skeleton className="size-3.5 shrink-0 rounded-sm" />
-                  <Skeleton className="h-3 w-28" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Skeleton className="size-3.5 shrink-0 rounded-sm" />
-                  <Skeleton className="h-3 w-36" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       <div className="relative mb-5">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -93,7 +57,9 @@ const WorkspacesPage = () => {
         />
       </div>
 
-      {isError && (
+      {isLoading && <WorkspaceCardSkeleton />}
+
+      {!isLoading && isError && (
         <ErrorState
           title="Couldn't load workspaces"
           description="We hit a snag reaching the workspaces service. Try again in a moment."
@@ -102,7 +68,7 @@ const WorkspacesPage = () => {
         />
       )}
 
-      {workspaces?.data && workspaces.data.length === 0 && (
+      {!isLoading && !isError && workspaces?.data.length === 0 && (
         <EmptyState
           title="No workspaces yet"
           description="Create a workspace to organize projects for a team or initiative."
@@ -112,20 +78,29 @@ const WorkspacesPage = () => {
         />
       )}
 
-      {!isError && (workspaces?.data.length ?? 0) > 0 && (
+      {!isLoading && !isError && (workspaces?.data.length ?? 0) > 0 && (
         <>
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div
+            className={cn(
+              "grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
+              isPlaceholderData ? "opacity-60 pointer-events-none" : "",
+            )}
+          >
             {workspaces?.data.map((workspace) => (
               <WorkspaceCard key={workspace.id} {...workspace} />
             ))}
           </div>
 
           <PaginationControls
-            currentPage={workspaces!.meta.page}
+            currentPage={page}
+            limit={limit}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setLimit(size);
+              setPage(DEFAULT_PAGE);
+            }}
             totalPages={workspaces!.meta.totalPages}
             totalItems={workspaces!.meta.total}
-            onPageChange={setPage}
-            onPageSizeChange={setLimit}
           />
         </>
       )}

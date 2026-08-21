@@ -12,7 +12,7 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import { Separator } from "../ui/separator";
-import { Archive, Hash, Plus, RotateCw } from "lucide-react";
+import { Archive, Hash, Lock, Plus, RotateCw } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 import { useWorkspaces } from "@/features/workspaces/hooks/useWorkspaces";
@@ -115,8 +115,27 @@ const AppSidebar = () => {
                 </div>
               )}
 
+              {!activeOrganization && (
+                <div className="mx-2 gap-2 rounded-lg border border-dashed border-border/80 px-3 py-4 text-center">
+                  <div className="flex items-start gap-0">
+                    <Lock className="size-6 text-muted-foreground" />
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      Workspaces live inside an organization. Pick one to see
+                      its workspaces.
+                    </p>
+                  </div>
+                  <Link
+                    to="/organizations"
+                    className="flex items-center gap-1 mt-2 text-xs font-medium text-foreground/80 transition-colors hover:text-foreground"
+                  >
+                    Choose an organization
+                  </Link>
+                </div>
+              )}
+
               {!workspacesLoading &&
                 !workspacesError &&
+                activeOrganization &&
                 (workspaces?.data ?? []).length === 0 && (
                   <div className="mx-2 flex flex-col items-center gap-2 rounded-lg border border-dashed border-border/80 px-3 py-4 text-center">
                     <p className="text-xs leading-relaxed text-muted-foreground">

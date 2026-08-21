@@ -9,7 +9,12 @@ const OrganizationSwitcherTrigger = ({
 }: React.ComponentPropsWithoutRef<"div">) => {
   const { activeOrganization, isLoading, isError } = useActiveOrganization();
 
-  const color = getIdentityColor(activeOrganization?.id ?? "dummy-id");
+  const color = activeOrganization
+    ? getIdentityColor(activeOrganization.id)
+    : {
+        bg: "bg-muted",
+        text: "text-muted-foreground",
+      };
 
   if (isLoading) {
     return (

@@ -43,10 +43,10 @@ export const TASK_STATUSES = [
 export const PRIORITY = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
 
 export const LIMIT_OPTIONS = [12, 24, 48, 96];
+
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_SIDEBAR_LIMIT = 5;
 export const DEFAULT_WORKSPACE_PROJECTS_LIMIT = 3;
-export const DEFAULT_SUB_TABLE_LIMIT = 10;
 export const DEFAULT_TABLE_LIMIT = 12;
 export const SELECT_ITEMS_LIMIT = 50;
 

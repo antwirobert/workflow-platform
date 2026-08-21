@@ -2,36 +2,41 @@ import type { Dispatch, SetStateAction } from "react";
 import type { PaginatedResponse } from "@/features/projects/types";
 import type { Project } from "@/types/project";
 import TextAvatar from "@/components/TextAvatar";
-import { getIdentityColor, timeAgo } from "@/lib/utils";
+import { cn, getIdentityColor, timeAgo } from "@/lib/utils";
 import PaginationControls from "@/components/PaginationControls";
 import ErrorState from "@/components/ErrorState";
-import { DEFAULT_SUB_TABLE_LIMIT } from "@/constants";
 
 interface WorkspaceProjectsProps {
   projects: PaginatedResponse<Project>;
-  projectsError: boolean;
-  projectsFetching: boolean;
-  refetchProjects: () => void;
-  onProjectPageChange: Dispatch<SetStateAction<number>>;
-  onProjectPageSizeChange: Dispatch<SetStateAction<number>>;
+  isError: boolean;
+  isFetching: boolean;
+  isPlaceholderData: boolean;
+  refetch: () => void;
+  page: number;
+  limit: number;
+  onPageChange: Dispatch<SetStateAction<number>>;
+  onPageSizeChange: Dispatch<SetStateAction<number>>;
 }
 
 const WorkspaceProjects = ({
   projects,
-  projectsError,
-  projectsFetching,
-  refetchProjects,
-  onProjectPageChange,
-  onProjectPageSizeChange,
+  isError,
+  isFetching,
+  isPlaceholderData,
+  refetch,
+  page,
+  limit,
+  onPageChange,
+  onPageSizeChange,
 }: WorkspaceProjectsProps) => {
   return (
     <div className="space-y-6">
-      {projectsError && (
+      {isError && (
         <ErrorState
           title="Couldn't load projects"
           description="Something went wrong fetching projects for this workspace."
-          onRetry={refetchProjects}
-          isRetrying={projectsFetching}
+          onRetry={refetch}
+          isRetrying={isFetching}
         />
       )}
 
@@ -48,9 +53,14 @@ const WorkspaceProjects = ({
         </div>
       )}
 
-      {!projectsError && projects.data.length > 0 && (
+      {!isError && projects.data.length > 0 && (
         <>
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div
+            className={cn(
+              "grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
+              isPlaceholderData ? "opacity-60 pointer-events-none" : "",
+            )}
+          >
             {projects.data.map((project) => {
               const { id, name, description, updatedAt } = project;
               const color = getIdentityColor(id);
@@ -94,12 +104,12 @@ const WorkspaceProjects = ({
           </div>
 
           <PaginationControls
-            currentPage={projects.meta.page}
-            totalPages={projects.meta.totalPages}
+            currentPage={page}
+            limit={limit}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
             totalItems={projects.meta.total}
-            limit={DEFAULT_SUB_TABLE_LIMIT}
-            onPageChange={onProjectPageChange}
-            onPageSizeChange={onProjectPageSizeChange}
+            totalPages={projects.meta.totalPages}
           />
         </>
       )}

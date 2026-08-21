@@ -1,23 +1,30 @@
 import type { Dispatch, SetStateAction } from "react";
-import { DEFAULT_SUB_TABLE_LIMIT } from "@/constants";
+
 import PaginationControls from "@/components/PaginationControls";
 import TextAvatar from "@/components/TextAvatar";
-import { getIdentityColor, timeAgo } from "@/lib/utils";
+import { cn, getIdentityColor, timeAgo } from "@/lib/utils";
 import ErrorState from "@/components/ErrorState";
 import type { PaginatedResponse } from "@/features/projects/types";
 import type { Project } from "@/types/project";
 import type { Member } from "@/types/organization";
+import { Link, useParams } from "react-router-dom";
 
 interface WorkspaceOverviewProps {
   projects: PaginatedResponse<Project>;
   projectsError: boolean;
   projectsFetching: boolean;
+  projectsPlaceholderData: boolean;
   refetchProjects: () => void;
+  projectPage: number;
+  projectLimit: number;
+  onProjectPageChange: Dispatch<SetStateAction<number>>;
   members: PaginatedResponse<Member>;
   membersError: boolean;
   membersFetching: boolean;
+  membersPlaceholderData: boolean;
   refetchMembers: () => void;
-  onProjectPageChange: Dispatch<SetStateAction<number>>;
+  memberPage: number;
+  memberLimit: number;
   onMemberPageChange: Dispatch<SetStateAction<number>>;
 }
 
@@ -25,14 +32,25 @@ const WorkspaceOverview = ({
   projects,
   projectsError,
   projectsFetching,
+  projectsPlaceholderData,
   refetchProjects,
+  projectPage,
+  projectLimit,
   onProjectPageChange,
   members,
   membersError,
   membersFetching,
+  membersPlaceholderData,
   refetchMembers,
+  memberPage,
+  memberLimit,
   onMemberPageChange,
 }: WorkspaceOverviewProps) => {
+  const { orgSlug, workspaceSlug } = useParams<{
+    orgSlug: string;
+    workspaceSlug: string;
+  }>();
+
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
       {/* Main column */}
@@ -53,54 +71,71 @@ const WorkspaceOverview = ({
           )}
 
           {!projectsError && projects.data.length > 0 ? (
-            <div className="space-y-3">
-              {projects.data.map((project) => {
-                const { id, name, description, updatedAt, taskCount } = project;
-                const color = getIdentityColor(id);
+            <>
+              <div
+                className={cn(
+                  "overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm",
+                  projectsPlaceholderData
+                    ? "opacity-60 pointer-events-none"
+                    : "",
+                )}
+              >
+                {projects.data.map((project) => {
+                  const {
+                    id,
+                    name,
+                    slug: projectSlug,
+                    description,
+                    updatedAt,
+                    taskCount,
+                  } = project;
+                  const color = getIdentityColor(id);
 
-                return (
-                  <div
-                    key={id}
-                    className="group flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md"
-                  >
-                    <div className="flex min-w-0 items-center gap-3.5">
-                      <TextAvatar
-                        name={name}
-                        colorClass={color.bg}
-                        textClass={color.text}
-                        className="size-10 shrink-0 rounded-lg text-sm font-semibold"
-                      />
+                  return (
+                    <Link
+                      to={`/organizations/${orgSlug}/workspaces/${workspaceSlug}/projects/${projectSlug}`}
+                      key={id}
+                      className="group relative flex items-center justify-between gap-4 border-b border-border/40 p-4 transition-all hover:bg-muted/30 hover:cursor-pointer last:border-0"
+                    >
+                      <div className="flex min-w-0 items-center gap-3.5">
+                        <TextAvatar
+                          name={name}
+                          colorClass={color.bg}
+                          textClass={color.text}
+                          className="size-10 shrink-0 rounded-lg text-sm font-semibold"
+                        />
 
-                      <div className="min-w-0 space-y-0.5">
-                        <h4 className="truncate text-sm font-semibold tracking-tight text-foreground">
-                          {name}
-                        </h4>
-                        {description && (
-                          <p className="truncate text-xs text-muted-foreground">
-                            {description}
-                          </p>
-                        )}
+                        <div className="min-w-0 space-y-0.5">
+                          <h4 className="truncate text-sm font-semibold tracking-tight text-foreground">
+                            {name}
+                          </h4>
+                          {description && (
+                            <p className="truncate text-xs text-muted-foreground">
+                              {description}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="hidden shrink-0 flex-col items-end gap-0.5 text-xs text-muted-foreground sm:flex">
-                      <span className="font-medium text-foreground/80">
-                        {taskCount} open
-                      </span>
-                      <span>Updated {timeAgo(updatedAt)}</span>
-                    </div>
-                  </div>
-                );
-              })}
+                      <div className="hidden shrink-0 flex-col items-end gap-0.5 text-xs text-muted-foreground sm:flex">
+                        <span className="font-medium text-foreground/80">
+                          {taskCount} open
+                        </span>
+                        <span>Updated {timeAgo(updatedAt)}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
 
               <PaginationControls
-                currentPage={projects.meta.page}
-                totalPages={projects.meta.totalPages}
-                totalItems={projects.meta.total}
-                limit={DEFAULT_SUB_TABLE_LIMIT}
+                currentPage={projectPage}
+                limit={projectLimit}
                 onPageChange={onProjectPageChange}
+                totalItems={projects.meta.total}
+                totalPages={projects.meta.totalPages}
               />
-            </div>
+            </>
           ) : (
             <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
               <div>
@@ -147,7 +182,12 @@ const WorkspaceOverview = ({
             />
           )}
 
-          <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
+          <div
+            className={cn(
+              "rounded-xl border border-border/60 bg-card p-4 shadow-sm",
+              membersPlaceholderData ? "opacity-60 pointer-events-none" : "",
+            )}
+          >
             {!membersError && members.data.length > 0 ? (
               <div className="space-y-3">
                 {members.data.map((member) => {
@@ -190,11 +230,11 @@ const WorkspaceOverview = ({
           </div>
 
           <PaginationControls
-            currentPage={members.meta.page}
-            totalPages={members.meta.totalPages}
-            totalItems={members.meta.total}
-            limit={DEFAULT_SUB_TABLE_LIMIT}
+            currentPage={memberPage}
+            limit={memberLimit}
             onPageChange={onMemberPageChange}
+            totalItems={members.meta.total}
+            totalPages={members.meta.totalPages}
           />
         </section>
 

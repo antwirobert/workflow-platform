@@ -1,24 +1,28 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useWorkspace } from "../hooks/useWorkspace";
-import { Button } from "@/components/ui/button";
-import { Activity, Layers, Plus, Users } from "lucide-react";
+import { Activity, Layers, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import WorkspaceOverview from "../components/WorkspaceOverview";
 import WorkspaceProjects from "../components/WorkspaceProjects";
 import { cn, getIdentityColor } from "@/lib/utils";
 import ErrorState from "@/components/ErrorState";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useProjects } from "@/features/projects/hooks/useProjects";
-import { DEFAULT_PAGE, DEFAULT_SUB_TABLE_LIMIT } from "@/constants";
+import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
+import WorkspaceDetailSkeleton from "../components/WorkspaceDetailSkeleton";
+import CreateProjectDialog from "@/features/projects/components/CeateProjectDialog";
+import MembersTable from "@/features/organizations/components/MembersTable";
 
 const WorkspaceDetailPage = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [overviewProjectPage, setOverviewProjectPage] = useState(DEFAULT_PAGE);
+  const [overviewMemberPage, setOverviewMemberPage] = useState(DEFAULT_PAGE);
   const [projectPage, setProjectPage] = useState(DEFAULT_PAGE);
-  const [projectLimit, setProjectLimit] = useState(DEFAULT_SUB_TABLE_LIMIT);
-  // const [memberLimit, setMemberLimit] = useState(DEFAULT_SUB_TABLE_LIMIT);
-  const [memberPage, setMemberPage] = useState(1);
+  const [projectLimit, setProjectLimit] = useState(DEFAULT_TABLE_LIMIT);
+  const [memberLimit, setMemberLimit] = useState(DEFAULT_TABLE_LIMIT);
+  const [memberPage, setMemberPage] = useState(DEFAULT_PAGE);
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
@@ -32,9 +36,32 @@ const WorkspaceDetailPage = () => {
   } = useWorkspace(orgSlug ?? null, workspaceSlug ?? null);
 
   const {
+    data: overviewProjects,
+    isError: isOverviewProjectsError,
+    isFetching: isOverviewProjectsFetching,
+    isPlaceholderData: isOverviewProjectsPlaceholderData,
+    refetch: refetchOverviewProjects,
+  } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
+    page: overviewProjectPage,
+    limit: DEFAULT_TABLE_LIMIT,
+  });
+
+  const {
+    data: overviewMembers,
+    isError: isOverviewMembersError,
+    isFetching: isOverviewMembersFetching,
+    isPlaceholderData: isOverviewMembersPlaceholderData,
+    refetch: refetchOverviewMembers,
+  } = useOrganizationMembers(orgSlug ?? null, {
+    page: overviewMemberPage,
+    limit: DEFAULT_TABLE_LIMIT,
+  });
+
+  const {
     data: projects,
     isError: isProjectsError,
     isFetching: isProjectsFetching,
+    isPlaceholderData: isProjectsPlaceholderData,
     refetch: refetchProjects,
   } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
     page: projectPage,
@@ -45,101 +72,15 @@ const WorkspaceDetailPage = () => {
     data: orgMembers,
     isError: isMembersError,
     isFetching: isMembersFetching,
+    isPlaceholderData: isMembersPlaceholderData,
     refetch: refetchMembers,
   } = useOrganizationMembers(orgSlug ?? null, {
     page: memberPage,
-    limit: 10,
+    limit: memberLimit,
   });
 
   if (isLoading) {
-    return (
-      <section className="px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-start gap-3">
-              <Skeleton className="mt-2 size-2.5 shrink-0 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-7 w-48" />
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-4 w-20" />
-                </div>
-              </div>
-            </div>
-            <Skeleton className="h-9 w-32 rounded-md" />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Skeleton className="h-8 w-24 rounded-md" />
-            <Skeleton className="h-8 w-24 rounded-md" />
-            <Skeleton className="h-8 w-24 rounded-md" />
-          </div>
-          <Skeleton className="mt-0 h-px w-full" />
-
-          <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_280px]">
-            <div className="min-w-0 space-y-8">
-              <div className="space-y-3">
-                <Skeleton className="h-3 w-28" />
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4"
-                  >
-                    <div className="flex items-center gap-3.5">
-                      <Skeleton className="size-10 shrink-0 rounded-lg" />
-                      <div className="space-y-1.5">
-                        <Skeleton className="h-4 w-32" />
-                        <Skeleton className="h-3 w-48" />
-                      </div>
-                    </div>
-                    <div className="hidden flex-col items-end gap-1.5 sm:flex">
-                      <Skeleton className="h-3 w-14" />
-                      <Skeleton className="h-3 w-20" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-3">
-                <Skeleton className="h-3 w-20" />
-                <Skeleton className="h-24 w-full rounded-xl" />
-              </div>
-            </div>
-
-            <aside className="space-y-6">
-              <div className="space-y-3">
-                <Skeleton className="h-3 w-16" />
-                <div className="space-y-3 rounded-xl border border-border/60 bg-card p-4">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-2.5">
-                      <Skeleton className="size-8 shrink-0 rounded-full" />
-                      <div className="space-y-1.5">
-                        <Skeleton className="h-3.5 w-24" />
-                        <Skeleton className="h-3 w-14" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* At a glance */}
-              <div className="space-y-3">
-                <Skeleton className="h-3 w-20" />
-                <div className="space-y-2.5 rounded-xl border border-border/60 bg-card p-4">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex items-center justify-between">
-                      <Skeleton className="h-3.5 w-24" />
-                      <Skeleton className="h-3.5 w-6" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </aside>
-          </div>
-        </div>
-      </section>
-    );
+    return <WorkspaceDetailSkeleton />;
   }
 
   if (isError || !workspace) {
@@ -180,12 +121,12 @@ const WorkspaceDetailPage = () => {
                   {workspace.projectCount}{" "}
                   {workspace.projectCount === 1 ? "project" : "projects"}
                 </span>
-                <span className="text-muted-foreground/40">·</span>
+                <span className="text-muted-foreground/40">•</span>
                 <span>
                   {workspace.taskCount}{" "}
                   {workspace.taskCount === 1 ? "open task" : "open tasks"}
                 </span>
-                <span className="text-muted-foreground/40">·</span>
+                <span className="text-muted-foreground/40">•</span>
                 <span>
                   {workspace.memberCount}{" "}
                   {workspace.memberCount === 1 ? "member" : "members"}
@@ -194,10 +135,12 @@ const WorkspaceDetailPage = () => {
             </div>
           </div>
 
-          <Button className="shrink-0 gap-1.5 self-start">
-            <Plus className="size-4" />
-            New Project
-          </Button>
+          <CreateProjectDialog
+            open={isOpen}
+            onOpenChange={setIsOpen}
+            orgSlug={orgSlug}
+            workspaceSlug={workspaceSlug}
+          />
         </div>
 
         <Tabs defaultValue="overview" className="flex flex-col">
@@ -222,18 +165,24 @@ const WorkspaceDetailPage = () => {
             value="overview"
             className="mt-6 focus-visible:outline-none"
           >
-            {projects && orgMembers && (
+            {overviewProjects && overviewMembers && (
               <WorkspaceOverview
-                projects={projects}
-                projectsError={isProjectsError}
-                projectsFetching={isProjectsFetching}
-                refetchProjects={refetchProjects}
-                onProjectPageChange={setProjectPage}
-                members={orgMembers}
-                membersError={isMembersError}
-                membersFetching={isMembersFetching}
-                refetchMembers={refetchMembers}
-                onMemberPageChange={setMemberPage}
+                projects={overviewProjects}
+                projectsError={isOverviewProjectsError}
+                projectsFetching={isOverviewProjectsFetching}
+                projectsPlaceholderData={isOverviewProjectsPlaceholderData}
+                refetchProjects={refetchOverviewProjects}
+                projectPage={overviewProjectPage}
+                projectLimit={DEFAULT_TABLE_LIMIT}
+                onProjectPageChange={setOverviewProjectPage}
+                members={overviewMembers}
+                membersError={isOverviewMembersError}
+                membersFetching={isOverviewMembersFetching}
+                membersPlaceholderData={isOverviewMembersPlaceholderData}
+                refetchMembers={refetchOverviewMembers}
+                memberPage={overviewMemberPage}
+                memberLimit={DEFAULT_TABLE_LIMIT}
+                onMemberPageChange={setOverviewMemberPage}
               />
             )}
           </TabsContent>
@@ -245,11 +194,17 @@ const WorkspaceDetailPage = () => {
             {projects && (
               <WorkspaceProjects
                 projects={projects}
-                projectsError={isProjectsError}
-                projectsFetching={isProjectsFetching}
-                refetchProjects={refetchProjects}
-                onProjectPageChange={setProjectPage}
-                onProjectPageSizeChange={setProjectLimit}
+                isError={isProjectsError}
+                isFetching={isProjectsFetching}
+                isPlaceholderData={isProjectsPlaceholderData}
+                refetch={refetchProjects}
+                page={projectPage}
+                limit={projectLimit}
+                onPageChange={setProjectPage}
+                onPageSizeChange={(size) => {
+                  setProjectLimit(size);
+                  setProjectPage(DEFAULT_PAGE);
+                }}
               />
             )}
           </TabsContent>
@@ -258,16 +213,22 @@ const WorkspaceDetailPage = () => {
             value="members"
             className="mt-6 focus-visible:outline-none"
           >
-            {/* {orgMembers && (
-              <WorkspaceMembers
+            {orgMembers && (
+              <MembersTable
                 members={orgMembers}
-                membersError={isMembersError}
-                membersFetching={isMembersFetching}
-                refetchMembers={refetchMembers}
-                onMemberPageChange={setMemberPage}
-                onMemberPageSizeChange={setMemberLimit}
+                isError={isMembersError}
+                isFetching={isMembersFetching}
+                isPlaceholderData={isMembersPlaceholderData}
+                onRetry={refetchMembers}
+                page={memberPage}
+                limit={memberLimit}
+                onPageChange={setMemberPage}
+                onPageSizeChange={(size) => {
+                  setMemberLimit(size);
+                  setMemberPage(DEFAULT_PAGE);
+                }}
               />
-            )} */}
+            )}
           </TabsContent>
         </Tabs>
       </div>

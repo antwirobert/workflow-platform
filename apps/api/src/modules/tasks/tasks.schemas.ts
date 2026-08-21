@@ -48,7 +48,7 @@ export const taskDetailParamsSchema = z.object({
 
 export const listTasksQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(20),
+  limit: z.coerce.number().min(1).max(100).default(10),
   status: z.nativeEnum(TaskStatus).optional(),
   priority: z.nativeEnum(Priority).optional(),
   assigneeId: z.string().uuid().optional(),

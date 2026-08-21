@@ -55,9 +55,9 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      const organization = organizationsService.buildOrganizationResult(
-        req.organization!,
-        req.membership,
+      const organization = await organizationsService.getById(
+        req.organization!.id,
+        req.user!.userId,
       );
       res.status(200).json(organization);
     } catch (error) {

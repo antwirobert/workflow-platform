@@ -16,8 +16,8 @@ export interface OrganizationResult {
   id: string;
   name: string;
   slug: string;
-  role?: string;
   createdAt: Date;
+  role?: string;
   workspaceCount?: number;
   memberCount?: number;
   user?: {

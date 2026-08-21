@@ -95,6 +95,28 @@ export class OrganizationsService {
     };
   }
 
+  async getById(organizationId: string, userId: string) {
+    const membership = await prisma.organizationMember.findUnique({
+      where: {
+        organizationId_userId: {
+          organizationId,
+          userId,
+        },
+      },
+      include: {
+        organization: { include: { _count: { select: { members: true } } } },
+      },
+    });
+
+    if (!membership) {
+      throw new NotFoundError("Organization");
+    }
+
+    return this.buildOrganizationResult(membership.organization, membership, {
+      memberCount: membership.organization._count.members,
+    });
+  }
+
   async update(input: UpdateOrganizationInput): Promise<OrganizationResult> {
     const { organizationId, name, slug } = input;
 
@@ -182,7 +204,7 @@ export class OrganizationsService {
   buildOrganizationResult(
     organization: Organization,
     membership?: OrganizationMember,
-    counts?: { workspaceCount: number; memberCount: number },
+    counts?: { workspaceCount?: number; memberCount?: number },
     user?: { id: string; name: string; email: string },
   ): OrganizationResult {
     return {

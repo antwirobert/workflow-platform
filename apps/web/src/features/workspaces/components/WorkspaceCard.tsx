@@ -19,6 +19,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import EditWorkspaceDialog from "./EditWorkspaceDialog";
 import DeleteWorkspaceDialog from "./DeleteWorkspaceDialog";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 interface WorkspaceCardProps {
   id: string;
@@ -42,14 +43,18 @@ const WorkspaceCard = ({
     page: DEFAULT_PAGE,
     limit: DEFAULT_WORKSPACE_PROJECTS_LIMIT,
   });
+  const setActiveWorkspaceSlug = useWorkspaceStore(
+    (state) => state.setActiveWorkspaceSlug,
+  );
 
   const color = getIdentityColor(id);
 
   return (
-    <div className="min-w-0 h-full">
+    <div className="min-w-0">
       <Link
         to={`/organizations/${orgSlug}/workspaces/${slug}`}
-        className="group cursor-pointer relative h-full flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md"
+        className="group cursor-pointer relative h-full flex flex-col gap-3 rounded-xl border border-border/60 bg-card px-4 pt-3 shadow-sm transition-all hover:border-border hover:shadow-md"
+        onClick={() => setActiveWorkspaceSlug(slug)}
       >
         <div className="flex items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2.5">
@@ -148,8 +153,9 @@ const WorkspaceCard = ({
 
         <Badge
           variant="secondary"
-          className="h-5 w-fit rounded-md px-1.5 text-[11px] font-medium text-muted-foreground"
+          className="flex gap-[0.6px] h-5 w-fit rounded-md px-1.5 text-[11px] font-medium text-muted-foreground"
         >
+          <span>/</span>
           {slug}
         </Badge>
 
@@ -158,7 +164,7 @@ const WorkspaceCard = ({
           {projectCount === 1 ? "active project" : "active projects"}
         </p>
 
-        <div className="flex flex-col gap-1.5">
+        <div className="mt-1 flex flex-col gap-1.5">
           {!isError &&
             (projects?.data.length ?? 0) > 0 &&
             projects?.data.map((project) => (

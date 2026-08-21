@@ -24,7 +24,7 @@ export const PALETTE = [
     text: "text-white",
   },
   {
-    bg: "bg-amber-600 dark:bg-amber-500",
+    bg: "bg-cyan-600 dark:bg-cyan-500",
     text: "text-white",
   },
   {

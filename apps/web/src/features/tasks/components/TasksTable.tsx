@@ -22,9 +22,15 @@ interface TasksTableProps {
   tasks: Task[];
   isLoading: boolean;
   isFetching: boolean;
+  isClickable?: boolean;
 }
 
-const TasksTable = ({ tasks, isLoading, isFetching }: TasksTableProps) => {
+const TasksTable = ({
+  tasks,
+  isLoading,
+  isFetching,
+  isClickable,
+}: TasksTableProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
@@ -36,7 +42,7 @@ const TasksTable = ({ tasks, isLoading, isFetching }: TasksTableProps) => {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
+      <div className="flex h-full w-full flex-col overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
         <div className="flex-1 overflow-auto">
           <Table className="min-w-160">
             <TableHeader>
@@ -84,6 +90,10 @@ const TasksTable = ({ tasks, isLoading, isFetching }: TasksTableProps) => {
   }
 
   const handleRowClick = (task: Task): void => {
+    if (!isClickable) {
+      return;
+    }
+
     setIsSheetOpen(true);
     setSelectedTask(task);
   };
@@ -126,7 +136,12 @@ const TasksTable = ({ tasks, isLoading, isFetching }: TasksTableProps) => {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="border-b border-border/40 transition-colors hover:bg-muted/30 cursor-pointer"
+                  className={cn(
+                    "border-b border-border/40",
+                    isClickable
+                      ? "cursor-pointer hover:bg-muted/30 transition-colors"
+                      : "cursor-default hover:bg-transparent",
+                  )}
                   onClick={() => handleRowClick(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (

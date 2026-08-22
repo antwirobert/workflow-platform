@@ -8,27 +8,18 @@ import WorkspaceOverview from "../components/WorkspaceOverview";
 import WorkspaceProjects from "../components/WorkspaceProjects";
 import { cn, getIdentityColor } from "@/lib/utils";
 import ErrorState from "@/components/ErrorState";
-import { useProjects } from "@/features/projects/hooks/useProjects";
-import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
-import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
 import WorkspaceDetailSkeleton from "../components/WorkspaceDetailSkeleton";
 import CreateProjectDialog from "@/features/projects/components/CeateProjectDialog";
 import MembersTable from "@/features/organizations/components/MembersTable";
-import { useWorkspaceTasks } from "../hooks/useWorkspaceTasks";
 
 const WorkspaceDetailPage = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [overviewProjectPage, setOverviewProjectPage] = useState(DEFAULT_PAGE);
-  const [overviewTaskPage, setOverviewTaskPage] = useState(DEFAULT_PAGE);
-  const [overviewMemberPage, setOverviewMemberPage] = useState(DEFAULT_PAGE);
-  const [projectPage, setProjectPage] = useState(DEFAULT_PAGE);
-  const [projectLimit, setProjectLimit] = useState(DEFAULT_TABLE_LIMIT);
-  const [memberLimit, setMemberLimit] = useState(DEFAULT_TABLE_LIMIT);
-  const [memberPage, setMemberPage] = useState(DEFAULT_PAGE);
+
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
   }>();
+
   const {
     data: workspace,
     isLoading,
@@ -36,61 +27,6 @@ const WorkspaceDetailPage = () => {
     refetch,
     isFetching,
   } = useWorkspace(orgSlug ?? null, workspaceSlug ?? null);
-
-  const {
-    data: overviewProjects,
-    isError: isOverviewProjectsError,
-    isFetching: isOverviewProjectsFetching,
-    isPlaceholderData: isOverviewProjectsPlaceholderData,
-    refetch: refetchOverviewProjects,
-  } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
-    page: overviewProjectPage,
-    limit: DEFAULT_TABLE_LIMIT,
-  });
-
-  const {
-    data: overviewTasks,
-    isError: isOverviewTasksError,
-    isFetching: isOverviewTasksFetching,
-    isPlaceholderData: isOverviewTasksPlaceholderData,
-    refetch: refetchOverviewTasks,
-  } = useWorkspaceTasks(orgSlug ?? null, workspaceSlug ?? null, {
-    page: overviewTaskPage,
-    limit: DEFAULT_TABLE_LIMIT,
-  });
-
-  const {
-    data: overviewMembers,
-    isError: isOverviewMembersError,
-    isFetching: isOverviewMembersFetching,
-    isPlaceholderData: isOverviewMembersPlaceholderData,
-    refetch: refetchOverviewMembers,
-  } = useOrganizationMembers(orgSlug ?? null, {
-    page: overviewMemberPage,
-    limit: DEFAULT_TABLE_LIMIT,
-  });
-
-  const {
-    data: projects,
-    isError: isProjectsError,
-    isFetching: isProjectsFetching,
-    isPlaceholderData: isProjectsPlaceholderData,
-    refetch: refetchProjects,
-  } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
-    page: projectPage,
-    limit: projectLimit,
-  });
-
-  const {
-    data: orgMembers,
-    isError: isMembersError,
-    isFetching: isMembersFetching,
-    isPlaceholderData: isMembersPlaceholderData,
-    refetch: refetchMembers,
-  } = useOrganizationMembers(orgSlug ?? null, {
-    page: memberPage,
-    limit: memberLimit,
-  });
 
   if (isLoading) {
     return <WorkspaceDetailSkeleton />;
@@ -178,75 +114,21 @@ const WorkspaceDetailPage = () => {
             value="overview"
             className="mt-6 focus-visible:outline-none"
           >
-            {overviewProjects && overviewTasks && overviewMembers && (
-              <WorkspaceOverview
-                projects={overviewProjects}
-                projectsError={isOverviewProjectsError}
-                projectsFetching={isOverviewProjectsFetching}
-                projectsPlaceholderData={isOverviewProjectsPlaceholderData}
-                refetchProjects={refetchOverviewProjects}
-                projectPage={overviewProjectPage}
-                projectLimit={DEFAULT_TABLE_LIMIT}
-                onProjectPageChange={setOverviewProjectPage}
-                members={overviewMembers}
-                membersError={isOverviewMembersError}
-                membersFetching={isOverviewMembersFetching}
-                membersPlaceholderData={isOverviewMembersPlaceholderData}
-                refetchMembers={refetchOverviewMembers}
-                memberPage={overviewMemberPage}
-                memberLimit={DEFAULT_TABLE_LIMIT}
-                onMemberPageChange={setOverviewMemberPage}
-                tasks={overviewTasks}
-                tasksError={isOverviewTasksError}
-                tasksFetching={isOverviewTasksFetching}
-                tasksPlaceholderData={isOverviewTasksPlaceholderData}
-                refetchTasks={refetchOverviewTasks}
-              />
-            )}
+            <WorkspaceOverview />
           </TabsContent>
 
           <TabsContent
             value="projects"
             className="mt-6 focus-visible:outline-none"
           >
-            {projects && (
-              <WorkspaceProjects
-                projects={projects}
-                isError={isProjectsError}
-                isFetching={isProjectsFetching}
-                isPlaceholderData={isProjectsPlaceholderData}
-                refetch={refetchProjects}
-                page={projectPage}
-                limit={projectLimit}
-                onPageChange={setProjectPage}
-                onPageSizeChange={(size) => {
-                  setProjectLimit(size);
-                  setProjectPage(DEFAULT_PAGE);
-                }}
-              />
-            )}
+            <WorkspaceProjects />
           </TabsContent>
 
           <TabsContent
             value="members"
             className="mt-6 focus-visible:outline-none"
           >
-            {orgMembers && (
-              <MembersTable
-                members={orgMembers}
-                isError={isMembersError}
-                isFetching={isMembersFetching}
-                isPlaceholderData={isMembersPlaceholderData}
-                onRetry={refetchMembers}
-                page={memberPage}
-                limit={memberLimit}
-                onPageChange={setMemberPage}
-                onPageSizeChange={(size) => {
-                  setMemberLimit(size);
-                  setMemberPage(DEFAULT_PAGE);
-                }}
-              />
-            )}
+            <MembersTable />
           </TabsContent>
         </Tabs>
       </div>

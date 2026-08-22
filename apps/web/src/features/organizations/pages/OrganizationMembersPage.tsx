@@ -7,14 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import RoleFilter from "../components/RoleFilter";
 import MembersTable from "../components/MembersTable";
-import { useOrganizationMembers } from "../hooks/useOrganizationMembers";
-import { useState } from "react";
-import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import OrganizationSkeleton from "../components/OrganizationSkeleton";
 
 const OrganizationMembersPage = () => {
-  const [page, setPage] = useState(DEFAULT_PAGE);
-  const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
   const { orgSlug } = useParams<{ orgSlug: string }>();
   const {
     data: organization,
@@ -23,17 +18,6 @@ const OrganizationMembersPage = () => {
     isFetching: isOrganizationFetching,
     refetch: refetchOrganization,
   } = useOrganization(orgSlug ?? null);
-  const {
-    data: members,
-    isLoading: isMembersLoaading,
-    isError: isMembersError,
-    isFetching: isMembersFetching,
-    isPlaceholderData,
-    refetch: refetchMembers,
-  } = useOrganizationMembers(orgSlug ?? null, {
-    page,
-    limit,
-  });
 
   if (isOrganizationloading) {
     return <OrganizationSkeleton />;
@@ -96,24 +80,7 @@ const OrganizationMembersPage = () => {
           </div>
         </div>
 
-        {!isMembersLoaading &&
-          !isMembersError &&
-          (members?.data.length ?? 0) > 0 && (
-            <MembersTable
-              members={members!}
-              isError={isMembersError}
-              isFetching={isMembersFetching}
-              isPlaceholderData={isPlaceholderData}
-              onRetry={refetchMembers}
-              page={page}
-              limit={limit}
-              onPageChange={setPage}
-              onPageSizeChange={(size) => {
-                setLimit(size);
-                setPage(DEFAULT_PAGE);
-              }}
-            />
-          )}
+        <MembersTable />
       </div>
     </section>
   );

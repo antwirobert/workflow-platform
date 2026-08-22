@@ -6,6 +6,7 @@ import type {
   UpdateWorkspacePayload,
   WorkspacelistParams,
 } from "./types";
+import type { Task } from "@/types/task";
 
 const base = (orgSlug: string) => `/api/organizations/${orgSlug}/workspaces/`;
 
@@ -33,7 +34,7 @@ export const workspacesApi = {
     workspaceSlug: string,
     params: WorkspacelistParams,
   ) =>
-    apiClient.get<PaginatedResponse<Workspace>>(
+    apiClient.get<PaginatedResponse<Task>>(
       `${base(orgSlug)}${workspaceSlug}/tasks`,
       {
         params: {

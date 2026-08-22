@@ -5,6 +5,7 @@ import {
   CreateProjectInput,
   ListProjectsQuery,
   ListProjectsQueryResult,
+  ProjectAssignneeResult,
   ProjectResult,
   UpdateProjectInput,
 } from "./projects.types";
@@ -165,6 +166,46 @@ export class ProjectsService {
     }
 
     await prisma.project.delete({ where: { id: projectId } });
+  }
+
+  async listProjectAssignees(
+    query: ListProjectsQuery,
+  ): Promise<ListProjectsQueryResult<ProjectAssignneeResult>> {
+    const { page, limit, projectId } = query;
+
+    const skip = (page - 1) * limit;
+    const where = {
+      assignedTasks: {
+        some: {
+          projectId,
+        },
+      },
+    };
+
+    const [projectAssignees, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+        },
+      }),
+
+      prisma.user.count({ where }),
+    ]);
+
+    return {
+      data: projectAssignees.map((assignee) => assignee),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   // Maps database model to public API response format

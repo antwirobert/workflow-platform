@@ -24,10 +24,15 @@ export interface UpdateProjectInput extends UpdateProjectPayload {
   projectId: string;
   workspaceId: string;
 }
+export interface ProjectAssignneeResult {
+  id: string;
+  name: string;
+}
 
 export interface ListProjectsQuery extends ListProjectsQueryInput {
-  userId: string;
-  workspaceId: string;
+  userId?: string;
+  workspaceId?: string;
+  projectId?: string;
 }
 
 export interface ListProjectsQueryResult<T> {

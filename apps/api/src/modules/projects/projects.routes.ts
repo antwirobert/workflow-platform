@@ -34,6 +34,14 @@ router.get(
   projectsController.getById,
 );
 
+router.get(
+  "/:projectSlug/assignees",
+  validate(projectDetailParamsSchema, "params"),
+  validate(listProjectsQuerySchema, "query"),
+  assertProjectToWorkspace,
+  projectsController.listProjectAsssignees,
+);
+
 router.patch(
   "/:projectSlug",
   validate(projectDetailParamsSchema, "params"),

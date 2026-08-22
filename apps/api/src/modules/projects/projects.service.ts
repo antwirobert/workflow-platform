@@ -47,7 +47,7 @@ export class ProjectsService {
     const skip = (page - 1) * limit;
     const where = { workspaceId };
 
-    const [projects, total] = await await Promise.all([
+    const [projects, total] = await Promise.all([
       prisma.project.findMany({
         where,
         skip,
@@ -56,7 +56,7 @@ export class ProjectsService {
           createdAt: "desc",
         },
         include: {
-          _count: { select: { tasks: true } },
+          _count: { select: { tasks: { where: { deletedAt: null } } } },
           workspace: {
             select: {
               organization: {

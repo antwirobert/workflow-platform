@@ -28,4 +28,18 @@ export const workspacesApi = {
   ) => apiClient.patch<Workspace>(`${base(orgSlug)}${workspaceSlug}`, payload),
   delete: (orgSlug: string, workspaceSlug: string) =>
     apiClient.delete<void>(`${base(orgSlug)}${workspaceSlug}`),
+  listWorkspaceTasks: (
+    orgSlug: string,
+    workspaceSlug: string,
+    params: WorkspacelistParams,
+  ) =>
+    apiClient.get<PaginatedResponse<Workspace>>(
+      `${base(orgSlug)}${workspaceSlug}/tasks`,
+      {
+        params: {
+          page: String(params.page),
+          limit: String(params.limit),
+        },
+      },
+    ),
 };

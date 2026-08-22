@@ -1,3 +1,4 @@
+import { Priority, TaskStatus } from "../../generated/prisma/enums";
 import {
   CreateWorkspacePayload,
   listWorkspacesQueryInput,
@@ -19,6 +20,19 @@ export interface WorkspaceResult {
   projectCount?: number;
   taskCount?: number;
   memberCount?: number;
+  task?: {
+    id: string;
+    title: string;
+    description: string | null;
+    status: TaskStatus;
+    priority: Priority;
+    projectId: string;
+    assigneeId: string | null;
+    createdById: string;
+    dueDate: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+  };
 }
 
 export interface UpdateWorkspaceInput extends UpdateWorkspacePayload {

@@ -1,6 +1,11 @@
 import { prisma } from "../../lib/prisma";
 import { ConflictError, NotFoundError } from "../../common/errors";
-import { Workspace } from "../../generated/prisma/client";
+import {
+  Priority,
+  Task,
+  TaskStatus,
+  Workspace,
+} from "../../generated/prisma/client";
 import {
   CreateWorkspaceInput,
   listWorkspacesQuery,
@@ -68,9 +73,14 @@ export class WorkspacesService {
 
     return {
       data: workspaces.map((w) =>
-        this.buildWorkspaceResult(w, w.organization.members[0].role, {
-          projectCount: w._count.projects,
-        }),
+        this.buildWorkspaceResult(
+          w,
+          undefined,
+          w.organization.members[0].role,
+          {
+            projectCount: w._count.projects,
+          },
+        ),
       ),
       meta: {
         page,
@@ -116,6 +126,7 @@ export class WorkspacesService {
 
     return this.buildWorkspaceResult(
       workspace,
+      undefined,
       workspace.organization.members[0].role,
       {
         projectCount: workspace._count.projects,
@@ -210,7 +221,7 @@ export class WorkspacesService {
     ]);
 
     return {
-      data: tasks.map((t) => this.buildWorkspaceResult(t.project.workspace)),
+      data: tasks.map((t) => this.buildWorkspaceResult(t.project.workspace, t)),
       meta: {
         page,
         limit,
@@ -223,6 +234,7 @@ export class WorkspacesService {
   // Maps database model to public API response format
   private buildWorkspaceResult(
     workspace: Workspace,
+    task?: Task,
     role?: string,
     counts?: {
       projectCount?: number;
@@ -238,6 +250,7 @@ export class WorkspacesService {
       role,
       createdAt: workspace.createdAt,
       updatedAt: workspace.updatedAt,
+      ...(task ? { task } : {}),
       ...(counts
         ? {
             projectCount: counts.projectCount,

@@ -1,63 +1,57 @@
-import type { Dispatch, SetStateAction } from "react";
-
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import PaginationControls from "@/components/PaginationControls";
 import TextAvatar from "@/components/TextAvatar";
-import { cn, getIdentityColor, timeAgo } from "@/lib/utils";
 import ErrorState from "@/components/ErrorState";
-import type { PaginatedResponse } from "@/features/projects/types";
-import type { Project } from "@/types/project";
-import type { Member } from "@/types/organization";
-import { Link, useParams } from "react-router-dom";
 import TasksTable from "@/features/tasks/components/TasksTable";
-import type { Task } from "@/types/task";
+import { useProjects } from "@/features/projects/hooks/useProjects";
+import { useWorkspaceTasks } from "../hooks/useWorkspaceTasks";
+import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
+import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
+import { cn, getIdentityColor, timeAgo } from "@/lib/utils";
 
-interface WorkspaceOverviewProps {
-  projects: PaginatedResponse<Project>;
-  projectsError: boolean;
-  projectsFetching: boolean;
-  projectsPlaceholderData: boolean;
-  refetchProjects: () => void;
-  projectPage: number;
-  projectLimit: number;
-  onProjectPageChange: Dispatch<SetStateAction<number>>;
-  tasks: PaginatedResponse<Task>;
-  tasksFetching: boolean;
-  tasksPlaceholderData: boolean;
-  members: PaginatedResponse<Member>;
-  membersError: boolean;
-  membersFetching: boolean;
-  membersPlaceholderData: boolean;
-  refetchMembers: () => void;
-  memberPage: number;
-  memberLimit: number;
-  onMemberPageChange: Dispatch<SetStateAction<number>>;
-}
+const WorkspaceOverview = () => {
+  const [projectPage, setProjectPage] = useState(DEFAULT_PAGE);
+  const [taskPage, setTaskPage] = useState(DEFAULT_PAGE);
+  const [memberPage, setMemberPage] = useState(DEFAULT_PAGE);
 
-const WorkspaceOverview = ({
-  projects,
-  projectsError,
-  projectsFetching,
-  projectsPlaceholderData,
-  refetchProjects,
-  projectPage,
-  projectLimit,
-  onProjectPageChange,
-  tasks,
-  tasksFetching,
-  tasksPlaceholderData,
-  members,
-  membersError,
-  membersFetching,
-  membersPlaceholderData,
-  refetchMembers,
-  memberPage,
-  memberLimit,
-  onMemberPageChange,
-}: WorkspaceOverviewProps) => {
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
   }>();
+
+  const {
+    data: projects,
+    isError: isProjectsError,
+    isFetching: isProjectsFetching,
+    isPlaceholderData: isProjectsPlaceholderData,
+    refetch: refetchProjects,
+  } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
+    page: projectPage,
+    limit: DEFAULT_TABLE_LIMIT,
+  });
+
+  const {
+    data: tasks,
+    isError: isTasksError,
+    isFetching: isTasksFetching,
+    isPlaceholderData: isTasksPlaceholderData,
+    refetch: refetchTasks,
+  } = useWorkspaceTasks(orgSlug ?? null, workspaceSlug ?? null, {
+    page: taskPage,
+    limit: DEFAULT_TABLE_LIMIT,
+  });
+
+  const {
+    data: members,
+    isError: isMembersError,
+    isFetching: isMembersFetching,
+    isPlaceholderData: isMembersPlaceholderData,
+    refetch: refetchMembers,
+  } = useOrganizationMembers(orgSlug ?? null, {
+    page: memberPage,
+    limit: DEFAULT_TABLE_LIMIT,
+  });
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -69,21 +63,21 @@ const WorkspaceOverview = ({
             Recent projects
           </h3>
 
-          {projectsError && (
+          {isProjectsError && (
             <ErrorState
               title="Couldn't load projects"
               description="Something went wrong fetching projects for this workspace."
               onRetry={refetchProjects}
-              isRetrying={projectsFetching}
+              isRetrying={isProjectsFetching}
             />
           )}
 
-          {!projectsError && projects.data.length > 0 ? (
+          {!isProjectsError && projects && projects.data.length > 0 ? (
             <>
               <div
                 className={cn(
                   "overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm",
-                  projectsPlaceholderData
+                  isProjectsPlaceholderData
                     ? "opacity-60 pointer-events-none"
                     : "",
                 )}
@@ -138,43 +132,69 @@ const WorkspaceOverview = ({
 
               <PaginationControls
                 currentPage={projectPage}
-                limit={projectLimit}
-                onPageChange={onProjectPageChange}
+                limit={DEFAULT_TABLE_LIMIT}
+                onPageChange={setProjectPage}
                 totalItems={projects.meta.total}
                 totalPages={projects.meta.totalPages}
               />
             </>
           ) : (
-            <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
-              <div>
-                <p className="text-sm font-medium text-foreground">
-                  No projects yet
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Projects created in this workspace will appear here.
-                </p>
+            !isProjectsError && (
+              <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    No projects yet
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Projects created in this workspace will appear here.
+                  </p>
+                </div>
               </div>
-            </div>
+            )
           )}
         </section>
 
         {/* Open tasks */}
         <section className="space-y-3">
-          <TasksTable
-            tasks={tasks.data}
-            isLoading={tasksPlaceholderData}
-            isFetching={tasksFetching}
-          />
-          <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                No open tasks
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                You're all caught up in this workspace.
-              </p>
-            </div>
-          </div>
+          {isTasksError && (
+            <ErrorState
+              title="Couldn't load tasks"
+              description="Something went wrong fetching tasks for this workspace."
+              onRetry={refetchTasks}
+              isRetrying={isTasksFetching}
+            />
+          )}
+
+          {!isTasksError && tasks && tasks.data.length > 0 ? (
+            <>
+              <TasksTable
+                tasks={tasks.data}
+                isLoading={isTasksPlaceholderData}
+                isFetching={isTasksFetching}
+              />
+
+              <PaginationControls
+                currentPage={taskPage}
+                limit={DEFAULT_TABLE_LIMIT}
+                onPageChange={setTaskPage}
+                totalItems={tasks.meta.total}
+                totalPages={tasks.meta.totalPages}
+              />
+            </>
+          ) : (
+            !isTasksError && (
+              <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    No open tasks
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    You're all caught up in this workspace.
+                  </p>
+                </div>
+              </div>
+            )
+          )}
         </section>
       </div>
 
@@ -186,22 +206,22 @@ const WorkspaceOverview = ({
             Members
           </h3>
 
-          {membersError && (
+          {isMembersError && (
             <ErrorState
               title="Couldn't load members"
               description="Something went wrong fetching members for this workspace."
               onRetry={refetchMembers}
-              isRetrying={membersFetching}
+              isRetrying={isMembersFetching}
             />
           )}
 
           <div
             className={cn(
               "rounded-xl border border-border/60 bg-card p-4 shadow-sm",
-              membersPlaceholderData ? "opacity-60 pointer-events-none" : "",
+              isMembersPlaceholderData ? "opacity-60 pointer-events-none" : "",
             )}
           >
-            {!membersError && members.data.length > 0 ? (
+            {!isMembersError && members && members.data.length > 0 ? (
               <div className="space-y-3">
                 {members.data.map((member) => {
                   const {
@@ -231,24 +251,28 @@ const WorkspaceOverview = ({
                 })}
               </div>
             ) : (
-              <div className="px-3 py-8 text-center">
-                <p className="text-sm font-medium text-foreground">
-                  No members found
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Workspace members will appear here.
-                </p>
-              </div>
+              !isMembersError && (
+                <div className="px-3 py-8 text-center">
+                  <p className="text-sm font-medium text-foreground">
+                    No members found
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Workspace members will appear here.
+                  </p>
+                </div>
+              )
             )}
           </div>
 
-          <PaginationControls
-            currentPage={memberPage}
-            limit={memberLimit}
-            onPageChange={onMemberPageChange}
-            totalItems={members.meta.total}
-            totalPages={members.meta.totalPages}
-          />
+          {members && (
+            <PaginationControls
+              currentPage={memberPage}
+              limit={DEFAULT_TABLE_LIMIT}
+              onPageChange={setMemberPage}
+              totalItems={members.meta.total}
+              totalPages={members.meta.totalPages}
+            />
+          )}
         </section>
 
         {/* At a glance */}

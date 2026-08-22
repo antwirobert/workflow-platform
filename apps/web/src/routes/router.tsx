@@ -9,6 +9,7 @@ import ProjectTasksPage from "@/features/projects/pages/ProjectTasksPage";
 import WorkspaceDetailPage from "@/features/workspaces/pages/WorkspaceDetailPage";
 import OrganizationMembersPage from "@/features/organizations/pages/OrganizationMembersPage";
 import { organizationLoader } from "@/features/organizations/loaders";
+import { workspaceLoader } from "@/features/workspaces/loaders";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },
@@ -51,14 +52,22 @@ export const router = createBrowserRouter([
       },
       {
         path: "/organizations/:orgSlug/workspaces",
-        element: <WorkspacesPage />,
+        element: <Outlet />,
         handle: { title: "Workspaces" },
+        children: [
+          { index: true, element: <WorkspacesPage /> },
+          {
+            path: ":workspaceSlug",
+            element: <WorkspaceDetailPage />,
+            loader: workspaceLoader,
+            handle: {
+              title: (workspace: { name: string } | undefined) =>
+                workspace?.name ?? "…",
+            },
+          },
+        ],
       },
-      {
-        path: "/organizations/:orgSlug/workspaces/:workspaceSlug",
-        element: <WorkspaceDetailPage />,
-        handle: { title: "Workspaces" },
-      },
+
       {
         path: "/organizations/:orgSlug/workspaces/:workspaceSlug/projects",
         element: <ProjectsPage />,

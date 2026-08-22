@@ -1,34 +1,37 @@
-import type { Dispatch, SetStateAction } from "react";
-import type { PaginatedResponse } from "@/features/projects/types";
-import type { Project } from "@/types/project";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 import TextAvatar from "@/components/TextAvatar";
 import { cn, getIdentityColor, timeAgo } from "@/lib/utils";
 import PaginationControls from "@/components/PaginationControls";
 import ErrorState from "@/components/ErrorState";
+import { useProjects } from "@/features/projects/hooks/useProjects";
+import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 
-interface WorkspaceProjectsProps {
-  projects: PaginatedResponse<Project>;
-  isError: boolean;
-  isFetching: boolean;
-  isPlaceholderData: boolean;
-  refetch: () => void;
-  page: number;
-  limit: number;
-  onPageChange: Dispatch<SetStateAction<number>>;
-  onPageSizeChange: Dispatch<SetStateAction<number>>;
-}
+const WorkspaceProjects = () => {
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
 
-const WorkspaceProjects = ({
-  projects,
-  isError,
-  isFetching,
-  isPlaceholderData,
-  refetch,
-  page,
-  limit,
-  onPageChange,
-  onPageSizeChange,
-}: WorkspaceProjectsProps) => {
+  const { orgSlug, workspaceSlug } = useParams<{
+    orgSlug: string;
+    workspaceSlug: string;
+  }>();
+
+  const {
+    data: projects,
+    isError,
+    isFetching,
+    isPlaceholderData,
+    refetch,
+  } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
+    page,
+    limit,
+  });
+
+  const handlePageSizeChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(DEFAULT_PAGE);
+  };
+
   return (
     <div className="space-y-6">
       {isError && (
@@ -40,7 +43,7 @@ const WorkspaceProjects = ({
         />
       )}
 
-      {projects.data && projects.data.length === 0 && (
+      {!isError && projects?.data.length === 0 && (
         <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
           <div>
             <p className="text-sm font-medium text-foreground">
@@ -53,7 +56,7 @@ const WorkspaceProjects = ({
         </div>
       )}
 
-      {!isError && projects.data.length > 0 && (
+      {!isError && projects && projects.data.length > 0 && (
         <>
           <div
             className={cn(
@@ -106,8 +109,8 @@ const WorkspaceProjects = ({
           <PaginationControls
             currentPage={page}
             limit={limit}
-            onPageChange={onPageChange}
-            onPageSizeChange={onPageSizeChange}
+            onPageChange={setPage}
+            onPageSizeChange={handlePageSizeChange}
             totalItems={projects.meta.total}
             totalPages={projects.meta.totalPages}
           />

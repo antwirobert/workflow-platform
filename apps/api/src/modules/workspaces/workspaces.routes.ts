@@ -33,6 +33,14 @@ router.get(
   workspacesController.getById,
 );
 
+router.get(
+  "/:workspaceSlug/tasks",
+  validate(workspaceDetailParamsSchema, "params"),
+  validate(listWorkspacesQuerySchema, "query"),
+  assertWorkspaceToOrg,
+  workspacesController.listWorkspaceTasks,
+);
+
 router.patch(
   "/:workspaceSlug",
   validate(workspaceDetailParamsSchema, "params"),

@@ -10,12 +10,12 @@ export interface CreateWorkspaceInput extends CreateWorkspacePayload {
 }
 
 export interface WorkspaceResult {
-  id: string;
-  name: string;
-  slug: string;
-  organizationId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id?: string;
+  name?: string;
+  slug?: string;
+  organizationId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
   role?: string;
   projectCount?: number;
   taskCount?: number;

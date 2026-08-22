@@ -233,7 +233,7 @@ export class WorkspacesService {
 
   // Maps database model to public API response format
   private buildWorkspaceResult(
-    workspace: Workspace,
+    workspace?: Workspace,
     task?: Task,
     role?: string,
     counts?: {
@@ -243,14 +243,32 @@ export class WorkspacesService {
     },
   ): WorkspaceResult {
     return {
-      id: workspace.id,
-      name: workspace.name,
-      slug: workspace.slug,
-      organizationId: workspace.organizationId,
-      role,
-      createdAt: workspace.createdAt,
-      updatedAt: workspace.updatedAt,
-      ...(task ? { task } : {}),
+      ...(workspace
+        ? {
+            id: workspace.id,
+            name: workspace.name,
+            slug: workspace.slug,
+            organizationId: workspace.organizationId,
+            role,
+            createdAt: workspace.createdAt,
+            updatedAt: workspace.updatedAt,
+          }
+        : {}),
+      ...(task
+        ? {
+            id: task.id,
+            title: task.title,
+            description: task.description,
+            status: task.status,
+            priority: task.priority,
+            projectId: task.projectId,
+            assigneeId: task.assigneeId,
+            createdById: task.createdById,
+            dueDate: task.dueDate,
+            createdAt: task.createdAt,
+            updatedAt: task.updatedAt,
+          }
+        : {}),
       ...(counts
         ? {
             projectCount: counts.projectCount,

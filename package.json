@@ -7,7 +7,9 @@
   "scripts": {
     "dev:api": "npm run dev --workspace=apps/api",
     "dev:web": "npm run dev --workspace=apps/web",
-    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\""
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "db:migrate": "cd apps/api && npx prisma migrate dev",
+    "db:generate": "cd apps/api && npx prisma generate"
   },
   "devDependencies": {
     "concurrently": "^10.0.4"

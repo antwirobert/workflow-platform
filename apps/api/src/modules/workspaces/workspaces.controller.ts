@@ -96,6 +96,25 @@ export class WorkspacesController {
       next(error);
     }
   };
+
+  listWorkspaceTasks = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { page, limit } = req.validated!.query as listWorkspacesQueryInput;
+
+      const workspaceTasks = await workspacesService.listWorkspaceTasks({
+        page,
+        limit,
+        workspaceId: req.workspace!.id,
+      });
+      res.status(200).json(workspaceTasks);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export const workspacesController = new WorkspacesController();

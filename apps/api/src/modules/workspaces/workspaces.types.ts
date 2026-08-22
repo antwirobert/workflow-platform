@@ -27,8 +27,9 @@ export interface UpdateWorkspaceInput extends UpdateWorkspacePayload {
 }
 
 export interface listWorkspacesQuery extends listWorkspacesQueryInput {
-  organizationId: string;
-  userId: string;
+  organizationId?: string;
+  userId?: string;
+  workspaceId?: string;
 }
 
 export interface ListWorkspacesQueryResult<T> {

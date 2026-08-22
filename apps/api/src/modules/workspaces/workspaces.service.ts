@@ -91,7 +91,11 @@ export class WorkspacesService {
       include: {
         _count: { select: { projects: true } },
         projects: {
-          select: { id: true, name: true, _count: { select: { tasks: true } } },
+          select: {
+            id: true,
+            name: true,
+            _count: { select: { tasks: { where: { deletedAt: null } } } },
+          },
         },
         organization: {
           select: {
@@ -175,6 +179,45 @@ export class WorkspacesService {
     }
 
     await prisma.workspace.delete({ where: { id: workspaceId } });
+  }
+
+  async listWorkspaceTasks(
+    query: listWorkspacesQuery,
+  ): Promise<ListWorkspacesQueryResult<WorkspaceResult>> {
+    const { page, limit, workspaceId } = query;
+
+    const skip = (page - 1) * limit;
+
+    const where = {
+      deletedAt: null,
+      project: { workspaceId },
+    };
+
+    const [tasks, total] = await Promise.all([
+      prisma.task.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        include: {
+          project: {
+            select: { workspace: true },
+          },
+        },
+      }),
+
+      prisma.task.count({ where }),
+    ]);
+
+    return {
+      data: tasks.map((t) => this.buildWorkspaceResult(t.project.workspace)),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   // Maps database model to public API response format

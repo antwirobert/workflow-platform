@@ -14,10 +14,12 @@ import { useOrganizationMembers } from "@/features/organizations/hooks/useOrgani
 import WorkspaceDetailSkeleton from "../components/WorkspaceDetailSkeleton";
 import CreateProjectDialog from "@/features/projects/components/CeateProjectDialog";
 import MembersTable from "@/features/organizations/components/MembersTable";
+import { useWorkspaceTasks } from "../hooks/useWorkspaceTasks";
 
 const WorkspaceDetailPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [overviewProjectPage, setOverviewProjectPage] = useState(DEFAULT_PAGE);
+  const [overviewTaskPage, setOverviewTaskPage] = useState(DEFAULT_PAGE);
   const [overviewMemberPage, setOverviewMemberPage] = useState(DEFAULT_PAGE);
   const [projectPage, setProjectPage] = useState(DEFAULT_PAGE);
   const [projectLimit, setProjectLimit] = useState(DEFAULT_TABLE_LIMIT);
@@ -43,6 +45,17 @@ const WorkspaceDetailPage = () => {
     refetch: refetchOverviewProjects,
   } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
     page: overviewProjectPage,
+    limit: DEFAULT_TABLE_LIMIT,
+  });
+
+  const {
+    data: overviewTasks,
+    isError: isOverviewTasksError,
+    isFetching: isOverviewTasksFetching,
+    isPlaceholderData: isOverviewTasksPlaceholderData,
+    refetch: refetchOverviewTasks,
+  } = useWorkspaceTasks(orgSlug ?? null, workspaceSlug ?? null, {
+    page: overviewTaskPage,
     limit: DEFAULT_TABLE_LIMIT,
   });
 
@@ -165,7 +178,7 @@ const WorkspaceDetailPage = () => {
             value="overview"
             className="mt-6 focus-visible:outline-none"
           >
-            {overviewProjects && overviewMembers && (
+            {overviewProjects && overviewTasks && overviewMembers && (
               <WorkspaceOverview
                 projects={overviewProjects}
                 projectsError={isOverviewProjectsError}
@@ -183,6 +196,11 @@ const WorkspaceDetailPage = () => {
                 memberPage={overviewMemberPage}
                 memberLimit={DEFAULT_TABLE_LIMIT}
                 onMemberPageChange={setOverviewMemberPage}
+                tasks={overviewTasks}
+                tasksError={isOverviewTasksError}
+                tasksFetching={isOverviewTasksFetching}
+                tasksPlaceholderData={isOverviewTasksPlaceholderData}
+                refetchTasks={refetchOverviewTasks}
               />
             )}
           </TabsContent>

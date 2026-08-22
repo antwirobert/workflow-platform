@@ -8,6 +8,8 @@ import type { PaginatedResponse } from "@/features/projects/types";
 import type { Project } from "@/types/project";
 import type { Member } from "@/types/organization";
 import { Link, useParams } from "react-router-dom";
+import TasksTable from "@/features/tasks/components/TasksTable";
+import type { Task } from "@/types/task";
 
 interface WorkspaceOverviewProps {
   projects: PaginatedResponse<Project>;
@@ -18,6 +20,9 @@ interface WorkspaceOverviewProps {
   projectPage: number;
   projectLimit: number;
   onProjectPageChange: Dispatch<SetStateAction<number>>;
+  tasks: PaginatedResponse<Task>;
+  tasksFetching: boolean;
+  tasksPlaceholderData: boolean;
   members: PaginatedResponse<Member>;
   membersError: boolean;
   membersFetching: boolean;
@@ -37,6 +42,9 @@ const WorkspaceOverview = ({
   projectPage,
   projectLimit,
   onProjectPageChange,
+  tasks,
+  tasksFetching,
+  tasksPlaceholderData,
   members,
   membersError,
   membersFetching,
@@ -152,6 +160,11 @@ const WorkspaceOverview = ({
 
         {/* Open tasks */}
         <section className="space-y-3">
+          <TasksTable
+            tasks={tasks.data}
+            isLoading={tasksPlaceholderData}
+            isFetching={tasksFetching}
+          />
           <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
             <div>
               <p className="text-sm font-medium text-foreground">

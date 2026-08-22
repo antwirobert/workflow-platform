@@ -103,6 +103,26 @@ export class ProjectsController {
       next(error);
     }
   };
+
+  listProjectAsssignees = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { page, limit } = req.validated!.query as ListProjectsQueryInput;
+
+      const projectAssignees = await projectsService.listProjectAssignees({
+        page,
+        limit,
+        projectId: req.project!.id,
+      });
+
+      res.status(200).json(projectAssignees);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export const projectsController = new ProjectsController();

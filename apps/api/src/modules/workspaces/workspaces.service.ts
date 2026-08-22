@@ -13,6 +13,7 @@ import {
   UpdateWorkspaceInput,
   WorkspaceResult,
 } from "./workspaces.types";
+import { TaskResult } from "../tasks/tasks.types";
 
 export class WorkspacesService {
   async create(input: CreateWorkspaceInput): Promise<WorkspaceResult> {
@@ -73,14 +74,9 @@ export class WorkspacesService {
 
     return {
       data: workspaces.map((w) =>
-        this.buildWorkspaceResult(
-          w,
-          undefined,
-          w.organization.members[0].role,
-          {
-            projectCount: w._count.projects,
-          },
-        ),
+        this.buildWorkspaceResult(w, w.organization.members[0].role, {
+          projectCount: w._count.projects,
+        }),
       ),
       meta: {
         page,
@@ -126,7 +122,6 @@ export class WorkspacesService {
 
     return this.buildWorkspaceResult(
       workspace,
-      undefined,
       workspace.organization.members[0].role,
       {
         projectCount: workspace._count.projects,
@@ -194,7 +189,7 @@ export class WorkspacesService {
 
   async listWorkspaceTasks(
     query: listWorkspacesQuery,
-  ): Promise<ListWorkspacesQueryResult<WorkspaceResult>> {
+  ): Promise<ListWorkspacesQueryResult<TaskResult>> {
     const { page, limit, workspaceId } = query;
 
     const skip = (page - 1) * limit;
@@ -210,18 +205,13 @@ export class WorkspacesService {
         skip,
         take: limit,
         orderBy: { createdAt: "desc" },
-        include: {
-          project: {
-            select: { workspace: true },
-          },
-        },
       }),
 
       prisma.task.count({ where }),
     ]);
 
     return {
-      data: tasks.map((t) => this.buildWorkspaceResult(t.project.workspace, t)),
+      data: tasks.map((t) => t),
       meta: {
         page,
         limit,
@@ -233,8 +223,7 @@ export class WorkspacesService {
 
   // Maps database model to public API response format
   private buildWorkspaceResult(
-    workspace?: Workspace,
-    task?: Task,
+    workspace: Workspace,
     role?: string,
     counts?: {
       projectCount?: number;
@@ -243,32 +232,13 @@ export class WorkspacesService {
     },
   ): WorkspaceResult {
     return {
-      ...(workspace
-        ? {
-            id: workspace.id,
-            name: workspace.name,
-            slug: workspace.slug,
-            organizationId: workspace.organizationId,
-            role,
-            createdAt: workspace.createdAt,
-            updatedAt: workspace.updatedAt,
-          }
-        : {}),
-      ...(task
-        ? {
-            id: task.id,
-            title: task.title,
-            description: task.description,
-            status: task.status,
-            priority: task.priority,
-            projectId: task.projectId,
-            assigneeId: task.assigneeId,
-            createdById: task.createdById,
-            dueDate: task.dueDate,
-            createdAt: task.createdAt,
-            updatedAt: task.updatedAt,
-          }
-        : {}),
+      id: workspace.id,
+      name: workspace.name,
+      slug: workspace.slug,
+      organizationId: workspace.organizationId,
+      createdAt: workspace.createdAt,
+      updatedAt: workspace.updatedAt,
+      role,
       ...(counts
         ? {
             projectCount: counts.projectCount,

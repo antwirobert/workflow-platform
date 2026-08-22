@@ -35,7 +35,7 @@ export const orgSlugParamSchema = z.object({
 
 export const listOrganizationsQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(10),
+  limit: z.coerce.number().min(1).max(100).default(12),
 });
 
 export type CreateOrganizationPayload = z.infer<

@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import PaginationControls from "@/components/PaginationControls";
+import { cn } from "@/lib/utils";
 
 const ProjectsPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,10 +28,13 @@ const ProjectsPage = () => {
     isError,
     refetch,
     isFetching,
+    isPlaceholderData,
   } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
     page,
     limit,
   });
+
+  if (!orgSlug || !workspaceSlug) return null;
 
   return (
     <PageHeader
@@ -40,8 +44,8 @@ const ProjectsPage = () => {
         <CreateProjectDialog
           open={isOpen}
           onOpenChange={setIsOpen}
-          orgSlug={orgSlug!}
-          workspaceSlug={workspaceSlug!}
+          orgSlug={orgSlug}
+          workspaceSlug={workspaceSlug}
         />
       }
     >
@@ -75,7 +79,7 @@ const ProjectsPage = () => {
         </div>
       )}
 
-      {isError && (
+      {!isLoading && isError && (
         <ErrorState
           title="Couldn't load projects"
           description="Something went wrong fetching this workspace's projects."
@@ -84,7 +88,7 @@ const ProjectsPage = () => {
         />
       )}
 
-      {projects?.data && projects.data.length === 0 && (
+      {!isLoading && !isError && projects?.data.length === 0 && (
         <EmptyState
           title="No projects yet"
           description="Projects group related tasks. Create your first one to get started."
@@ -94,25 +98,34 @@ const ProjectsPage = () => {
         />
       )}
 
-      {!isError && (projects?.data.length ?? 0) > 0 && (
+      {!isLoading && !isError && (projects?.data.length ?? 0) > 0 && (
         <>
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div
+            className={cn(
+              "grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
+              isPlaceholderData ? "opacity-60 pointer-events-none" : "",
+            )}
+          >
             {projects?.data.map((project) => (
               <ProjectCard
                 key={project.id}
-                targetOrgSlug={orgSlug!}
-                targetWorkspaceSlug={workspaceSlug!}
+                targetOrgSlug={orgSlug}
+                targetWorkspaceSlug={workspaceSlug}
                 {...project}
               />
             ))}
           </div>
 
           <PaginationControls
-            currentPage={projects!.meta.page}
-            totalPages={projects!.meta.totalPages}
-            totalItems={projects!.meta.total}
+            currentPage={page}
+            limit={limit}
             onPageChange={setPage}
-            onPageSizeChange={setLimit}
+            onPageSizeChange={(size) => {
+              setLimit(size);
+              setPage(DEFAULT_PAGE);
+            }}
+            totalItems={projects!.meta.total}
+            totalPages={projects!.meta.totalPages}
           />
         </>
       )}

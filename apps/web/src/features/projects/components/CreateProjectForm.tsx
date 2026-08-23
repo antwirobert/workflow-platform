@@ -58,7 +58,7 @@ const CreateProjectForm = ({
         onClose();
         toast.add({
           type: "success",
-          description: "Project created",
+          title: "Project created",
         });
       },
       onError: (err: ApiError) => {

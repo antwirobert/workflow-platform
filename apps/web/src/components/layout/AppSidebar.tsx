@@ -116,17 +116,15 @@ const AppSidebar = () => {
               )}
 
               {!activeOrganization && (
-                <div className="mx-2 gap-2 rounded-lg border border-dashed border-border/80 px-3 py-4 text-center">
-                  <div className="flex items-start gap-0">
-                    <Lock className="size-6 text-muted-foreground" />
-                    <p className="text-xs leading-relaxed text-muted-foreground">
-                      Workspaces live inside an organization. Pick one to see
-                      its workspaces.
-                    </p>
-                  </div>
+                <div className="mx-2 flex flex-col items-center gap-2 rounded-lg border border-dashed border-border/80 px-3 py-4 text-center">
+                  <Lock className="size-3.5 text-muted-foreground/70" />
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    Workspaces live inside an organization. Pick one to see its
+                    workspaces.
+                  </p>
                   <Link
                     to="/organizations"
-                    className="flex items-center gap-1 mt-2 text-xs font-medium text-foreground/80 transition-colors hover:text-foreground"
+                    className="text-xs font-medium text-foreground/80 transition-colors hover:text-foreground"
                   >
                     Choose an organization
                   </Link>
@@ -238,8 +236,41 @@ const AppSidebar = () => {
                 </div>
               )}
 
+              {!activeOrganization && (
+                <div className="mx-2 flex flex-col items-center gap-2 rounded-lg border border-dashed border-border/80 px-3 py-4 text-center">
+                  <Lock className="size-3.5 text-muted-foreground/70" />
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    Pick an organization first. Projects sit inside its
+                    workspaces.
+                  </p>
+                  <Link
+                    to="/organizations"
+                    className="text-xs font-medium text-foreground/80 transition-colors hover:text-foreground"
+                  >
+                    Choose an organization
+                  </Link>
+                </div>
+              )}
+
+              {activeOrganization && !activeWorkspaceSlug && (
+                <div className="mx-2 flex flex-col items-center gap-2 rounded-lg border border-dashed border-border/80 px-3 py-4 text-center">
+                  <Lock className="size-3.5 text-muted-foreground/70" />
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    Projects sit inside workspaces. Choose one to continue.
+                  </p>
+                  <Link
+                    to={`/organizations/${activeOrganization.slug}/workspaces`}
+                    className="text-xs font-medium text-foreground/80 transition-colors hover:text-foreground"
+                  >
+                    Choose a workspace
+                  </Link>
+                </div>
+              )}
+
               {!projectsLoading &&
                 !projectsError &&
+                activeOrganization &&
+                activeWorkspaceSlug &&
                 (projects?.data ?? []).length === 0 && (
                   <div className="mx-2 flex flex-col items-center gap-2 rounded-lg border border-dashed border-border/80 px-3 py-4 text-center">
                     <p className="text-xs leading-relaxed text-muted-foreground">

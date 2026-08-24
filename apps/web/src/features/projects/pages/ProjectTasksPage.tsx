@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { cn, getIdentityColor, getInitials } from "@/lib/utils";
+import { getIdentityColor } from "@/lib/utils";
 import { useProject } from "../hooks/useProject";
 import { useParams } from "react-router-dom";
 import TasksPage from "@/features/tasks/pages/TasksPage";
 import { Skeleton } from "@/components/ui/skeleton";
 import ErrorState from "@/components/ErrorState";
 import CreateTaskDialog from "@/features/tasks/components/CreateTaskDialog";
+import TextAvatar from "@/components/TextAvatar";
+import { useProjectAssignees } from "../hooks/useProjectAssignees";
 
 const ProjectTasksPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,6 +24,16 @@ const ProjectTasksPage = () => {
     refetch,
     isFetching,
   } = useProject(orgSlug ?? null, workspaceSlug ?? null, projectSlug ?? null);
+
+  const { data: projectAssignees } = useProjectAssignees(
+    orgSlug ?? null,
+    workspaceSlug ?? null,
+    projectSlug ?? null,
+    {
+      page: 1,
+      limit: 2,
+    },
+  );
 
   if (!orgSlug || !workspaceSlug || !projectSlug) return null;
 
@@ -67,15 +79,12 @@ const ProjectTasksPage = () => {
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-xl space-y-1.5">
             <div className="flex items-center gap-3">
-              <div
-                className={cn(
-                  "flex size-8 shrink-0 items-center justify-center rounded-lg text-xs font-semibold",
-                  color.bg,
-                  color.text,
-                )}
-              >
-                {getInitials(project.name)}
-              </div>
+              <TextAvatar
+                name={project.name}
+                colorClass={color.bg}
+                textClass={color.text}
+                className="size-8 rounded-lg text-xs font-semibold"
+              />
               <h1 className="truncate text-xl font-semibold tracking-tight text-foreground">
                 {project.name}
               </h1>
@@ -96,6 +105,30 @@ const ProjectTasksPage = () => {
             projectSlug={projectSlug}
           />
         </div>
+
+        {(projectAssignees?.data.length ?? 0) > 0 && (
+          <div className="flex -space-x-2">
+            {projectAssignees?.data.slice(0, 4).map((assignee) => {
+              const color = getIdentityColor(assignee.id);
+
+              return (
+                <TextAvatar
+                  key={assignee.id}
+                  name={assignee.name}
+                  colorClass={color.bg}
+                  textClass={color.text}
+                  className="size-7 rounded-full text-[10px] font-semibold ring-2 ring-card"
+                />
+              );
+            })}
+
+            {(projectAssignees?.data.length ?? 0) > 4 && (
+              <div className="flex size-7 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground ring-2 ring-card">
+                +{(projectAssignees?.data.length ?? 0) - 4}
+              </div>
+            )}
+          </div>
+        )}
 
         <TasksPage
           orgSlug={orgSlug}

@@ -10,6 +10,11 @@ export interface UpdateProjectPayload {
   description?: string;
 }
 
+export interface ProjectAssignee {
+  id: string;
+  name: string;
+}
+
 export interface ProjectlistParams {
   page: number;
   limit: number;

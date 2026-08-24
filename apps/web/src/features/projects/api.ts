@@ -2,6 +2,7 @@ import { apiClient } from "@/lib/api/client";
 import type {
   CreateProjectPayload,
   PaginatedResponse,
+  ProjectAssignee,
   ProjectlistParams,
   UpdateProjectPayload,
 } from "./types";
@@ -37,4 +38,19 @@ export const projectsApi = {
     ),
   delete: (orgSlug: string, workspaceSlug: string, projectSlug: string) =>
     apiClient.delete<void>(`${base(orgSlug, workspaceSlug)}${projectSlug}`),
+  listProjectAssignees: (
+    orgSlug: string,
+    workspaceSlug: string,
+    projectSlug: string,
+    params: ProjectlistParams,
+  ) =>
+    apiClient.get<PaginatedResponse<ProjectAssignee>>(
+      `${base(orgSlug, workspaceSlug)}${projectSlug}/assignees`,
+      {
+        params: {
+          page: String(params.page),
+          limit: String(params.limit),
+        },
+      },
+    ),
 };

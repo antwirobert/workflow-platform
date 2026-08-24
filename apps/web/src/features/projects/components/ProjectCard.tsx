@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { cn, getIdentityColor, getInitials } from "@/lib/utils";
+import { getIdentityColor } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,9 +11,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Ellipsis, Lock, Pencil, Trash2 } from "lucide-react";
-import { ROLES_MANAGEMENT } from "@/constants";
+import {
+  DEFAULT_PAGE,
+  DEFAULT_SIDEBAR_LIMIT,
+  ROLES_MANAGEMENT,
+} from "@/constants";
 import EditProjectDialog from "./EditProjectDialog";
 import DeleteProjectDialog from "./DeleteProjectDialog";
+import { useProjectAssignees } from "../hooks/useProjectAssignees";
+import TextAvatar from "@/components/TextAvatar";
 
 interface ProjectCardProps {
   id: string;
@@ -38,25 +44,36 @@ const ProjectCard = ({
 }: ProjectCardProps) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const {
+    data: projectAssignees,
+    isLoading,
+    isError,
+  } = useProjectAssignees(
+    targetOrgSlug ?? null,
+    targetWorkspaceSlug ?? null,
+    slug ?? null,
+    {
+      page: DEFAULT_PAGE,
+      limit: DEFAULT_SIDEBAR_LIMIT,
+    },
+  );
 
   const color = getIdentityColor(id);
 
   return (
-    <div className="min-w-0 h-full">
+    <div className="min-w-0">
       <Link
         to={`/organizations/${targetOrgSlug}/workspaces/${targetWorkspaceSlug}/projects/${slug}`}
-        className="group relative h-full flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md"
+        className="group relative h-full flex flex-col gap-3 rounded-xl border border-border/60 bg-card px-4 pt-4 shadow-sm transition-all hover:border-border hover:shadow-md"
       >
         <div className="flex items-center justify-between gap-3">
-          <div
-            className={cn(
-              "flex size-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold",
-              color.bg,
-              color.text,
-            )}
-          >
-            {getInitials(name)}
-          </div>
+          <TextAvatar
+            name={name}
+            colorClass={color.bg}
+            textClass={color.text}
+            className="size-10 rounded-lg text-sm font-semibold"
+          />
+
           <div className="flex flex-col">
             <div
               onClick={(e) => {
@@ -149,8 +166,9 @@ const ProjectCard = ({
           </h3>
           <Badge
             variant="secondary"
-            className="h-5 w-fit rounded-md px-1.5 text-[11px] font-medium text-muted-foreground"
+            className="flex gap-[1.2px] h-5 w-fit rounded-md px-1.5 text-[11px] font-medium text-muted-foreground"
           >
+            <span>/</span>
             {slug}
           </Badge>
           {description && (
@@ -158,7 +176,37 @@ const ProjectCard = ({
               {description}
             </p>
           )}
-          <p className="text-xs text-muted-foreground">{taskCount} tasks</p>
+          <div className="flex items-center justify-between gap-2">
+            {!isLoading &&
+              !isError &&
+              (projectAssignees?.data.length ?? 0) > 0 && (
+                <div className="flex -space-x-2">
+                  {projectAssignees?.data.slice(0, 4).map((assignee) => {
+                    const color = getIdentityColor(assignee.id);
+
+                    return (
+                      <TextAvatar
+                        key={assignee.id}
+                        name={assignee.name}
+                        colorClass={color.bg}
+                        textClass={color.text}
+                        className="size-7 rounded-full text-[10px] font-semibold ring-2 ring-card"
+                      />
+                    );
+                  })}
+
+                  {(projectAssignees?.data.length ?? 0) > 4 && (
+                    <div className="flex size-7 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground ring-2 ring-card">
+                      +{(projectAssignees?.data.length ?? 0) - 4}
+                    </div>
+                  )}
+                </div>
+              )}
+
+            <p className="text-xs text-muted-foreground">
+              {taskCount} {taskCount === 1 ? "task" : "tasks"}
+            </p>
+          </div>
         </div>
       </Link>
 

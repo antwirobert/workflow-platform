@@ -16,7 +16,7 @@ const TextAvatar = ({
   return (
     <div
       className={cn(
-        "flex justify-center items-center rounded-md shrink-0",
+        "flex justify-center items-center shrink-0",
         colorClass,
         textClass,
         className,

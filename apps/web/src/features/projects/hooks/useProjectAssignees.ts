@@ -1,10 +1,11 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { projectsApi } from "../api";
 import type { ProjectlistParams } from "../types";
 
-export function useProjects(
+export function useProjectAssignees(
   orgSlug: string | null,
   workspaceSlug: string | null,
+  projectSlug: string | null,
   filters: ProjectlistParams,
 ) {
   return useQuery({
@@ -14,11 +15,16 @@ export function useProjects(
       "workspaces",
       workspaceSlug,
       "projects",
+      projectSlug,
       filters,
     ],
     queryFn: () =>
-      projectsApi.list(orgSlug as string, workspaceSlug as string, filters),
-    enabled: !!orgSlug && !!workspaceSlug,
-    placeholderData: keepPreviousData,
+      projectsApi.listProjectAssignees(
+        orgSlug as string,
+        workspaceSlug as string,
+        projectSlug as string,
+        filters,
+      ),
+    enabled: !!orgSlug && !!workspaceSlug && !!projectSlug,
   });
 }

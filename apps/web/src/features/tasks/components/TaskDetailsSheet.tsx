@@ -55,7 +55,7 @@ const TaskDetailsSheet = ({
 
           <div className="px-4 py-4">
             <SheetTitle className="text-lg font-semibold tracking-tight leading-snug">
-              {task.title || "Untitled task"}
+              {task.title}
             </SheetTitle>
           </div>
 
@@ -67,7 +67,9 @@ const TaskDetailsSheet = ({
                 <User className="size-3.5 opacity-70" />
                 Assignee
               </span>
-              <span className="text-sm">Jordan Smith</span>
+              <div className="flex gap-2">
+                <span className="text-sm">Jordan Smith</span>
+              </div>
             </div>
 
             <div className="flex items-center gap-3">

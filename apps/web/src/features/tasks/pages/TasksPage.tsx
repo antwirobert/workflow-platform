@@ -7,16 +7,23 @@ import { Separator } from "@/components/ui/separator";
 import TaskFilters from "../components/TaskFilters";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import PaginationControls from "@/components/PaginationControls";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import CreateTaskDialog from "../components/CreateTaskDialog";
 
 interface TasksPageProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   orgSlug: string;
   workspaceSlug: string;
   projectSlug: string;
 }
 
-const TasksPage = ({ orgSlug, workspaceSlug, projectSlug }: TasksPageProps) => {
+const TasksPage = ({
+  open,
+  onOpenChange,
+  orgSlug,
+  workspaceSlug,
+  projectSlug,
+}: TasksPageProps) => {
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
   const [status, setStatus] = useState<TaskStatus | "ALL">("ALL");
@@ -24,9 +31,10 @@ const TasksPage = ({ orgSlug, workspaceSlug, projectSlug }: TasksPageProps) => {
 
   const {
     data: tasks,
-    isLoading,
-    isFetching,
     isError,
+    isFetching,
+    refetch,
+    isPlaceholderData,
   } = useTasks(orgSlug ?? null, workspaceSlug ?? null, projectSlug ?? null, {
     page,
     limit,
@@ -67,13 +75,17 @@ const TasksPage = ({ orgSlug, workspaceSlug, projectSlug }: TasksPageProps) => {
         <TabsContent value="tasks-list" className="mt-4 flex-1 overflow-hidden">
           {tasks?.data && tasks.data.length === 0 && (
             <div className="flex min-h-52 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
-              <div>
+              <div className="flex flex-col gap-3">
                 <p className="text-sm font-medium text-foreground">
                   No tasks match these filters
                 </p>
-                <Button className="mt-2">
-                  <Plus className="size-4" /> New task
-                </Button>
+                <CreateTaskDialog
+                  open={open}
+                  onOpenChange={onOpenChange}
+                  orgSlug={orgSlug}
+                  workspaceSlug={workspaceSlug}
+                  projectSlug={projectSlug}
+                />
               </div>
             </div>
           )}
@@ -82,15 +94,21 @@ const TasksPage = ({ orgSlug, workspaceSlug, projectSlug }: TasksPageProps) => {
             <>
               <TasksListView
                 tasks={tasks!.data}
-                isLoading={isLoading}
+                isError={isError}
                 isFetching={isFetching}
+                refetch={refetch}
+                isPlaceholderData={isPlaceholderData}
               />
               <PaginationControls
-                currentPage={tasks!.meta.page}
-                totalPages={tasks!.meta.totalPages}
-                totalItems={tasks!.meta.total}
+                currentPage={page}
+                limit={limit}
                 onPageChange={setPage}
-                onPageSizeChange={setLimit}
+                onPageSizeChange={(size) => {
+                  setLimit(size);
+                  setPage(DEFAULT_PAGE);
+                }}
+                totalItems={tasks!.meta.total}
+                totalPages={tasks!.meta.totalPages}
               />
             </>
           )}

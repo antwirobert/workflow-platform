@@ -69,13 +69,21 @@ export class TasksService {
         orderBy: {
           [sortBy]: order,
         },
+        include: {
+          assignee: { select: { id: true, name: true } },
+        },
       }),
 
       prisma.task.count({ where }),
     ]);
 
     return {
-      data: tasks.map((task) => this.buildTaskResult(task)),
+      data: tasks.map((task) =>
+        this.buildTaskResult(task, {
+          id: task.assignee?.id ?? null,
+          name: task.assignee?.name ?? null,
+        }),
+      ),
       meta: {
         total,
         page,
@@ -158,7 +166,10 @@ export class TasksService {
     return this.buildTaskResult(task);
   }
 
-  private buildTaskResult(task: Task): TaskResult {
+  private buildTaskResult(
+    task: Task,
+    assignee?: { id: string | null; name: string | null },
+  ): TaskResult {
     return {
       id: task.id,
       title: task.title,
@@ -166,7 +177,7 @@ export class TasksService {
       status: task.status as TaskStatus,
       priority: task.priority as Priority,
       projectId: task.projectId,
-      assigneeId: task.assigneeId,
+      ...(assignee ? { assignee } : {}),
       createdById: task.createdById,
       dueDate: task.dueDate,
       createdAt: task.createdAt,

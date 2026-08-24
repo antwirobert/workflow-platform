@@ -317,11 +317,10 @@ const AppSidebar = () => {
                     <SidebarMenuButton
                       onClick={() => navigate(allProjectsPath)}
                       isActive={isAllProjectsActive}
+                      className="flex gap-2.5 text-muted-foreground"
                     >
-                      <div className="flex gap-2.5 text-muted-foreground">
-                        <Archive className="size-4 opacity-70" />
-                        <span>All projects</span>
-                      </div>
+                      <Archive className="size-4 opacity-70" />
+                      <span>All projects</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>

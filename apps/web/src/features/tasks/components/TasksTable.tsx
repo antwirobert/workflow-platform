@@ -16,19 +16,23 @@ import { columns } from "./columns";
 import type { Task } from "@/types/task";
 import TaskDetailsSheet from "./TaskDetailsSheet";
 import { useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import ErrorState from "@/components/ErrorState";
 
 interface TasksTableProps {
   tasks: Task[];
-  isLoading: boolean;
+  isError: boolean;
   isFetching: boolean;
+  isPlaceholderData: boolean;
+  refetch: () => void;
   isClickable?: boolean;
 }
 
 const TasksTable = ({
   tasks,
-  isLoading,
+  isError,
   isFetching,
+  isPlaceholderData,
+  refetch,
   isClickable,
 }: TasksTableProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
@@ -40,52 +44,14 @@ const TasksTable = ({
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (isLoading) {
+  if (isError) {
     return (
-      <div className="flex h-full w-full flex-col overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
-        <div className="flex-1 overflow-auto">
-          <Table className="min-w-160">
-            <TableHeader>
-              <TableRow className="border-b border-border/60 hover:bg-transparent">
-                <TableHead className="h-10 bg-muted/40 px-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Task
-                </TableHead>
-                <TableHead className="h-10 bg-muted/40 px-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Priority
-                </TableHead>
-                <TableHead className="h-10 bg-muted/40 px-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Status
-                </TableHead>
-                <TableHead className="h-10 bg-muted/40 px-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Due
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <TableRow
-                  key={i}
-                  className="border-b border-border/40 hover:bg-transparent"
-                >
-                  <TableCell className="px-4 py-3">
-                    <Skeleton className="h-4 w-48" />
-                  </TableCell>
-                  <TableCell className="px-4 py-3">
-                    <Skeleton className="h-4 w-16" />
-                  </TableCell>
-                  <TableCell className="px-4 py-3">
-                    <Skeleton className="h-5 w-20 rounded-md" />
-                  </TableCell>
-                  <TableCell className="px-4 py-3">
-                    <Skeleton className="h-4 w-20" />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+      <ErrorState
+        title="Couldn't load tasks"
+        description="Something went wrong fetching tasks for this project."
+        onRetry={refetch}
+        isRetrying={isFetching}
+      />
     );
   }
 
@@ -101,8 +67,8 @@ const TasksTable = ({
   return (
     <div
       className={cn(
-        "flex h-full w-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm",
-        isFetching ? "opacity-60 transition-opacity" : "",
+        "flex h-full w-full flex-col overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm",
+        isPlaceholderData ? "pointer-events-none" : "",
       )}
     >
       <div className="flex-1 overflow-auto">

@@ -131,6 +131,8 @@ const ProjectTasksPage = () => {
         )}
 
         <TasksPage
+          open={isOpen}
+          onOpenChange={setIsOpen}
           orgSlug={orgSlug}
           workspaceSlug={workspaceSlug}
           projectSlug={projectSlug}

@@ -107,7 +107,7 @@ const CreateTaskForm = ({
         onClose();
         toast.add({
           type: "success",
-          description: "Task created",
+          title: "Task created",
         });
       },
       onError: (err: ApiError) => {

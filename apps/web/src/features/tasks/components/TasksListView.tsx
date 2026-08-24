@@ -3,17 +3,28 @@ import TasksTable from "./TasksTable";
 
 interface TasksListViewProps {
   tasks: Task[];
-  isLoading: boolean;
+  isError: boolean;
   isFetching: boolean;
+  isPlaceholderData: boolean;
+  refetch: () => void;
 }
 
 const TasksListView = ({
   tasks,
-  isLoading,
+  isError,
   isFetching,
+  isPlaceholderData,
+  refetch,
 }: TasksListViewProps) => {
   return (
-    <TasksTable tasks={tasks} isLoading={isLoading} isFetching={isFetching} />
+    <TasksTable
+      tasks={tasks}
+      isError={isError}
+      isFetching={isFetching}
+      isPlaceholderData={isPlaceholderData}
+      refetch={refetch}
+      isClickable
+    />
   );
 };
 

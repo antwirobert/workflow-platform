@@ -169,8 +169,10 @@ const WorkspaceOverview = () => {
             <>
               <TasksTable
                 tasks={tasks.data}
-                isLoading={isTasksPlaceholderData}
+                isError={isTasksError}
                 isFetching={isTasksFetching}
+                refetch={refetchTasks}
+                isPlaceholderData={isTasksPlaceholderData}
               />
 
               <PaginationControls

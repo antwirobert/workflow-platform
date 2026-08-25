@@ -2,19 +2,19 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { filesApi } from "../api";
 
 export function useDeleteFile(
-  orgId: string,
-  workspaceId: string,
-  projectId: string,
+  orgSlug: string,
+  workspaceSlug: string,
+  projectSlug: string,
   taskId: string,
 ) {
   const queryClient = useQueryClient();
   const key = [
     "organizations",
-    orgId,
+    orgSlug,
     "workspaces",
-    workspaceId,
+    workspaceSlug,
     "projects",
-    projectId,
+    projectSlug,
     "tasks",
     taskId,
     "files",
@@ -22,7 +22,7 @@ export function useDeleteFile(
 
   return useMutation({
     mutationFn: (fileId: string) =>
-      filesApi.delete(orgId, workspaceId, projectId, taskId, fileId),
+      filesApi.delete(orgSlug, workspaceSlug, projectSlug, taskId, fileId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: key }),
   });
 }

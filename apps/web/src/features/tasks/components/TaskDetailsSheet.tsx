@@ -43,6 +43,7 @@ import CommentThread from "@/features/comments/components/CommentThread";
 import { useCreateComment } from "@/features/comments/hooks/useCreateComment";
 import { toast } from "@/components/ui/toast";
 import { useComments } from "@/features/comments/hooks/useComments";
+import FileList from "@/features/files/components/FileList";
 
 interface TaskDetailsSheetProps {
   task: Task | null;
@@ -252,6 +253,10 @@ const TaskDetailsSheet = ({
               )}
             </SheetDescription>
           </div>
+
+          <Separator />
+
+          <FileList taskId={task.id} />
 
           <Separator />
 

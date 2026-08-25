@@ -2,19 +2,19 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { filesApi } from "../api";
 
 export function useUploadFile(
-  orgId: string,
-  workspaceId: string,
-  projectId: string,
+  orgSlug: string,
+  workspaceSlug: string,
+  projectSlug: string,
   taskId: string,
 ) {
   const queryClient = useQueryClient();
   const key = [
     "organizations",
-    orgId,
+    orgSlug,
     "workspaces",
-    workspaceId,
+    workspaceSlug,
     "projects",
-    projectId,
+    projectSlug,
     "tasks",
     taskId,
     "files",
@@ -22,7 +22,7 @@ export function useUploadFile(
 
   return useMutation({
     mutationFn: (file: File) =>
-      filesApi.upload(orgId, workspaceId, projectId, taskId, file),
+      filesApi.upload(orgSlug, workspaceSlug, projectSlug, taskId, file),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: key }),
   });
 }

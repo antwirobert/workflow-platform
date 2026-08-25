@@ -2,23 +2,23 @@ import { useQuery } from "@tanstack/react-query";
 import { filesApi } from "../api";
 
 export function useFiles(
-  orgId: string,
-  workspaceId: string,
-  projectId: string,
+  orgSlug: string,
+  workspaceSlug: string,
+  projectSlug: string,
   taskId: string,
 ) {
   return useQuery({
     queryKey: [
       "organizations",
-      orgId,
+      orgSlug,
       "workspaces",
-      workspaceId,
+      workspaceSlug,
       "projects",
-      projectId,
+      projectSlug,
       "tasks",
       taskId,
       "files",
     ],
-    queryFn: () => filesApi.list(orgId, workspaceId, projectId, taskId),
+    queryFn: () => filesApi.list(orgSlug, workspaceSlug, projectSlug, taskId),
   });
 }

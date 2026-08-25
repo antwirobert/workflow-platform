@@ -1,6 +1,6 @@
 export interface TaskFile {
   id: string;
-  createdAt: Date;
+  createdAt: string;
   taskId: string;
   filename: string;
   storedName: string;
@@ -9,8 +9,8 @@ export interface TaskFile {
   path: string;
   uploadedById: string;
   uploadedBy: {
-    id: true;
-    name: true;
-    email: true;
+    id: string;
+    name: string;
+    email: string;
   };
 }

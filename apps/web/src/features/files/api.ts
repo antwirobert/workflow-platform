@@ -31,7 +31,9 @@ export const filesApi = {
     projectSlug: string,
     taskId: string,
   ) =>
-    apiClient.get<TaskFile>(base(orgSlug, workspaceSlug, projectSlug, taskId)),
+    apiClient.get<TaskFile[]>(
+      base(orgSlug, workspaceSlug, projectSlug, taskId),
+    ),
 
   delete: (
     orgSlug: string,

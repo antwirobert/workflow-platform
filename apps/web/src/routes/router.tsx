@@ -10,6 +10,7 @@ import WorkspaceDetailPage from "@/features/workspaces/pages/WorkspaceDetailPage
 import OrganizationMembersPage from "@/features/organizations/pages/OrganizationMembersPage";
 import { organizationLoader } from "@/features/organizations/loaders";
 import { workspaceLoader } from "@/features/workspaces/loaders";
+import { projectLoader } from "@/features/projects/loaders";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },
@@ -77,7 +78,11 @@ export const router = createBrowserRouter([
           {
             path: ":projectSlug",
             element: <ProjectTasksPage />,
-            handle: { title: "Projects" },
+            loader: projectLoader,
+            handle: {
+              title: (project: { name: string } | undefined) =>
+                project?.name ?? "…",
+            },
           },
         ],
       },

@@ -51,7 +51,7 @@ export const columns = [
               name={assignee?.name ?? ""}
               colorClass={color.bg}
               textClass={color.text}
-              className="size-7 rounded-full"
+              className="size-6 text-[10px] rounded-full"
             />
           )}
         </div>

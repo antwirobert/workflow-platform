@@ -170,7 +170,7 @@ const TaskDetailsSheet = ({
                     name={task.assignee?.name ?? ""}
                     colorClass={color.bg}
                     textClass={color.text}
-                    className="size-7 rounded-full"
+                    className="size-6 text-[10px] rounded-full"
                   />
                   <span className="text-sm">{task.assignee?.name}</span>
                 </div>

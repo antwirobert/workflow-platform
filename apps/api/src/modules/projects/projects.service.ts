@@ -177,6 +177,7 @@ export class ProjectsService {
     const where = {
       assignedTasks: {
         some: {
+          deletedAt: null,
           projectId,
         },
       },

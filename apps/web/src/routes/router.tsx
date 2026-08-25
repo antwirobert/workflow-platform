@@ -70,13 +70,16 @@ export const router = createBrowserRouter([
 
       {
         path: "/organizations/:orgSlug/workspaces/:workspaceSlug/projects",
-        element: <ProjectsPage />,
-        handle: { title: "Workspaces" },
-      },
-      {
-        path: "/organizations/:orgSlug/workspaces/:workspaceSlug/projects/:projectSlug",
-        element: <ProjectTasksPage />,
+        element: <Outlet />,
         handle: { title: "Projects" },
+        children: [
+          { index: true, element: <ProjectsPage /> },
+          {
+            path: ":projectSlug",
+            element: <ProjectTasksPage />,
+            handle: { title: "Projects" },
+          },
+        ],
       },
     ],
   },

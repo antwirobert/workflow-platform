@@ -70,7 +70,7 @@ const TasksTable = ({
     <div
       className={cn(
         "flex h-full w-full flex-col overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm",
-        isPlaceholderData ? "pointer-events-none" : "",
+        isPlaceholderData ? "opacity-60 pointer-events-none" : "",
       )}
     >
       <div className="flex-1 overflow-auto">

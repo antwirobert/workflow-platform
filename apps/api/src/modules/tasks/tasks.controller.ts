@@ -41,8 +41,8 @@ export class TasksController {
     next: NextFunction,
   ) => {
     try {
-      const { page, limit, status, priority, assigneeId, sortBy, order } = req
-        .validated!.query as ListTasksQueryInput;
+      const { page, limit, status, priority, assigneeId } = req.validated!
+        .query as ListTasksQueryInput;
 
       const tasks = await tasksService.list({
         page,
@@ -50,8 +50,6 @@ export class TasksController {
         status,
         priority,
         assigneeId,
-        sortBy,
-        order,
         projectId: req.project!.id,
       });
 

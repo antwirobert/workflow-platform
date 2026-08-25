@@ -39,16 +39,7 @@ export class TasksService {
   }
 
   async list(query: ListTasksQuery): Promise<listTasksQueryResult<TaskResult>> {
-    const {
-      page,
-      limit,
-      status,
-      priority,
-      assigneeId,
-      sortBy,
-      order,
-      projectId,
-    } = query;
+    const { page, limit, status, priority, assigneeId, projectId } = query;
 
     // Calculate offset for pagination
     const skip = (page - 1) * limit;
@@ -67,7 +58,7 @@ export class TasksService {
         skip,
         take: limit,
         orderBy: {
-          [sortBy]: order,
+          createdAt: "desc",
         },
         include: {
           assignee: { select: { id: true, name: true } },

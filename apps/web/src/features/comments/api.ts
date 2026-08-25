@@ -29,7 +29,7 @@ export const commentsApi = {
     projectSlug: string,
     taskId: string,
   ) =>
-    apiClient.get<Comment>(base(orgSlug, workspaceSlug, projectSlug, taskId)),
+    apiClient.get<Comment[]>(base(orgSlug, workspaceSlug, projectSlug, taskId)),
 
   delete: (
     orgSlug: string,

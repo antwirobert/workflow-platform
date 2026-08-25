@@ -8,6 +8,7 @@ import ErrorState from "@/components/ErrorState";
 import CreateTaskDialog from "@/features/tasks/components/CreateTaskDialog";
 import TextAvatar from "@/components/TextAvatar";
 import { useProjectAssignees } from "../hooks/useProjectAssignees";
+import { DEFAULT_PAGE, SELECT_ITEMS_LIMIT } from "@/constants";
 
 const ProjectTasksPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,8 +31,8 @@ const ProjectTasksPage = () => {
     workspaceSlug ?? null,
     projectSlug ?? null,
     {
-      page: 1,
-      limit: 2,
+      page: DEFAULT_PAGE,
+      limit: SELECT_ITEMS_LIMIT,
     },
   );
 
@@ -108,7 +109,7 @@ const ProjectTasksPage = () => {
 
         {(projectAssignees?.data.length ?? 0) > 0 && (
           <div className="flex -space-x-2">
-            {projectAssignees?.data.slice(0, 4).map((assignee) => {
+            {projectAssignees?.data.slice(0, 5).map((assignee) => {
               const color = getIdentityColor(assignee.id);
 
               return (
@@ -122,9 +123,9 @@ const ProjectTasksPage = () => {
               );
             })}
 
-            {(projectAssignees?.data.length ?? 0) > 4 && (
+            {(projectAssignees?.data.length ?? 0) > 5 && (
               <div className="flex size-7 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground ring-2 ring-card">
-                +{(projectAssignees?.data.length ?? 0) - 4}
+                +{(projectAssignees?.data.length ?? 0) - 5}
               </div>
             )}
           </div>

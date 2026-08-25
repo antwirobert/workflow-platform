@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { tasksApi } from "../api";
 import type { UpdateTaskPayload } from "../types";
 import type { Task } from "@/types/task";
+import type { ApiError } from "@/lib/api/client";
 
 export function useUpdateTask(
   orgSlug: string,
@@ -20,17 +21,21 @@ export function useUpdateTask(
     "tasks",
     taskId,
   ];
-  const listKey = [
+  const projectKey = [
     "organizations",
     orgSlug,
     "workspaces",
     workspaceSlug,
     "projects",
     projectSlug,
-    "tasks",
   ];
 
-  return useMutation({
+  return useMutation<
+    Task,
+    ApiError,
+    UpdateTaskPayload,
+    { previousTask?: Task }
+  >({
     mutationFn: (payload: UpdateTaskPayload) =>
       tasksApi.update(
         orgSlug as string,
@@ -45,10 +50,18 @@ export function useUpdateTask(
       const previousTask = queryClient.getQueryData<Task>(detailKey);
 
       if (previousTask) {
-        queryClient.setQueryData<Task>(detailKey, {
+        const nextTask: Task = {
           ...previousTask,
           ...payload,
-        });
+          dueDate:
+            payload.dueDate === undefined
+              ? previousTask.dueDate
+              : payload.dueDate instanceof Date
+                ? payload.dueDate.toISOString()
+                : (payload.dueDate ?? null),
+        };
+
+        queryClient.setQueryData<Task>(detailKey, nextTask);
       }
 
       return { previousTask };
@@ -61,8 +74,11 @@ export function useUpdateTask(
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: detailKey });
-      queryClient.invalidateQueries({ queryKey: listKey });
+      queryClient.invalidateQueries({
+        queryKey: [...projectKey, "tasks", taskId],
+      });
+      queryClient.invalidateQueries({ queryKey: [...projectKey, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: [...projectKey, "assignees"] });
     },
   });
 }

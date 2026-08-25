@@ -14,7 +14,10 @@ export interface Task {
   status: TaskStatus;
   priority: Priority;
   projectId: string;
-  assigneeId: string | null;
+  assignee?: {
+    id: string | null;
+    name: string | null;
+  };
   createdById: string;
   dueDate: string | null;
   createdAt: string;

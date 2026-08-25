@@ -7,9 +7,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Priority, TaskStatus } from "@/types/task";
-import { ALL_PRIORITY_OPTIONS, ALL_STATUS_OPTIONS } from "../constants";
+import {
+  ALL_PRIORITY_OPTIONS,
+  ALL_STATUS_OPTIONS,
+  DEFAULT_PAGE,
+  SELECT_ITEMS_LIMIT,
+} from "@/constants";
+import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
 
 interface TaskFiltersProps {
+  orgSlug: string;
   status: TaskStatus | "ALL";
   onStatusChange: (value: TaskStatus | "ALL") => void;
   priority: Priority | "ALL";
@@ -17,11 +24,21 @@ interface TaskFiltersProps {
 }
 
 const TaskFilters = ({
+  orgSlug,
   status,
   onStatusChange,
   priority,
   onPriorityChange,
 }: TaskFiltersProps) => {
+  const {
+    data: members,
+    isLoading,
+    isError,
+  } = useOrganizationMembers(orgSlug ?? null, {
+    page: DEFAULT_PAGE,
+    limit: SELECT_ITEMS_LIMIT,
+  });
+
   return (
     <div className="flex gap-2">
       <Select
@@ -60,6 +77,38 @@ const TaskFilters = ({
                 {priority.label}
               </SelectItem>
             ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+
+      <Select disabled={isLoading} defaultValue="ALL">
+        <SelectTrigger className="w-full max-w-48">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {isLoading && (
+              <div className="p-2 text-sm text-muted-foreground">
+                Loading members...
+              </div>
+            )}
+
+            {!isLoading && isError && (
+              <div className="p-2 text-sm text-destructive">
+                Error loading members
+              </div>
+            )}
+
+            {!isLoading && !isError && (
+              <>
+                <SelectItem value="ALL">Anyone</SelectItem>
+                {members?.data.map((member) => (
+                  <SelectItem key={member.user.id} value={member.user.id}>
+                    {member.user.name}
+                  </SelectItem>
+                ))}
+              </>
+            )}
           </SelectGroup>
         </SelectContent>
       </Select>

@@ -2,7 +2,8 @@ import type { Task } from "@/types/task";
 import { createColumnHelper } from "@tanstack/react-table";
 import { TaskPriorityBadge } from "./TaskPriorityBadge";
 import { TaskStatusBadge } from "./TaskStatusBadge";
-import { formatDueDate } from "@/lib/utils";
+import { formatDueDate, getIdentityColor } from "@/lib/utils";
+import TextAvatar from "@/components/TextAvatar";
 
 const columnHelper = createColumnHelper<Task>();
 
@@ -36,10 +37,23 @@ export const columns = [
   columnHelper.accessor("dueDate", {
     header: "Due",
     cell: (info) => {
-      const value = info.getValue();
+      const dueDate = info.getValue();
+      const assignee = info.row.original.assignee;
+      const color = getIdentityColor(assignee?.id ?? "");
+
       return (
-        <div>
-          <span className="text-muted-foreground">{formatDueDate(value)}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">
+            {formatDueDate(dueDate)}
+          </span>
+          {assignee?.name && (
+            <TextAvatar
+              name={assignee?.name ?? ""}
+              colorClass={color.bg}
+              textClass={color.text}
+              className="size-7 rounded-full"
+            />
+          )}
         </div>
       );
     },

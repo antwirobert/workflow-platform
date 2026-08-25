@@ -59,6 +59,7 @@ const TasksPage = ({
           </TabsList>
 
           <TaskFilters
+            orgSlug={orgSlug}
             status={status}
             onStatusChange={handleFilterChange(setStatus)}
             priority={priority}

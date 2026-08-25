@@ -7,14 +7,13 @@ export function useDeleteTask(
   projectSlug: string,
 ) {
   const queryClient = useQueryClient();
-  const listKey = [
+  const projectKey = [
     "organizations",
     orgSlug,
     "workspaces",
     workspaceSlug,
     "projects",
     projectSlug,
-    "tasks",
   ];
 
   return useMutation({
@@ -26,7 +25,8 @@ export function useDeleteTask(
         taskId,
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: listKey });
+      queryClient.invalidateQueries({ queryKey: [...projectKey, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: [...projectKey, "assignees"] });
     },
   });
 }

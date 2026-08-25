@@ -1,3 +1,3 @@
 export interface CreateCommentPayload {
-  content: string;
+  body: string;
 }

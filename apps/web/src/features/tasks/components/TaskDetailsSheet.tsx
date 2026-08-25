@@ -20,16 +20,16 @@ import {
   Calendar,
   Ellipsis,
   Flag,
-  Send,
   User,
   X,
   Lock,
   Pencil,
   Trash2,
+  Send,
+  Loader2,
 } from "lucide-react";
 import { TaskStatusBadge } from "./TaskStatusBadge";
 import { TaskPriorityBadge } from "./TaskPriorityBadge";
-import { Textarea } from "@/components/ui/textarea";
 import TextAvatar from "@/components/TextAvatar";
 import { formatDueDate, getIdentityColor } from "@/lib/utils";
 import { useState } from "react";
@@ -38,6 +38,11 @@ import { useActiveOrganization } from "@/features/organizations/hooks/useActiveO
 import EditTaskDialog from "./EditTaskDialog";
 import { useParams } from "react-router-dom";
 import DeleteTaskDialog from "./DeleteTaskDialog";
+import { Textarea } from "@/components/ui/textarea";
+import CommentThread from "@/features/comments/components/CommentThread";
+import { useCreateComment } from "@/features/comments/hooks/useCreateComment";
+import { toast } from "@/components/ui/toast";
+import { useComments } from "@/features/comments/hooks/useComments";
 
 interface TaskDetailsSheetProps {
   task: Task | null;
@@ -52,12 +57,26 @@ const TaskDetailsSheet = ({
 }: TaskDetailsSheetProps) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [comment, setComment] = useState({ body: "" });
   const { activeOrganization } = useActiveOrganization();
   const { orgSlug, workspaceSlug, projectSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
     projectSlug: string;
   }>();
+
+  const {
+    mutate: createComment,
+    isPending,
+    error,
+  } = useCreateComment(orgSlug!, workspaceSlug!, projectSlug!, task?.id ?? "");
+
+  const { data, isLoading, isError, isFetching, refetch } = useComments(
+    orgSlug!,
+    workspaceSlug!,
+    projectSlug!,
+    task?.id ?? "",
+  );
 
   if (
     !task ||
@@ -70,11 +89,32 @@ const TaskDetailsSheet = ({
 
   const color = getIdentityColor(task.assignee?.id ?? "");
 
+  const handleCreateComment = () => {
+    if (!comment?.body.trim()) return;
+
+    createComment(comment, {
+      onSuccess: () => {
+        setComment({ body: "" });
+        toast.add({
+          type: "success",
+          title: "Comment added",
+        });
+      },
+      onError: () => {
+        setComment({ body: "" });
+        toast.add({
+          type: "error",
+          title: error?.message || "Something unexpected went wrong",
+        });
+      },
+    });
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         showCloseButton={false}
-        className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
+        className="flex h-full w-full flex-col gap-0 p-0 sm:max-w-md"
       >
         <SheetHeader className="space-y-0 p-0 text-left">
           <div className="flex items-center justify-between px-4 py-3">
@@ -147,9 +187,11 @@ const TaskDetailsSheet = ({
               </Button>
             </div>
           </div>
+        </SheetHeader>
 
-          <Separator />
+        <Separator />
 
+        <div className="flex-1 overflow-y-auto min-h-0">
           <div className="px-4 py-4">
             <SheetTitle className="text-lg font-semibold tracking-tight leading-snug">
               {task.title}
@@ -210,18 +252,50 @@ const TaskDetailsSheet = ({
               )}
             </SheetDescription>
           </div>
-        </SheetHeader>
+
+          <Separator />
+
+          <CommentThread
+            comments={data!}
+            isLoading={isLoading}
+            isError={isError}
+            isFetching={isFetching}
+            refetch={refetch}
+            taskId={task.id}
+          />
+        </div>
 
         <SheetFooter className="mt-auto border-t p-3">
           <div className="relative flex w-full flex-col">
             <Textarea
               placeholder="Write a comment..."
               className="min-h-18 w-full resize-none pb-12 text-sm focus-visible:ring-1"
+              value={comment?.body}
+              onChange={(e) =>
+                setComment((prevComment) => ({
+                  ...prevComment,
+                  body: e.target.value,
+                }))
+              }
             />
             <div className="absolute bottom-2 right-2">
-              <Button size="sm" className="shrink-0 gap-1.5 h-8">
-                <Send className="size-3.5" />
-                Send
+              <Button
+                size="sm"
+                className="shrink-0 gap-1.5 h-8"
+                disabled={isPending || !comment.body.trim()}
+                onClick={handleCreateComment}
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    Posting...
+                  </>
+                ) : (
+                  <>
+                    <Send className="size-3.5" />
+                    Send
+                  </>
+                )}
               </Button>
             </div>
           </div>

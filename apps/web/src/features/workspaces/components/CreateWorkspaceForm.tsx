@@ -93,7 +93,7 @@ const CreateWorkspaceForm = ({
           </div>
         )}
 
-        <div className="flex items-center justify-between">
+        <div className="flex gap-2 justify-end">
           <Button
             type="button"
             variant="outline"

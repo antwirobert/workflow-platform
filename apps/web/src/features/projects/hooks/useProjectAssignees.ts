@@ -16,6 +16,7 @@ export function useProjectAssignees(
       workspaceSlug,
       "projects",
       projectSlug,
+      "assignees",
       filters,
     ],
     queryFn: () =>

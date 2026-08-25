@@ -181,7 +181,7 @@ const ProjectCard = ({
               !isError &&
               (projectAssignees?.data.length ?? 0) > 0 && (
                 <div className="flex -space-x-2">
-                  {projectAssignees?.data.slice(0, 4).map((assignee) => {
+                  {projectAssignees?.data.slice(0, 3).map((assignee) => {
                     const color = getIdentityColor(assignee.id);
 
                     return (
@@ -195,9 +195,9 @@ const ProjectCard = ({
                     );
                   })}
 
-                  {(projectAssignees?.data.length ?? 0) > 4 && (
+                  {(projectAssignees?.data.length ?? 0) > 3 && (
                     <div className="flex size-7 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground ring-2 ring-card">
-                      +{(projectAssignees?.data.length ?? 0) - 4}
+                      +{(projectAssignees?.data.length ?? 0) - 3}
                     </div>
                   )}
                 </div>

@@ -27,20 +27,22 @@ import {
   SELECT_ITEMS_LIMIT,
   TASK_STATUSES,
 } from "@/constants";
-import { useCreateTask } from "../hooks/useCreateTask";
 import { Select } from "@/components/ui/select";
 import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
 import DatePicker from "./DatePicker";
 import { TASK_PRIORITY_OPTIONS, TASK_STATUS_OPTIONS } from "@/constants";
+import { useUpdateTask } from "../hooks/useUpdateTask";
+import type { Task } from "@/types/task";
+import { useEffect } from "react";
 
-const createTaskSchema = z.object({
-  title: z.string().min(2, "Title must be at least 2 characters."),
+const editTaskSchema = z.object({
+  title: z.string().min(2, "Title must be at least 2 characters.").optional(),
   description: z
     .string()
     .max(1000, "Description cannot exceed 1000 chracters.")
     .optional(),
-  status: z.enum(TASK_STATUSES).default("TODO"),
-  priority: z.enum(PRIORITY).default("MEDIUM"),
+  status: z.enum(TASK_STATUSES).default("TODO").optional(),
+  priority: z.enum(PRIORITY).default("MEDIUM").optional(),
   assigneeId: z
     .string()
     .uuid("Invalid assigneeId format")
@@ -50,27 +52,29 @@ const createTaskSchema = z.object({
   dueDate: z.coerce.date().optional(),
 });
 
-type CreateTaskFormInput = z.input<typeof createTaskSchema>;
-type CreateTaskValues = z.output<typeof createTaskSchema>;
+type EditTaskFormInput = z.input<typeof editTaskSchema>;
+type EditTaskValues = z.output<typeof editTaskSchema>;
 
-interface CreateTaskFormProps {
+interface EditTaskFormProps {
   orgSlug: string;
   workspaceSlug: string;
   projectSlug: string;
+  task: Task;
   onClose: () => void;
 }
 
-const CreateTaskForm = ({
+const EditTaskForm = ({
   orgSlug,
   workspaceSlug,
   projectSlug,
+  task,
   onClose,
-}: CreateTaskFormProps) => {
+}: EditTaskFormProps) => {
   const {
-    mutate: createTask,
+    mutate: editTask,
     isPending,
     error,
-  } = useCreateTask(orgSlug, workspaceSlug, projectSlug);
+  } = useUpdateTask(orgSlug, workspaceSlug, projectSlug, task.id);
 
   const {
     data: members,
@@ -81,39 +85,42 @@ const CreateTaskForm = ({
     limit: SELECT_ITEMS_LIMIT,
   });
 
-  const form = useForm<CreateTaskFormInput, unknown, CreateTaskValues>({
-    resolver: zodResolver(createTaskSchema),
+  const form = useForm<EditTaskFormInput, unknown, EditTaskValues>({
+    resolver: zodResolver(editTaskSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      status: "TODO",
-      priority: "MEDIUM",
-      assigneeId: "",
-      dueDate: undefined,
+      title: task.title,
+      description: task.description ?? "",
+      status: task.status,
+      priority: task.priority,
+      assigneeId: task.assignee?.id ?? "",
+      dueDate: task.dueDate,
     },
   });
 
-  function onSubmit(data: CreateTaskValues) {
-    createTask(data, {
+  useEffect(() => {
+    form.reset({
+      title: task.title,
+      description: task.description ?? "",
+      status: task.status,
+      priority: task.priority,
+      assigneeId: task.assignee?.id ?? "",
+      dueDate: task.dueDate,
+    });
+  }, [form, task]);
+
+  function onSubmit(data: EditTaskValues) {
+    editTask(data, {
       onSuccess: () => {
-        form.reset({
-          title: "",
-          description: "",
-          status: "TODO",
-          priority: "MEDIUM",
-          assigneeId: "",
-          dueDate: undefined,
-        });
         onClose();
         toast.add({
           type: "success",
-          title: "Task created",
+          title: "Task updated",
         });
       },
       onError: (err: ApiError) => {
         if (err.code === ERROR_CODES.VALIDATION && err.details) {
           Object.entries(err.details).forEach(([field, messages]) =>
-            form.setError(field as keyof CreateTaskValues, {
+            form.setError(field as keyof EditTaskValues, {
               message: messages[0],
             }),
           );
@@ -329,10 +336,10 @@ const CreateTaskForm = ({
           <Button type="submit" disabled={isPending}>
             {isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
               </>
             ) : (
-              "Create task"
+              "Save changes"
             )}
           </Button>
         </div>
@@ -341,4 +348,4 @@ const CreateTaskForm = ({
   );
 };
 
-export default CreateTaskForm;
+export default EditTaskForm;

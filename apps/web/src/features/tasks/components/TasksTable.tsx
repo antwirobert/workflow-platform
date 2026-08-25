@@ -36,7 +36,7 @@ const TasksTable = ({
   isClickable,
 }: TasksTableProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const table = useReactTable({
     data: tasks,
@@ -55,14 +55,16 @@ const TasksTable = ({
     );
   }
 
-  const handleRowClick = (task: Task): void => {
+  const handleRowClick = (id: string): void => {
     if (!isClickable) {
       return;
     }
 
     setIsSheetOpen(true);
-    setSelectedTask(task);
+    setSelectedTaskId(id);
   };
+
+  const activeTask = tasks.find((t) => t.id === selectedTaskId) || null;
 
   return (
     <div
@@ -108,7 +110,7 @@ const TasksTable = ({
                       ? "cursor-pointer hover:bg-muted/30 transition-colors"
                       : "cursor-default hover:bg-transparent",
                   )}
-                  onClick={() => handleRowClick(row.original)}
+                  onClick={() => handleRowClick(row.original.id)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="px-4 py-3">
@@ -134,9 +136,12 @@ const TasksTable = ({
         </Table>
       </div>
       <TaskDetailsSheet
-        task={selectedTask}
+        task={activeTask}
         open={isSheetOpen}
-        onOpenChange={setIsSheetOpen}
+        onOpenChange={(open) => {
+          setIsSheetOpen(open);
+          if (!open) setSelectedTaskId(null);
+        }}
       />
     </div>
   );

@@ -11,6 +11,7 @@ import OrganizationMembersPage from "@/features/organizations/pages/Organization
 import { organizationLoader } from "@/features/organizations/loaders";
 import { workspaceLoader } from "@/features/workspaces/loaders";
 import { projectLoader } from "@/features/projects/loaders";
+import { DashboardPage } from "@/features/dashboard/pages/DashboardPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },
@@ -21,7 +22,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/dashboard",
-        element: <p>Dashboard</p>,
+        element: <DashboardPage />,
         handle: { title: "Dashboard" },
       },
       {

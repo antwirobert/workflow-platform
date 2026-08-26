@@ -47,6 +47,14 @@ router.get(
   organizationsController.listMembers,
 );
 
+router.get(
+  "/:orgSlug/dashboard",
+  authenticate,
+  validate(orgSlugParamSchema, "params"),
+  assertOrgMembership,
+  organizationsController.getDashboard,
+);
+
 router.patch(
   "/:orgSlug",
   authenticate,

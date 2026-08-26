@@ -200,6 +200,28 @@ export class OrganizationsService {
     };
   }
 
+  async getDashboard(organizationId: string, userId: string) {
+    const [assignedTasks, projectsAcrossWorkspaces] = await Promise.all([
+      prisma.task.findMany({
+        where: {
+          deletedAt: null,
+          assigneeId: userId,
+          project: { workspace: { organizationId } },
+        },
+      }),
+      prisma.project.findMany({
+        where: { workspace: { organizationId } },
+      }),
+    ]);
+
+    return {
+      assignedTaskCount: assignedTasks.length,
+      projectCount: projectsAcrossWorkspaces.length,
+      assignedTasks,
+      projectsAcrossWorkspaces,
+    };
+  }
+
   // Combines model and membership records into a unified public API response format
   buildOrganizationResult(
     organization: Organization,

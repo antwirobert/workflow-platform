@@ -1,144 +1,266 @@
-import { Link } from "react-router-dom";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
-import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
-import { useDashboard } from "../hooks/useDashboard";
-import { useAuthStore } from "@/stores/authStore";
-import { TaskStatusBadge } from "@/features/tasks/components/TaskStatusBadge";
-
-import { useOrgStore } from "@/stores/orgStore";
+// pages/DashboardPage.tsx
+import { Button } from "@/components/ui/button";
+import TextAvatar from "@/components/TextAvatar";
 import { getIdentityColor } from "@/lib/utils";
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  Clock,
+  FolderKanban,
+  Plus,
+  UserRound,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuthStore } from "@/stores/authStore";
+import { useDashboard } from "../hooks/useDashboard";
+import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
+import TasksTable from "@/features/tasks/components/TasksTable";
+import { DashboardStatCard } from "../components/DashboardStatCard";
+import { DashboardProjectCard } from "../components/DashboardProjectCard";
 
-function greeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
-}
+const ACTIVITY = [
+  {
+    id: "a1",
+    userId: "u1",
+    userName: "Alex Chen",
+    action: "commented on",
+    target: "CP-1024 Refactor authentication middleware",
+    context: "Core Platform",
+    time: "12m ago",
+  },
+  {
+    id: "a2",
+    userId: "u2",
+    userName: "Sara Kessler",
+    action: "completed",
+    target: "CP-1026 Update swagger documentation",
+    context: "Core Platform",
+    time: "1h ago",
+  },
+  {
+    id: "a3",
+    userId: "u3",
+    userName: "Lena Rivers",
+    action: "created",
+    target: "DS-205 Audit spacing tokens",
+    context: "Design System",
+    time: "3h ago",
+  },
+  {
+    id: "a4",
+    userId: "u4",
+    userName: "Marcus Aurelius",
+    action: "moved to review",
+    target: "CP-1027 Rate limiting for invitations",
+    context: "Core Platform",
+    time: "5h ago",
+  },
+  {
+    id: "a5",
+    userId: "u5",
+    userName: "Jordan Smith",
+    action: "assigned",
+    target: "CP-1028 Fix flake in auth tests",
+    context: "Core Platform",
+    time: "6h ago",
+  },
+];
 
-export function DashboardPage() {
+const DashboardPage = () => {
+  const user = useAuthStore((state) => state.user);
   const { activeOrganization } = useActiveOrganization();
-  const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
-  const user = useAuthStore((s) => s.user);
-  const { data, isLoading, isError } = useDashboard(
-    activeOrganization?.slug ?? null,
-  );
+  const {
+    data: dashboardData,
+    isLoading,
+    isError,
+    isFetching,
+    isPlaceholderData,
+    refetch,
+  } = useDashboard(activeOrganization?.slug ?? null);
 
-  if (isLoading) {
-    return (
-      <div className="mx-auto max-w-5xl space-y-6 p-8">
-        <Skeleton className="h-10 w-1/3" />
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {[1, 2].map((i) => (
-            <Skeleton key={i} className="h-24 w-full" />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const hour = new Date().getHours();
+  const greeting =
+    hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
-  if (isError || !data) {
-    return (
-      <div className="p-8 text-sm text-destructive">
-        Could not load your dashboard. Please try again.
-      </div>
-    );
-  }
+  const projects = dashboardData?.projectsAcrossWorkspaces ?? [];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 p-8">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {greeting()}, {user?.name?.split(" ")[0] ?? "there"}
-        </p>
-        <h1 className="mt-1 text-3xl font-semibold">
-          Here's what's moving today.
-        </h1>
-      </div>
-
-      {/* Stat cards — only using real counts the backend actually gives us */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Assigned to you" value={data.assignedTaskCount} />
-        <StatCard label="Active projects" value={data.projectCount} />
-      </div>
-
-      {/* Assigned tasks */}
-      <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Assigned to you
-          </h2>
-        </div>
-        {data.assignedTasks.length === 0 && (
-          <div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-            No tasks assigned to you right now.
+    <section className="px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        {/* Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1">
+            <p className="text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+              {greeting}, {user?.name}
+            </p>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              Here's what's moving today.
+            </h1>
           </div>
-        )}
-        <div className="divide-y divide-border rounded-md border border-border">
-          {data.assignedTasks.map((task) => (
-            <div
-              key={task.id}
-              className="flex items-center justify-between px-4 py-3"
-            >
-              <p className="text-sm font-medium">{task.title}</p>
-              <div className="flex items-center gap-3">
-                <TaskStatusBadge status={task.status} />
-                {task.dueDate && (
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(task.dueDate).toLocaleDateString()}
-                  </span>
+
+          <div className="flex shrink-0 items-center gap-2">
+            <Button variant="outline" className="gap-1.5">
+              <Plus className="size-4" />
+              New project
+            </Button>
+            <Button className="gap-1.5">
+              <Plus className="size-4" />
+              New task
+            </Button>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <DashboardStatCard
+            label="Assigned to you"
+            value={dashboardData?.assignedTaskCount ?? 0}
+            hint="Open tasks"
+            icon={UserRound}
+          />
+          <DashboardStatCard
+            label="Due soon"
+            value={4}
+            hint="Next 7 days"
+            icon={Clock}
+          />
+          <DashboardStatCard
+            label="Completed"
+            value={1}
+            hint="This month"
+            icon={CheckCircle2}
+          />
+          <DashboardStatCard
+            label="Active projects"
+            value={dashboardData?.projectCount ?? 0}
+            hint="Across your workspaces"
+            icon={FolderKanban}
+          />
+        </div>
+
+        {/* Main grid */}
+        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+          <div className="min-w-0 space-y-8">
+            {/* Assigned to you */}
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Assigned to you
+                </h2>
+                <Link
+                  to="/tasks"
+                  className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  View all
+                  <ArrowUpRight className="size-3" />
+                </Link>
+              </div>
+
+              {!isLoading &&
+                !isError &&
+                (dashboardData?.assignedTasks.length ?? 0) > 0 && (
+                  <TasksTable
+                    tasks={dashboardData?.assignedTasks ?? []}
+                    isError={isError}
+                    isFetching={isFetching}
+                    isPlaceholderData={isPlaceholderData}
+                    refetch={refetch}
+                  />
                 )}
+
+              {!isLoading &&
+                !isError &&
+                (dashboardData?.assignedTasks.length ?? 0) === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    No tasks assigned to you
+                  </p>
+                )}
+            </section>
+
+            {/* Recent projects */}
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Recent projects
+                </h2>
+                <Link
+                  to="/projects"
+                  className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  View all
+                  <ArrowUpRight className="size-3" />
+                </Link>
+              </div>
+
+              {projects.length > 0 ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {projects.map((project) => (
+                    <DashboardProjectCard
+                      key={project.id}
+                      id={project.id}
+                      name={project.name}
+                      description={project.description}
+                      updatedAt={project.updatedAt}
+                      // progress={project.progress} // wire when API exposes it
+                    />
+                  ))}
+                </div>
+              ) : (
+                !isLoading &&
+                !isError && (
+                  <p className="text-sm text-muted-foreground">
+                    No projects yet
+                  </p>
+                )
+              )}
+            </section>
+          </div>
+
+          {/* Activity */}
+          <aside className="space-y-3">
+            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Activity
+            </h2>
+
+            <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
+              <div className="space-y-4">
+                {ACTIVITY.map((item) => {
+                  const color = getIdentityColor(item.userId);
+
+                  return (
+                    <div key={item.id} className="flex gap-2.5">
+                      <TextAvatar
+                        name={item.userName}
+                        colorClass={color.bg}
+                        textClass={color.text}
+                        className="size-7 shrink-0 rounded-full text-[10px] font-semibold"
+                      />
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <p className="text-sm leading-snug text-foreground">
+                          <span className="font-medium">{item.userName}</span>{" "}
+                          <span className="text-muted-foreground">
+                            {item.action}
+                          </span>{" "}
+                          <span className="font-medium">{item.target}</span>
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {item.context}
+                          <span className="mx-1 text-muted-foreground/40">
+                            ·
+                          </span>
+                          {item.time}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          ))}
+          </aside>
         </div>
-      </section>
-
-      {/* Recent projects across workspaces */}
-      <section>
-        <h2 className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Recent projects
-        </h2>
-        {data.projectsAcrossWorkspaces.length === 0 && (
-          <div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-            No projects yet.
-          </div>
-        )}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {data.projectsAcrossWorkspaces.map((project) => {
-            const color = getIdentityColor(project.id);
-            return (
-              <Link
-                key={project.id}
-                to={`/organizations/${activeOrgSlug}/workspaces/${project.workspaceId}/projects/${project.id}`}
-              >
-                <Card className="h-full transition-colors hover:border-muted-foreground/30">
-                  <CardContent className="py-4">
-                    <div className="mb-2 flex items-center gap-2">
-                      <span className={`h-2 w-2 rounded-full ${color.bg}`} />
-                      {/* <span className="text-xs text-muted-foreground">
-                        {resolveWorkspaceName(project.workspaceId)}
-                      </span> */}
-                    </div>
-                    <p className="font-medium">{project.name}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
-}
+};
 
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <Card>
-      <CardContent className="py-4">
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="mt-1 text-3xl font-bold">{value}</p>
-      </CardContent>
-    </Card>
-  );
-}
+export default DashboardPage;

@@ -115,6 +115,22 @@ export class OrganizationsController {
       next(error);
     }
   };
+
+  getDashboard = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const dashboard = await organizationsService.getDashboard(
+        req.organization!.id,
+        req.user!.userId,
+      );
+      res.status(200).json(dashboard);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export const organizationsController = new OrganizationsController();

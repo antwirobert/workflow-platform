@@ -24,6 +24,8 @@ interface TasksTableProps {
   isFetching: boolean;
   isPlaceholderData: boolean;
   refetch: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   isClickable?: boolean;
 }
 
@@ -33,9 +35,10 @@ const TasksTable = ({
   isFetching,
   isPlaceholderData,
   refetch,
+  open,
+  onOpenChange,
   isClickable,
 }: TasksTableProps) => {
-  const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const table = useReactTable({
@@ -60,7 +63,7 @@ const TasksTable = ({
       return;
     }
 
-    setIsSheetOpen(true);
+    onOpenChange(true);
     setSelectedTaskId(id);
   };
 
@@ -137,10 +140,10 @@ const TasksTable = ({
       </div>
       <TaskDetailsSheet
         task={activeTask}
-        open={isSheetOpen}
-        onOpenChange={(open) => {
-          setIsSheetOpen(open);
-          if (!open) setSelectedTaskId(null);
+        open={open}
+        onOpenChange={(isOpen) => {
+          onOpenChange(isOpen);
+          if (!isOpen) setSelectedTaskId(null);
         }}
       />
     </div>

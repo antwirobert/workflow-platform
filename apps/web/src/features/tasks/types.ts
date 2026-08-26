@@ -23,6 +23,7 @@ export interface TasklistParams {
   limit: number;
   status?: TaskStatus;
   priority?: Priority;
+  assigneeId?: string;
 }
 
 export interface PaginatedResponse<T> {

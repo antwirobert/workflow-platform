@@ -28,6 +28,7 @@ const TasksPage = ({
   const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
   const [status, setStatus] = useState<TaskStatus | "ALL">("ALL");
   const [priority, setPriority] = useState<Priority | "ALL">("ALL");
+  const [assigneeId, setAssigneeId] = useState<string | "ALL">("ALL");
 
   const {
     data: tasks,
@@ -40,6 +41,7 @@ const TasksPage = ({
     limit,
     status: status === "ALL" ? undefined : status,
     priority: priority === "ALL" ? undefined : priority,
+    assigneeId: assigneeId === "ALL" ? undefined : assigneeId,
   });
 
   function handleFilterChange<T>(setter: (value: T) => void) {
@@ -64,6 +66,8 @@ const TasksPage = ({
             onStatusChange={handleFilterChange(setStatus)}
             priority={priority}
             onPriorityChange={handleFilterChange(setPriority)}
+            assignee={assigneeId}
+            onAssigneeChange={handleFilterChange(setAssigneeId)}
           />
         </div>
 

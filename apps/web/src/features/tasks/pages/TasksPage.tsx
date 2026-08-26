@@ -8,6 +8,7 @@ import TaskFilters from "../components/TaskFilters";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import PaginationControls from "@/components/PaginationControls";
 import CreateTaskDialog from "../components/CreateTaskDialog";
+import { KanbanBoard } from "../components/KanbanBoard";
 
 interface TasksPageProps {
   open: boolean;
@@ -24,11 +25,12 @@ const TasksPage = ({
   workspaceSlug,
   projectSlug,
 }: TasksPageProps) => {
+  const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
   const [status, setStatus] = useState<TaskStatus | "ALL">("ALL");
   const [priority, setPriority] = useState<Priority | "ALL">("ALL");
-  const [assigneeId, setAssigneeId] = useState<string | "ALL">("ALL");
+  const [assignee, setAssignee] = useState<string | "ALL">("ALL");
 
   const {
     data: tasks,
@@ -41,7 +43,7 @@ const TasksPage = ({
     limit,
     status: status === "ALL" ? undefined : status,
     priority: priority === "ALL" ? undefined : priority,
-    assigneeId: assigneeId === "ALL" ? undefined : assigneeId,
+    assigneeId: assignee === "ALL" ? undefined : assignee,
   });
 
   function handleFilterChange<T>(setter: (value: T) => void) {
@@ -66,15 +68,21 @@ const TasksPage = ({
             onStatusChange={handleFilterChange(setStatus)}
             priority={priority}
             onPriorityChange={handleFilterChange(setPriority)}
-            assignee={assigneeId}
-            onAssigneeChange={handleFilterChange(setAssigneeId)}
+            assignee={assignee}
+            onAssigneeChange={handleFilterChange(setAssignee)}
           />
         </div>
 
         <Separator />
 
         <TabsContent value="kanban-board" className="mt-4 flex-1 overflow-auto">
-          Make changes to your account here.
+          <KanbanBoard
+            status={status}
+            priority={priority}
+            assignee={assignee}
+            open={isSheetOpen}
+            onOpenChange={setIsSheetOpen}
+          />
         </TabsContent>
 
         <TabsContent value="tasks-list" className="mt-4 flex-1 overflow-hidden">
@@ -103,6 +111,8 @@ const TasksPage = ({
                 isFetching={isFetching}
                 refetch={refetch}
                 isPlaceholderData={isPlaceholderData}
+                open={isSheetOpen}
+                onOpenChange={setIsSheetOpen}
               />
               <PaginationControls
                 currentPage={page}

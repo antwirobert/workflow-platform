@@ -7,6 +7,8 @@ interface TasksListViewProps {
   isFetching: boolean;
   isPlaceholderData: boolean;
   refetch: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 const TasksListView = ({
@@ -15,6 +17,8 @@ const TasksListView = ({
   isFetching,
   isPlaceholderData,
   refetch,
+  open,
+  onOpenChange,
 }: TasksListViewProps) => {
   return (
     <TasksTable
@@ -23,6 +27,8 @@ const TasksListView = ({
       isFetching={isFetching}
       isPlaceholderData={isPlaceholderData}
       refetch={refetch}
+      open={open}
+      onOpenChange={onOpenChange}
       isClickable
     />
   );

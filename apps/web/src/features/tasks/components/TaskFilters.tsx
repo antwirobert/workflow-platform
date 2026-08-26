@@ -21,6 +21,8 @@ interface TaskFiltersProps {
   onStatusChange: (value: TaskStatus | "ALL") => void;
   priority: Priority | "ALL";
   onPriorityChange: (value: Priority | "ALL") => void;
+  assignee: string | "ALL";
+  onAssigneeChange: (value: string | "ALL") => void;
 }
 
 const TaskFilters = ({
@@ -29,6 +31,8 @@ const TaskFilters = ({
   onStatusChange,
   priority,
   onPriorityChange,
+  assignee,
+  onAssigneeChange,
 }: TaskFiltersProps) => {
   const {
     data: members,
@@ -81,10 +85,20 @@ const TaskFilters = ({
         </SelectContent>
       </Select>
 
-      <Select disabled={isLoading} defaultValue="ALL">
+      <Select
+        value={assignee}
+        onValueChange={(value) => onAssigneeChange(value as string | "ALL")}
+        disabled={isLoading}
+      >
         <SelectTrigger className="w-full max-w-48">
-          <SelectValue />
+          <SelectValue>
+            {assignee === "ALL"
+              ? "Anyone"
+              : members?.data.find((member) => member.user.id === assignee)
+                  ?.user.name}
+          </SelectValue>
         </SelectTrigger>
+
         <SelectContent>
           <SelectGroup>
             {isLoading && (
@@ -102,6 +116,7 @@ const TaskFilters = ({
             {!isLoading && !isError && (
               <>
                 <SelectItem value="ALL">Anyone</SelectItem>
+
                 {members?.data.map((member) => (
                   <SelectItem key={member.user.id} value={member.user.id}>
                     {member.user.name}

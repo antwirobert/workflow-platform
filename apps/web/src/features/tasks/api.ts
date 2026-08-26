@@ -31,6 +31,7 @@ export const tasksApi = {
           limit: String(params.limit),
           ...(params.status ? { status: params.status } : {}),
           ...(params.priority ? { priority: params.priority } : {}),
+          ...(params.assigneeId ? { assigneeId: params.assigneeId } : {}),
         },
       },
     ),

@@ -24,8 +24,8 @@ interface TasksTableProps {
   isFetching: boolean;
   isPlaceholderData: boolean;
   refetch: () => void;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   isClickable?: boolean;
 }
 
@@ -59,11 +59,7 @@ const TasksTable = ({
   }
 
   const handleRowClick = (id: string): void => {
-    if (!isClickable) {
-      return;
-    }
-
-    onOpenChange(true);
+    onOpenChange?.(true);
     setSelectedTaskId(id);
   };
 
@@ -138,14 +134,17 @@ const TasksTable = ({
           </TableBody>
         </Table>
       </div>
-      <TaskDetailsSheet
-        task={activeTask}
-        open={open}
-        onOpenChange={(isOpen) => {
-          onOpenChange(isOpen);
-          if (!isOpen) setSelectedTaskId(null);
-        }}
-      />
+
+      {open && onOpenChange && (
+        <TaskDetailsSheet
+          task={activeTask}
+          open={open}
+          onOpenChange={(isOpen) => {
+            onOpenChange(isOpen);
+            if (!isOpen) setSelectedTaskId(null);
+          }}
+        />
+      )}
     </div>
   );
 };

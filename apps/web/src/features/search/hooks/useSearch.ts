@@ -6,7 +6,7 @@ import type { SearchType } from "../types";
 export function useSearch(
   orgSlug: string | null,
   rawQuery: string,
-  type: SearchType,
+  type?: SearchType,
 ) {
   const debouncedQuery = useDebounce(rawQuery, 300);
 

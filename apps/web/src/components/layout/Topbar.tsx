@@ -1,11 +1,11 @@
 import { Bell, Search } from "lucide-react";
-import { Input } from "../ui/input";
 import { SidebarTrigger } from "../ui/sidebar";
 import { Link, useMatches } from "react-router-dom";
 import { Button } from "../ui/button";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import { cn } from "@/lib/utils";
+import { SearchCommand } from "@/features/search/components/SearchCommand";
 
 type Match = {
   pathname: string;
@@ -17,6 +17,7 @@ type Match = {
 };
 
 const Topbar = () => {
+  const [searchOpen, setSearchOpen] = useState(false);
   const matches = useMatches() as Match[];
 
   const crumbs = matches
@@ -79,14 +80,16 @@ const Topbar = () => {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <div className="relative hidden md:block">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="h-8 w-56 rounded-md border-transparent bg-muted/50 pl-8 text-sm transition-colors placeholder:text-muted-foreground focus-visible:border-border focus-visible:bg-background"
-            />
-          </div>
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="flex h-8 w-56 items-center gap-2 rounded-lg border border-input bg-background px-2.5 text-sm text-muted-foreground hover:bg-accent"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span className="flex-1 text-left">Search...</span>
+            <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium">
+              ⌘K
+            </kbd>
+          </button>
 
           <Button
             variant="ghost"
@@ -101,6 +104,8 @@ const Topbar = () => {
           <ThemeToggle />
         </div>
       </div>
+
+      <SearchCommand open={searchOpen} onOpenChange={setSearchOpen} />
     </header>
   );
 };

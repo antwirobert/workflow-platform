@@ -29,6 +29,7 @@ export const organizationsApi = {
       params: {
         page: String(params.page),
         limit: String(params.limit),
+        ...(params.role ? { role: params.role } : {}),
       },
     }),
 };

@@ -1,3 +1,5 @@
+import type { OrgRole } from "@/types/organization";
+
 export interface CreateOrganizationPayload {
   name: string;
   slug: string;
@@ -11,6 +13,7 @@ export interface UpdateOrganizationPayload {
 export interface OrganizationlistParams {
   page: number;
   limit: number;
+  role?: OrgRole;
 }
 
 export interface PaginatedResponse<T> {

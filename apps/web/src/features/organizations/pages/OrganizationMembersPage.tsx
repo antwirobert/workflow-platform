@@ -8,8 +8,18 @@ import { Input } from "@/components/ui/input";
 import RoleFilter from "../components/RoleFilter";
 import MembersTable from "../components/MembersTable";
 import OrganizationSkeleton from "../components/OrganizationSkeleton";
+import { useOrganizationMembers } from "../hooks/useOrganizationMembers";
+import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
+import type { OrgRole } from "@/types/organization";
+import { useUrlParams } from "@/hooks/useUrlParams";
 
 const OrganizationMembersPage = () => {
+  const { searchParams, updateParams } = useUrlParams();
+
+  const page = Number(searchParams.get("page") ?? `${DEFAULT_PAGE}`);
+  const limit = Number(searchParams.get("limit") ?? `${DEFAULT_TABLE_LIMIT}`);
+  const role = (searchParams.get("role") as OrgRole | null) ?? "ALL";
+
   const { orgSlug } = useParams<{ orgSlug: string }>();
   const {
     data: organization,
@@ -18,6 +28,18 @@ const OrganizationMembersPage = () => {
     isFetching: isOrganizationFetching,
     refetch: refetchOrganization,
   } = useOrganization(orgSlug ?? null);
+
+  const {
+    data: members,
+    isError: isMembersError,
+    isFetching: isMembersFetching,
+    isPlaceholderData: isMembersPlaceholderData,
+    refetch: membersRefetch,
+  } = useOrganizationMembers(orgSlug ?? null, {
+    page,
+    limit,
+    role: role === "ALL" ? undefined : role,
+  });
 
   if (isOrganizationloading) {
     return <OrganizationSkeleton />;
@@ -76,11 +98,28 @@ const OrganizationMembersPage = () => {
           </div>
 
           <div className="mt-2 sm:mt-0">
-            <RoleFilter />
+            <RoleFilter
+              role={role}
+              onRoleChange={(value) => updateParams({ role: value })}
+            />
           </div>
         </div>
 
-        <MembersTable />
+        {members?.data && (members?.data.length ?? 0) > 0 && (
+          <MembersTable
+            members={members}
+            isError={isMembersError}
+            isFetching={isMembersFetching}
+            isPlaceholderData={isMembersPlaceholderData}
+            refetch={membersRefetch}
+            page={page}
+            limit={limit}
+            onPageChange={(newPage) => updateParams({ page: String(newPage) })}
+            onPageSizeChange={(size) => {
+              updateParams({ limit: String(size), page: String(DEFAULT_PAGE) });
+            }}
+          />
+        )}
       </div>
     </section>
   );

@@ -38,6 +38,7 @@ export const listOrganizationsQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(12),
   role: z.nativeEnum(OrgRole).optional(),
+  q: z.string().min(1).max(100).optional(),
 });
 
 export type CreateOrganizationPayload = z.infer<

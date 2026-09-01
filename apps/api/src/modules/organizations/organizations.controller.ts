@@ -102,13 +102,14 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
-      const { page, limit, role } = req.validated!
+      const { page, limit, role, q } = req.validated!
         .query as ListOrganizationsQueryInput;
 
       const members = await organizationsService.listMembers({
         page,
         limit,
         role,
+        q,
         organizationId: req.organization!.id,
       });
       res.status(200).json(members);

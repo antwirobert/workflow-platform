@@ -164,10 +164,10 @@ export class OrganizationsService {
   async listMembers(
     query: ListOrganizationsQuery,
   ): Promise<ListOrganizationsQueryResult<OrganizationResult>> {
-    const { page, limit, organizationId } = query;
+    const { page, limit, role, organizationId } = query;
 
     const skip = (page - 1) * limit;
-    const where = { organizationId };
+    const where = { organizationId, ...(role && { role }) };
 
     const [members, total] = await Promise.all([
       prisma.organizationMember.findMany({

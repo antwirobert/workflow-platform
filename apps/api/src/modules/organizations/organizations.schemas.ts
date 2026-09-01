@@ -1,4 +1,5 @@
 import z from "zod";
+import { OrgRole } from "../../generated/prisma/enums";
 
 export const createOrganizationSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters"),
@@ -36,6 +37,7 @@ export const orgSlugParamSchema = z.object({
 export const listOrganizationsQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(12),
+  role: z.nativeEnum(OrgRole).optional(),
 });
 
 export type CreateOrganizationPayload = z.infer<

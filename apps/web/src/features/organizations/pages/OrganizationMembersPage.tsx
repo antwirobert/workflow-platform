@@ -1,23 +1,23 @@
 import { Button } from "@/components/ui/button";
-import { Search, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { useOrganization } from "../hooks/useOrganization";
 import { useParams } from "react-router-dom";
 import ErrorState from "@/components/ErrorState";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import RoleFilter from "../components/RoleFilter";
 import MembersTable from "../components/MembersTable";
 import OrganizationSkeleton from "../components/OrganizationSkeleton";
 import { useOrganizationMembers } from "../hooks/useOrganizationMembers";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import type { OrgRole } from "@/types/organization";
 import { useUrlParams } from "@/hooks/useUrlParams";
+import MemberFilters from "../components/MemberFilters";
 
 const OrganizationMembersPage = () => {
   const { searchParams, updateParams } = useUrlParams();
 
   const page = Number(searchParams.get("page") ?? `${DEFAULT_PAGE}`);
   const limit = Number(searchParams.get("limit") ?? `${DEFAULT_TABLE_LIMIT}`);
+  const search = searchParams.get("q") ?? "";
   const role = (searchParams.get("role") as OrgRole | null) ?? "ALL";
 
   const { orgSlug } = useParams<{ orgSlug: string }>();
@@ -35,11 +35,15 @@ const OrganizationMembersPage = () => {
     isFetching: isMembersFetching,
     isPlaceholderData: isMembersPlaceholderData,
     refetch: membersRefetch,
-  } = useOrganizationMembers(orgSlug ?? null, {
-    page,
-    limit,
-    role: role === "ALL" ? undefined : role,
-  });
+  } = useOrganizationMembers(
+    orgSlug ?? null,
+    {
+      page,
+      limit,
+      role: role === "ALL" ? undefined : role,
+    },
+    search,
+  );
 
   if (isOrganizationloading) {
     return <OrganizationSkeleton />;
@@ -87,23 +91,39 @@ const OrganizationMembersPage = () => {
           </Button>
         </div>
 
-        <div className="mb-5 sm:grid grid-cols-4 gap-x-2">
-          <div className="col-span-3 relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search by name or email"
-              className="w-full pl-9 pr-3 bg-muted/50 focus:bg-background transition"
-            />
-          </div>
+        <MemberFilters
+          role={role}
+          onRoleChange={(value) =>
+            updateParams({ role: value, page: String(DEFAULT_PAGE) })
+          }
+          search={search}
+          onSearchChange={(value) =>
+            updateParams({ q: value, page: String(DEFAULT_PAGE) })
+          }
+        />
 
-          <div className="mt-2 sm:mt-0">
-            <RoleFilter
-              role={role}
-              onRoleChange={(value) => updateParams({ role: value })}
-            />
+        {search.trim() && !isMembersFetching && members?.data.length === 0 && (
+          <div className="rounded-xl border border-dashed border-border/80 px-4 py-10 text-center">
+            <p className="text-sm text-muted-foreground">
+              No members found for{" "}
+              <span className="font-medium text-foreground">
+                &ldquo;{search}&rdquo;
+              </span>
+            </p>
           </div>
-        </div>
+        )}
+
+        {!search.trim() &&
+          role &&
+          !isMembersFetching &&
+          (members?.data.length ?? 0) === 0 && (
+            <div className="rounded-xl border border-dashed border-border/80 px-4 py-10 text-center">
+              <p className="text-sm text-muted-foreground">
+                No members with the{" "}
+                <span className="font-medium text-foreground">{role}</span> role
+              </p>
+            </div>
+          )}
 
         {members?.data && (members?.data.length ?? 0) > 0 && (
           <MembersTable

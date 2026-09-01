@@ -10,6 +10,7 @@ import { ConflictError, NotFoundError } from "../../common/errors";
 import {
   Organization,
   OrganizationMember,
+  Prisma,
 } from "../../generated/prisma/client";
 
 export class OrganizationsService {
@@ -164,10 +165,23 @@ export class OrganizationsService {
   async listMembers(
     query: ListOrganizationsQuery,
   ): Promise<ListOrganizationsQueryResult<OrganizationResult>> {
-    const { page, limit, role, organizationId } = query;
+    const { page, limit, role, q, organizationId } = query;
 
     const skip = (page - 1) * limit;
-    const where = { organizationId, ...(role && { role }) };
+    const searchTerm = q?.trim();
+
+    const where: Prisma.OrganizationMemberWhereInput = {
+      organizationId,
+      ...(role && { role }),
+      ...(searchTerm && {
+        user: {
+          OR: [
+            { name: { contains: searchTerm, mode: "insensitive" } },
+            { email: { contains: searchTerm, mode: "insensitive" } },
+          ],
+        },
+      }),
+    };
 
     const [members, total] = await Promise.all([
       prisma.organizationMember.findMany({

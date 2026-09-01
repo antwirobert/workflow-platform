@@ -21,6 +21,7 @@ interface PaginationControlsProps {
   onPageSizeChange?: (size: number) => void;
   totalItems: number;
   totalPages: number;
+  isPlaceholderData: boolean;
 }
 
 const PaginationControls = ({
@@ -30,9 +31,16 @@ const PaginationControls = ({
   onPageSizeChange,
   totalItems,
   totalPages,
+  isPlaceholderData,
 }: PaginationControlsProps) => {
   const from = totalItems === 0 ? 0 : (currentPage - 1) * limit + 1;
   const to = Math.min(currentPage * limit, totalItems);
+
+  const isFirstPage = currentPage <= 1;
+  const isLastPage = totalPages === 0 || currentPage >= totalPages;
+
+  const isPreviousDisabled = isFirstPage || isPlaceholderData;
+  const isNextDisabled = isLastPage || isPlaceholderData;
 
   return (
     <div className="mt-6 flex items-center justify-between gap-4">
@@ -74,7 +82,7 @@ const PaginationControls = ({
             size="icon"
             className="hidden size-8 lg:inline-flex"
             onClick={() => onPageChange(1)}
-            disabled={currentPage <= 1}
+            disabled={isPreviousDisabled}
           >
             <ChevronsLeft className="size-4" />
           </Button>
@@ -84,7 +92,7 @@ const PaginationControls = ({
             size="icon"
             className="size-8"
             onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage <= 1}
+            disabled={isPreviousDisabled}
           >
             <ChevronLeft className="size-4" />
           </Button>
@@ -94,7 +102,7 @@ const PaginationControls = ({
             size="icon"
             className="size-8"
             onClick={() => onPageChange(currentPage + 1)}
-            disabled={totalPages === 0 || currentPage >= totalPages}
+            disabled={isNextDisabled}
           >
             <ChevronRight className="size-4" />
           </Button>
@@ -104,7 +112,7 @@ const PaginationControls = ({
             size="icon"
             className="hidden size-8 lg:inline-flex"
             onClick={() => onPageChange(totalPages)}
-            disabled={totalPages === 0 || currentPage >= totalPages}
+            disabled={isNextDisabled}
           >
             <ChevronsRight className="size-4" />
           </Button>

@@ -13,6 +13,7 @@ export interface UpdateOrganizationPayload {
 export interface OrganizationlistParams {
   page: number;
   limit: number;
+  search?: string;
   role?: OrgRole;
 }
 

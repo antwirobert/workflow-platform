@@ -6,7 +6,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 import {
   flexRender,
   getCoreRowModel,
@@ -58,22 +57,7 @@ const MembersTable = ({
         />
       )}
 
-      {members.data.length === 0 && (
-        <div className="flex min-h-52 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
-          <div className="flex flex-col gap-3">
-            <p className="text-sm font-medium text-foreground">
-              No members match these filters
-            </p>
-          </div>
-        </div>
-      )}
-
-      <div
-        className={cn(
-          "flex h-full w-full flex-col overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm",
-          isPlaceholderData ? "opacity-60 pointer-events-none" : "",
-        )}
-      >
+      <div className="flex h-full w-full flex-col overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
         <div className="flex-1 overflow-auto">
           <Table className="min-w-160">
             <TableHeader>
@@ -141,6 +125,7 @@ const MembersTable = ({
         onPageSizeChange={onPageSizeChange}
         totalItems={members.meta.total}
         totalPages={members.meta.totalPages}
+        isPlaceholderData={isPlaceholderData}
       />
     </div>
   );

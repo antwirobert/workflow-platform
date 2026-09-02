@@ -1,19 +1,19 @@
-import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import PaginationControls from "@/components/PaginationControls";
 import TextAvatar from "@/components/TextAvatar";
 import ErrorState from "@/components/ErrorState";
-import TasksTable from "@/features/tasks/components/TasksTable";
 import { useProjects } from "@/features/projects/hooks/useProjects";
 import { useWorkspaceTasks } from "../hooks/useWorkspaceTasks";
 import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
-import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
-import { cn, getIdentityColor, timeAgo } from "@/lib/utils";
+import { DEFAULT_TABLE_LIMIT } from "@/constants";
+import { getIdentityColor, timeAgo } from "@/lib/utils";
+import { usePaginationState } from "@/hooks/usePaginationState";
+import WorkspaceTasksTable from "./WorkspaceTasksTable";
 
 const WorkspaceOverview = () => {
-  const [projectPage, setProjectPage] = useState(DEFAULT_PAGE);
-  const [taskPage, setTaskPage] = useState(DEFAULT_PAGE);
-  const [memberPage, setMemberPage] = useState(DEFAULT_PAGE);
+  const { page: projectPage, setPage: setProjectPage } = usePaginationState();
+  const { page: taskPage, setPage: setTaskPage } = usePaginationState();
+  const { page: memberPage, setPage: setMemberPage } = usePaginationState();
 
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
@@ -74,14 +74,7 @@ const WorkspaceOverview = () => {
 
           {!isProjectsError && projects && projects.data.length > 0 ? (
             <>
-              <div
-                className={cn(
-                  "overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm",
-                  isProjectsPlaceholderData
-                    ? "opacity-60 pointer-events-none"
-                    : "",
-                )}
-              >
+              <div className="overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
                 {projects.data.map((project) => {
                   const {
                     id,
@@ -136,6 +129,7 @@ const WorkspaceOverview = () => {
                 onPageChange={setProjectPage}
                 totalItems={projects.meta.total}
                 totalPages={projects.meta.totalPages}
+                isPlaceholderData={isProjectsPlaceholderData}
               />
             </>
           ) : (
@@ -167,12 +161,11 @@ const WorkspaceOverview = () => {
 
           {!isTasksError && tasks && tasks.data.length > 0 ? (
             <>
-              <TasksTable
+              <WorkspaceTasksTable
                 tasks={tasks.data}
                 isError={isTasksError}
                 isFetching={isTasksFetching}
                 refetch={refetchTasks}
-                isPlaceholderData={isTasksPlaceholderData}
               />
 
               <PaginationControls
@@ -181,6 +174,7 @@ const WorkspaceOverview = () => {
                 onPageChange={setTaskPage}
                 totalItems={tasks.meta.total}
                 totalPages={tasks.meta.totalPages}
+                isPlaceholderData={isTasksPlaceholderData}
               />
             </>
           ) : (
@@ -217,12 +211,7 @@ const WorkspaceOverview = () => {
             />
           )}
 
-          <div
-            className={cn(
-              "rounded-xl border border-border/60 bg-card p-4 shadow-sm",
-              isMembersPlaceholderData ? "opacity-60 pointer-events-none" : "",
-            )}
-          >
+          <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
             {!isMembersError && members && members.data.length > 0 ? (
               <div className="space-y-3">
                 {members.data.map((member) => {
@@ -273,6 +262,7 @@ const WorkspaceOverview = () => {
               onPageChange={setMemberPage}
               totalItems={members.meta.total}
               totalPages={members.meta.totalPages}
+              isPlaceholderData={isMembersPlaceholderData}
             />
           )}
         </section>

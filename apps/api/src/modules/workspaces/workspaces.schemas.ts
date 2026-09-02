@@ -47,6 +47,7 @@ export const workspaceDetailParamsSchema = z.object({
 export const listWorkspacesQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(12),
+  q: z.string().min(1).max(100).optional(),
 });
 
 export type CreateWorkspacePayload = z.infer<typeof workspaceCreateSchema>;

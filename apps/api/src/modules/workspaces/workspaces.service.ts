@@ -2,6 +2,7 @@ import { prisma } from "../../lib/prisma";
 import { ConflictError, NotFoundError } from "../../common/errors";
 import {
   Priority,
+  Prisma,
   Task,
   TaskStatus,
   Workspace,
@@ -49,18 +50,26 @@ export class WorkspacesService {
   async list(
     query: listWorkspacesQuery,
   ): Promise<ListWorkspacesQueryResult<WorkspaceResult>> {
-    const { page, limit, organizationId, userId } = query;
+    const { page, limit, q, organizationId, userId } = query;
 
     const skip = (page - 1) * limit;
 
-    const where = { organizationId };
+    const searchTerm = q?.trim();
+
+    const where: Prisma.WorkspaceWhereInput = {
+      organizationId,
+      OR: [
+        { name: { contains: searchTerm, mode: "insensitive" } },
+        { slug: { contains: searchTerm, mode: "insensitive" } },
+      ],
+    };
 
     const [workspaces, total] = await Promise.all([
       prisma.workspace.findMany({
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: { updatedAt: "desc" },
         include: {
           _count: { select: { projects: true } },
           organization: {

@@ -9,8 +9,21 @@ import { DEFAULT_TABLE_LIMIT } from "@/constants";
 import { getIdentityColor, timeAgo } from "@/lib/utils";
 import { usePaginationState } from "@/hooks/usePaginationState";
 import WorkspaceTasksTable from "./WorkspaceTasksTable";
+import ProgressBar from "./ProgressBar";
 
-const WorkspaceOverview = () => {
+interface WorkspaceOverviewProps {
+  activeProjects: number;
+  totalTasks: number;
+  openTasks: number;
+  completedTasks: number;
+}
+
+const WorkspaceOverview = ({
+  activeProjects,
+  totalTasks,
+  openTasks,
+  completedTasks,
+}: WorkspaceOverviewProps) => {
   const { page: projectPage, setPage: setProjectPage } = usePaginationState();
   const { page: taskPage, setPage: setTaskPage } = usePaginationState();
   const { page: memberPage, setPage: setMemberPage } = usePaginationState();
@@ -85,6 +98,7 @@ const WorkspaceOverview = () => {
                     taskCount,
                   } = project;
                   const color = getIdentityColor(id);
+                  const progressCount = completedTasks / totalTasks;
 
                   return (
                     <Link
@@ -112,11 +126,14 @@ const WorkspaceOverview = () => {
                         </div>
                       </div>
 
-                      <div className="hidden shrink-0 flex-col items-end gap-0.5 text-xs text-muted-foreground sm:flex">
-                        <span className="font-medium text-foreground/80">
-                          {taskCount} open
-                        </span>
-                        <span>Updated {timeAgo(updatedAt)}</span>
+                      <div>
+                        <div className="hidden shrink-0 flex-col items-end gap-0.5 text-xs text-muted-foreground sm:flex">
+                          <span className="font-medium text-foreground/80">
+                            {taskCount} open
+                          </span>
+                          <span>Updated {timeAgo(updatedAt)}</span>
+                        </div>
+                        <ProgressBar progress={progressCount} />
                       </div>
                     </Link>
                   );
@@ -277,19 +294,19 @@ const WorkspaceOverview = () => {
             <dl className="space-y-2.5 text-sm">
               <div className="flex items-center justify-between">
                 <dt className="text-muted-foreground">Active projects</dt>
-                <dd className="font-medium tabular-nums">3</dd>
+                <dd className="font-medium tabular-nums">{activeProjects}</dd>
               </div>
               <div className="flex items-center justify-between">
                 <dt className="text-muted-foreground">Total tasks</dt>
-                <dd className="font-medium tabular-nums">9</dd>
+                <dd className="font-medium tabular-nums">{totalTasks}</dd>
               </div>
               <div className="flex items-center justify-between">
                 <dt className="text-muted-foreground">Open</dt>
-                <dd className="font-medium tabular-nums">8</dd>
+                <dd className="font-medium tabular-nums">{openTasks}</dd>
               </div>
               <div className="flex items-center justify-between">
                 <dt className="text-muted-foreground">Completed</dt>
-                <dd className="font-medium tabular-nums">2</dd>
+                <dd className="font-medium tabular-nums">{completedTasks}</dd>
               </div>
             </dl>
           </div>

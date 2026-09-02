@@ -2,10 +2,8 @@ import { useOrgStore } from "@/stores/orgStore";
 import { useOrganizations } from "./useOrganizations";
 import { useEffect } from "react";
 import { DEFAULT_PAGE, DEFAULT_SIDEBAR_LIMIT } from "@/constants";
-import { useParams } from "react-router-dom";
 
 export function useActiveOrganization() {
-  const { orgSlug: routeOrgSlug } = useParams<{ orgSlug: string }>();
   const {
     data: organizations,
     isLoading,
@@ -16,16 +14,19 @@ export function useActiveOrganization() {
     page: DEFAULT_PAGE,
     limit: DEFAULT_SIDEBAR_LIMIT,
   });
-  const lastVisitedOrgSlug = useOrgStore((state) => state.activeOrgSlug);
-  const setLastVisitedOrgSlug = useOrgStore((state) => state.setActiveOrgSlug);
-
-  const activeOrgSlug = routeOrgSlug ?? lastVisitedOrgSlug;
+  const activeOrgSlug = useOrgStore((state) => state.activeOrgSlug);
+  const setActiveOrgSlug = useOrgStore((state) => state.setActiveOrgSlug);
 
   useEffect(() => {
-    if (routeOrgSlug && routeOrgSlug !== lastVisitedOrgSlug) {
-      setLastVisitedOrgSlug(routeOrgSlug);
+    if (!organizations?.data || organizations.data.length === 0) return;
+
+    const stillValid = organizations.data.some(
+      (org) => org.slug === activeOrgSlug,
+    );
+    if (!activeOrgSlug || !stillValid) {
+      setActiveOrgSlug(organizations.data[0].slug);
     }
-  }, [routeOrgSlug, lastVisitedOrgSlug, setLastVisitedOrgSlug]);
+  }, [activeOrgSlug, organizations, setActiveOrgSlug]);
 
   const activeOrganization =
     organizations?.data.find((org) => org.slug === activeOrgSlug) ?? null;

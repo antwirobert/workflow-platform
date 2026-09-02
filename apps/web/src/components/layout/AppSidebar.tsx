@@ -286,7 +286,8 @@ const AppSidebar = () => {
                   </div>
                 )}
 
-              {!projectsLoading &&
+              {activeWorkspaceSlug &&
+                !projectsLoading &&
                 !projectsError &&
                 (projects?.data ?? []).map((project) => {
                   const isProjectActive =

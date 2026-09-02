@@ -11,6 +11,7 @@ export interface UpdateWorkspacePayload {
 export interface WorkspacelistParams {
   page: number;
   limit: number;
+  search?: string;
 }
 
 export interface PaginatedResponse<T> {

@@ -42,8 +42,11 @@ const OrganizationMembersPage = () => {
       limit,
       role: role === "ALL" ? undefined : role,
     },
-    search,
+    search || undefined,
   );
+
+  const hasFilters = Boolean(search.trim() || role);
+  const isEmpty = !isMembersFetching && (members?.data.length ?? 0) === 0;
 
   if (isOrganizationloading) {
     return <OrganizationSkeleton />;
@@ -102,28 +105,16 @@ const OrganizationMembersPage = () => {
           }
         />
 
-        {search.trim() && !isMembersFetching && members?.data.length === 0 && (
-          <div className="rounded-xl border border-dashed border-border/80 px-4 py-10 text-center">
-            <p className="text-sm text-muted-foreground">
-              No members found for{" "}
-              <span className="font-medium text-foreground">
-                &ldquo;{search}&rdquo;
-              </span>
-            </p>
-          </div>
-        )}
-
-        {!search.trim() &&
-          role &&
-          !isMembersFetching &&
-          (members?.data.length ?? 0) === 0 && (
-            <div className="rounded-xl border border-dashed border-border/80 px-4 py-10 text-center">
-              <p className="text-sm text-muted-foreground">
-                No members with the{" "}
-                <span className="font-medium text-foreground">{role}</span> role
+        {hasFilters && isEmpty && (
+          <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
+            <div>
+              <p className="text-sm font-medium text-foreground">No matches</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Try a different search or role filter.
               </p>
             </div>
-          )}
+          </div>
+        )}
 
         {members?.data && (members?.data.length ?? 0) > 0 && (
           <MembersTable

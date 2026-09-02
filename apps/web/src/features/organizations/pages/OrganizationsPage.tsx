@@ -10,12 +10,16 @@ import PaginationControls from "@/components/PaginationControls";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import OrganizationCardSkeleton from "../components/OrganizationCardSkeleton";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { useUrlParams } from "@/hooks/useUrlParams";
 
 const OrganizationsPage = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [page, setPage] = useState(DEFAULT_PAGE);
-  const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
+  const { searchParams, updateParams } = useUrlParams();
+
+  const page = Number(searchParams.get("page") ?? `${DEFAULT_PAGE}`);
+  const limit = Number(searchParams.get("limit") ?? `${DEFAULT_TABLE_LIMIT}`);
+  const search = searchParams.get("q") ?? "";
+
   const {
     data: organizations,
     isLoading,
@@ -23,10 +27,13 @@ const OrganizationsPage = () => {
     refetch,
     isFetching,
     isPlaceholderData,
-  } = useOrganizations({
-    page,
-    limit,
-  });
+  } = useOrganizations(
+    {
+      page,
+      limit,
+    },
+    search || undefined,
+  );
 
   return (
     <PageHeader
@@ -42,6 +49,8 @@ const OrganizationsPage = () => {
           type="text"
           placeholder="Search organizations..."
           className="w-full pl-9 pr-3 bg-muted/50 focus:bg-background transition"
+          value={search}
+          onChange={(e) => updateParams({ q: e.target.value })}
         />
       </div>
 
@@ -68,12 +77,7 @@ const OrganizationsPage = () => {
 
       {!isLoading && !isError && (organizations?.data.length ?? 0) > 0 && (
         <>
-          <div
-            className={cn(
-              "overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm",
-              isPlaceholderData ? "opacity-60 pointer-events-none" : "",
-            )}
-          >
+          <div className="overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
             {organizations!.data.map((org) => (
               <OrganizationCard key={org.id} {...org} />
             ))}
@@ -81,13 +85,13 @@ const OrganizationsPage = () => {
           <PaginationControls
             currentPage={page}
             limit={limit}
-            onPageChange={setPage}
-            onPageSizeChange={(size) => {
-              setLimit(size);
-              setPage(DEFAULT_PAGE);
-            }}
+            onPageChange={(newPage) => updateParams({ page: String(newPage) })}
+            onPageSizeChange={(size) =>
+              updateParams({ limit: String(size), page: String(DEFAULT_PAGE) })
+            }
             totalItems={organizations!.meta.total}
             totalPages={organizations!.meta.totalPages}
+            isPlaceholderData={isPlaceholderData}
           />
         </>
       )}

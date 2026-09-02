@@ -85,8 +85,8 @@ const WorkspaceDetailPage = () => {
                 </span>
                 <span className="text-muted-foreground/40">•</span>
                 <span>
-                  {workspace.taskCount}{" "}
-                  {workspace.taskCount === 1 ? "open task" : "open tasks"}
+                  {workspace.openTaskCount}{" "}
+                  {workspace.openTaskCount === 1 ? "open task" : "open tasks"}
                 </span>
                 <span className="text-muted-foreground/40">•</span>
                 <span>
@@ -127,7 +127,12 @@ const WorkspaceDetailPage = () => {
             value="overview"
             className="mt-6 focus-visible:outline-none"
           >
-            <WorkspaceOverview />
+            <WorkspaceOverview
+              activeProjects={workspace.projectCount ?? 0}
+              totalTasks={workspace.totalTaskCount ?? 0}
+              openTasks={workspace.openTaskCount ?? 0}
+              completedTasks={workspace.completedTaskCount ?? 0}
+            />
           </TabsContent>
 
           <TabsContent

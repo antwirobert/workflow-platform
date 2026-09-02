@@ -65,6 +65,10 @@ export function useUpdateTaskStatus(
         ],
         exact: false,
       });
+      queryClient.invalidateQueries({
+        queryKey: ["organizations", orgSlug, "workspaces", workspaceSlug],
+        exact: false,
+      });
     },
   });
 }

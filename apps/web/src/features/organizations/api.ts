@@ -17,7 +17,6 @@ export const organizationsApi = {
       params: {
         page: String(params.page),
         limit: String(params.limit),
-        ...(params.search ? { q: params.search } : {}),
       },
     }),
   getById: (orgSlug: string) =>

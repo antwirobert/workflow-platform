@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useOrganizations } from "../hooks/useOrganizations";
-import { Building2, Search } from "lucide-react";
+import { Building2 } from "lucide-react";
 import ErrorState from "@/components/ErrorState";
 import EmptyState from "@/components/EmptyState";
 import OrganizationCard from "../components/OrganizationCard";
@@ -9,7 +9,6 @@ import PageHeader from "@/components/PageHeader";
 import PaginationControls from "@/components/PaginationControls";
 import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import OrganizationCardSkeleton from "../components/OrganizationCardSkeleton";
-import { Input } from "@/components/ui/input";
 import { useUrlParams } from "@/hooks/useUrlParams";
 
 const OrganizationsPage = () => {
@@ -18,7 +17,6 @@ const OrganizationsPage = () => {
 
   const page = Number(searchParams.get("page") ?? `${DEFAULT_PAGE}`);
   const limit = Number(searchParams.get("limit") ?? `${DEFAULT_TABLE_LIMIT}`);
-  const search = searchParams.get("q") ?? "";
 
   const {
     data: organizations,
@@ -27,13 +25,10 @@ const OrganizationsPage = () => {
     refetch,
     isFetching,
     isPlaceholderData,
-  } = useOrganizations(
-    {
-      page,
-      limit,
-    },
-    search || undefined,
-  );
+  } = useOrganizations({
+    page,
+    limit,
+  });
 
   return (
     <PageHeader
@@ -43,17 +38,6 @@ const OrganizationsPage = () => {
         <CreateOrganizationDialog open={isOpen} onOpenChange={setIsOpen} />
       }
     >
-      <div className="relative mb-5">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="Search organizations..."
-          className="w-full pl-9 pr-3 bg-muted/50 focus:bg-background transition"
-          value={search}
-          onChange={(e) => updateParams({ q: e.target.value })}
-        />
-      </div>
-
       {isLoading && <OrganizationCardSkeleton />}
 
       {!isLoading && isError && (

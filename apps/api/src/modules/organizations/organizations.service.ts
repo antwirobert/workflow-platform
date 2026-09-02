@@ -64,7 +64,10 @@ export class OrganizationsService {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: [
+          { lastAccessedAt: { sort: "desc", nulls: "last" } },
+          { createdAt: "desc" },
+        ],
         include: {
           organization: {
             include: {

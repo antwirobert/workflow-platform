@@ -11,13 +11,17 @@ import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import { useState } from "react";
 import PaginationControls from "@/components/PaginationControls";
 import { useParams } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import WorkspaceCardSkeleton from "../components/WorkspaceCardSkeleton";
+import { useUrlParams } from "@/hooks/useUrlParams";
 
 const WorkspacesPage = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [page, setPage] = useState(DEFAULT_PAGE);
-  const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
+  const { searchParams, updateParams } = useUrlParams();
+
+  const page = Number(searchParams.get("page") ?? `${DEFAULT_PAGE}`);
+  const limit = Number(searchParams.get("limit") ?? `${DEFAULT_TABLE_LIMIT}`);
+  const search = searchParams.get("q") ?? "";
+
   const { orgSlug } = useParams<{ orgSlug: string }>();
   const { activeOrganization } = useActiveOrganization();
 
@@ -28,10 +32,14 @@ const WorkspacesPage = () => {
     refetch,
     isFetching,
     isPlaceholderData,
-  } = useWorkspaces(orgSlug ?? null, {
-    page,
-    limit,
-  });
+  } = useWorkspaces(
+    orgSlug ?? null,
+    {
+      page,
+      limit,
+    },
+    search || undefined,
+  );
 
   if (!activeOrganization) return;
 
@@ -54,6 +62,10 @@ const WorkspacesPage = () => {
           type="text"
           placeholder="Search workspaces..."
           className="w-full pl-9 pr-3 bg-muted/50 focus:bg-background transition"
+          value={search}
+          onChange={(e) =>
+            updateParams({ q: e.target.value, page: String(DEFAULT_PAGE) })
+          }
         />
       </div>
 
@@ -68,24 +80,36 @@ const WorkspacesPage = () => {
         />
       )}
 
-      {!isLoading && !isError && workspaces?.data.length === 0 && (
-        <EmptyState
-          title="No workspaces yet"
-          description="Create a workspace to organize projects for a team or initiative."
-          btnCaption="New workspace"
-          icon={Layers}
-          onOpenChange={() => setIsOpen(true)}
-        />
+      {!search.trim() &&
+        !isLoading &&
+        !isError &&
+        workspaces?.data.length === 0 && (
+          <EmptyState
+            title="No workspaces yet"
+            description="Create a workspace to organize projects for a team or initiative."
+            btnCaption="New workspace"
+            icon={Layers}
+            onOpenChange={() => setIsOpen(true)}
+          />
+        )}
+
+      {search.trim() && !isFetching && workspaces?.data.length === 0 && (
+        <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
+          <div className="flex flex-col items-center justify-center">
+            <Search className="text-muted-foreground text-center mb-3" />
+            <p className="text-sm font-medium text-foreground">
+              No workspaces match
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Nothing matches "{search}". Try a different name.
+            </p>
+          </div>
+        </div>
       )}
 
       {!isLoading && !isError && (workspaces?.data.length ?? 0) > 0 && (
         <>
-          <div
-            className={cn(
-              "grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
-              isPlaceholderData ? "opacity-60 pointer-events-none" : "",
-            )}
-          >
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {workspaces?.data.map((workspace) => (
               <WorkspaceCard key={workspace.id} {...workspace} />
             ))}
@@ -94,13 +118,13 @@ const WorkspacesPage = () => {
           <PaginationControls
             currentPage={page}
             limit={limit}
-            onPageChange={setPage}
-            onPageSizeChange={(size) => {
-              setLimit(size);
-              setPage(DEFAULT_PAGE);
-            }}
+            onPageChange={(newPage) => updateParams({ page: String(newPage) })}
+            onPageSizeChange={(size) =>
+              updateParams({ limit: String(size), page: String(DEFAULT_PAGE) })
+            }
             totalPages={workspaces!.meta.totalPages}
             totalItems={workspaces!.meta.total}
+            isPlaceholderData={isPlaceholderData}
           />
         </>
       )}

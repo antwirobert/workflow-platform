@@ -18,7 +18,9 @@ export interface WorkspaceResult {
   updatedAt: Date;
   role?: string;
   projectCount?: number;
-  taskCount?: number;
+  opnTaskCount?: number;
+  completedTaskCount?: number;
+  totalTaskCount?: number;
   memberCount?: number;
 }
 

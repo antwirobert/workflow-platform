@@ -58,10 +58,12 @@ export class WorkspacesService {
 
     const where: Prisma.WorkspaceWhereInput = {
       organizationId,
-      OR: [
-        { name: { contains: searchTerm, mode: "insensitive" } },
-        { slug: { contains: searchTerm, mode: "insensitive" } },
-      ],
+      ...(searchTerm && {
+        OR: [
+          { name: { contains: searchTerm, mode: "insensitive" } },
+          { slug: { contains: searchTerm, mode: "insensitive" } },
+        ],
+      }),
     };
 
     const [workspaces, total] = await Promise.all([

@@ -37,6 +37,8 @@ export class OrganizationsService {
           organizationId: organization.id,
           userId,
           role: "OWNER",
+          lastAccessedAt: new Date(),
+          accessCount: 1,
         },
       });
 

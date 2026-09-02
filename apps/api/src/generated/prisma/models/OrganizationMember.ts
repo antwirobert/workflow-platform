@@ -20,8 +20,18 @@ export type OrganizationMemberModel = runtime.Types.Result.DefaultSelection<Pris
 
 export type AggregateOrganizationMember = {
   _count: OrganizationMemberCountAggregateOutputType | null
+  _avg: OrganizationMemberAvgAggregateOutputType | null
+  _sum: OrganizationMemberSumAggregateOutputType | null
   _min: OrganizationMemberMinAggregateOutputType | null
   _max: OrganizationMemberMaxAggregateOutputType | null
+}
+
+export type OrganizationMemberAvgAggregateOutputType = {
+  accessCount: number | null
+}
+
+export type OrganizationMemberSumAggregateOutputType = {
+  accessCount: number | null
 }
 
 export type OrganizationMemberMinAggregateOutputType = {
@@ -29,6 +39,8 @@ export type OrganizationMemberMinAggregateOutputType = {
   userId: string | null
   organizationId: string | null
   role: $Enums.OrgRole | null
+  lastAccessedAt: Date | null
+  accessCount: number | null
   createdAt: Date | null
 }
 
@@ -37,6 +49,8 @@ export type OrganizationMemberMaxAggregateOutputType = {
   userId: string | null
   organizationId: string | null
   role: $Enums.OrgRole | null
+  lastAccessedAt: Date | null
+  accessCount: number | null
   createdAt: Date | null
 }
 
@@ -45,16 +59,28 @@ export type OrganizationMemberCountAggregateOutputType = {
   userId: number
   organizationId: number
   role: number
+  lastAccessedAt: number
+  accessCount: number
   createdAt: number
   _all: number
 }
 
+
+export type OrganizationMemberAvgAggregateInputType = {
+  accessCount?: true
+}
+
+export type OrganizationMemberSumAggregateInputType = {
+  accessCount?: true
+}
 
 export type OrganizationMemberMinAggregateInputType = {
   id?: true
   userId?: true
   organizationId?: true
   role?: true
+  lastAccessedAt?: true
+  accessCount?: true
   createdAt?: true
 }
 
@@ -63,6 +89,8 @@ export type OrganizationMemberMaxAggregateInputType = {
   userId?: true
   organizationId?: true
   role?: true
+  lastAccessedAt?: true
+  accessCount?: true
   createdAt?: true
 }
 
@@ -71,6 +99,8 @@ export type OrganizationMemberCountAggregateInputType = {
   userId?: true
   organizationId?: true
   role?: true
+  lastAccessedAt?: true
+  accessCount?: true
   createdAt?: true
   _all?: true
 }
@@ -113,6 +143,18 @@ export type OrganizationMemberAggregateArgs<ExtArgs extends runtime.Types.Extens
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: OrganizationMemberAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: OrganizationMemberSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: OrganizationMemberMinAggregateInputType
@@ -143,6 +185,8 @@ export type OrganizationMemberGroupByArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   _count?: OrganizationMemberCountAggregateInputType | true
+  _avg?: OrganizationMemberAvgAggregateInputType
+  _sum?: OrganizationMemberSumAggregateInputType
   _min?: OrganizationMemberMinAggregateInputType
   _max?: OrganizationMemberMaxAggregateInputType
 }
@@ -152,8 +196,12 @@ export type OrganizationMemberGroupByOutputType = {
   userId: string
   organizationId: string
   role: $Enums.OrgRole
+  lastAccessedAt: Date | null
+  accessCount: number
   createdAt: Date
   _count: OrganizationMemberCountAggregateOutputType | null
+  _avg: OrganizationMemberAvgAggregateOutputType | null
+  _sum: OrganizationMemberSumAggregateOutputType | null
   _min: OrganizationMemberMinAggregateOutputType | null
   _max: OrganizationMemberMaxAggregateOutputType | null
 }
@@ -181,6 +229,8 @@ export type OrganizationMemberWhereInput = {
   userId?: Prisma.StringFilter<"OrganizationMember"> | string
   organizationId?: Prisma.StringFilter<"OrganizationMember"> | string
   role?: Prisma.EnumOrgRoleFilter<"OrganizationMember"> | $Enums.OrgRole
+  lastAccessedAt?: Prisma.DateTimeNullableFilter<"OrganizationMember"> | Date | string | null
+  accessCount?: Prisma.IntFilter<"OrganizationMember"> | number
   createdAt?: Prisma.DateTimeFilter<"OrganizationMember"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -191,6 +241,8 @@ export type OrganizationMemberOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  lastAccessedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  accessCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   organization?: Prisma.OrganizationOrderByWithRelationInput
@@ -206,6 +258,8 @@ export type OrganizationMemberWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"OrganizationMember"> | string
   organizationId?: Prisma.StringFilter<"OrganizationMember"> | string
   role?: Prisma.EnumOrgRoleFilter<"OrganizationMember"> | $Enums.OrgRole
+  lastAccessedAt?: Prisma.DateTimeNullableFilter<"OrganizationMember"> | Date | string | null
+  accessCount?: Prisma.IntFilter<"OrganizationMember"> | number
   createdAt?: Prisma.DateTimeFilter<"OrganizationMember"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -216,10 +270,14 @@ export type OrganizationMemberOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  lastAccessedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  accessCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationMemberCountOrderByAggregateInput
+  _avg?: Prisma.OrganizationMemberAvgOrderByAggregateInput
   _max?: Prisma.OrganizationMemberMaxOrderByAggregateInput
   _min?: Prisma.OrganizationMemberMinOrderByAggregateInput
+  _sum?: Prisma.OrganizationMemberSumOrderByAggregateInput
 }
 
 export type OrganizationMemberScalarWhereWithAggregatesInput = {
@@ -230,12 +288,16 @@ export type OrganizationMemberScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"OrganizationMember"> | string
   organizationId?: Prisma.StringWithAggregatesFilter<"OrganizationMember"> | string
   role?: Prisma.EnumOrgRoleWithAggregatesFilter<"OrganizationMember"> | $Enums.OrgRole
+  lastAccessedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"OrganizationMember"> | Date | string | null
+  accessCount?: Prisma.IntWithAggregatesFilter<"OrganizationMember"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrganizationMember"> | Date | string
 }
 
 export type OrganizationMemberCreateInput = {
   id?: string
   role?: $Enums.OrgRole
+  lastAccessedAt?: Date | string | null
+  accessCount?: number
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutMembershipsInput
   organization: Prisma.OrganizationCreateNestedOneWithoutMembersInput
@@ -246,12 +308,16 @@ export type OrganizationMemberUncheckedCreateInput = {
   userId: string
   organizationId: string
   role?: $Enums.OrgRole
+  lastAccessedAt?: Date | string | null
+  accessCount?: number
   createdAt?: Date | string
 }
 
 export type OrganizationMemberUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+  lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutMembershipsNestedInput
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
@@ -262,6 +328,8 @@ export type OrganizationMemberUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+  lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -270,12 +338,16 @@ export type OrganizationMemberCreateManyInput = {
   userId: string
   organizationId: string
   role?: $Enums.OrgRole
+  lastAccessedAt?: Date | string | null
+  accessCount?: number
   createdAt?: Date | string
 }
 
 export type OrganizationMemberUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+  lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -284,6 +356,8 @@ export type OrganizationMemberUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+  lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -313,7 +387,13 @@ export type OrganizationMemberCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  lastAccessedAt?: Prisma.SortOrder
+  accessCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type OrganizationMemberAvgOrderByAggregateInput = {
+  accessCount?: Prisma.SortOrder
 }
 
 export type OrganizationMemberMaxOrderByAggregateInput = {
@@ -321,6 +401,8 @@ export type OrganizationMemberMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  lastAccessedAt?: Prisma.SortOrder
+  accessCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -329,7 +411,13 @@ export type OrganizationMemberMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  lastAccessedAt?: Prisma.SortOrder
+  accessCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type OrganizationMemberSumOrderByAggregateInput = {
+  accessCount?: Prisma.SortOrder
 }
 
 export type OrganizationMemberCreateNestedManyWithoutUserInput = {
@@ -419,6 +507,8 @@ export type OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput 
 export type OrganizationMemberCreateWithoutUserInput = {
   id?: string
   role?: $Enums.OrgRole
+  lastAccessedAt?: Date | string | null
+  accessCount?: number
   createdAt?: Date | string
   organization: Prisma.OrganizationCreateNestedOneWithoutMembersInput
 }
@@ -427,6 +517,8 @@ export type OrganizationMemberUncheckedCreateWithoutUserInput = {
   id?: string
   organizationId: string
   role?: $Enums.OrgRole
+  lastAccessedAt?: Date | string | null
+  accessCount?: number
   createdAt?: Date | string
 }
 
@@ -464,12 +556,16 @@ export type OrganizationMemberScalarWhereInput = {
   userId?: Prisma.StringFilter<"OrganizationMember"> | string
   organizationId?: Prisma.StringFilter<"OrganizationMember"> | string
   role?: Prisma.EnumOrgRoleFilter<"OrganizationMember"> | $Enums.OrgRole
+  lastAccessedAt?: Prisma.DateTimeNullableFilter<"OrganizationMember"> | Date | string | null
+  accessCount?: Prisma.IntFilter<"OrganizationMember"> | number
   createdAt?: Prisma.DateTimeFilter<"OrganizationMember"> | Date | string
 }
 
 export type OrganizationMemberCreateWithoutOrganizationInput = {
   id?: string
   role?: $Enums.OrgRole
+  lastAccessedAt?: Date | string | null
+  accessCount?: number
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutMembershipsInput
 }
@@ -478,6 +574,8 @@ export type OrganizationMemberUncheckedCreateWithoutOrganizationInput = {
   id?: string
   userId: string
   role?: $Enums.OrgRole
+  lastAccessedAt?: Date | string | null
+  accessCount?: number
   createdAt?: Date | string
 }
 
@@ -511,12 +609,16 @@ export type OrganizationMemberCreateManyUserInput = {
   id?: string
   organizationId: string
   role?: $Enums.OrgRole
+  lastAccessedAt?: Date | string | null
+  accessCount?: number
   createdAt?: Date | string
 }
 
 export type OrganizationMemberUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+  lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
 }
@@ -525,6 +627,8 @@ export type OrganizationMemberUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+  lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -532,6 +636,8 @@ export type OrganizationMemberUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+  lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -539,12 +645,16 @@ export type OrganizationMemberCreateManyOrganizationInput = {
   id?: string
   userId: string
   role?: $Enums.OrgRole
+  lastAccessedAt?: Date | string | null
+  accessCount?: number
   createdAt?: Date | string
 }
 
 export type OrganizationMemberUpdateWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+  lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutMembershipsNestedInput
 }
@@ -553,6 +663,8 @@ export type OrganizationMemberUncheckedUpdateWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+  lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -560,6 +672,8 @@ export type OrganizationMemberUncheckedUpdateManyWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+  lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -570,6 +684,8 @@ export type OrganizationMemberSelect<ExtArgs extends runtime.Types.Extensions.In
   userId?: boolean
   organizationId?: boolean
   role?: boolean
+  lastAccessedAt?: boolean
+  accessCount?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -580,6 +696,8 @@ export type OrganizationMemberSelectCreateManyAndReturn<ExtArgs extends runtime.
   userId?: boolean
   organizationId?: boolean
   role?: boolean
+  lastAccessedAt?: boolean
+  accessCount?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -590,6 +708,8 @@ export type OrganizationMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.
   userId?: boolean
   organizationId?: boolean
   role?: boolean
+  lastAccessedAt?: boolean
+  accessCount?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -600,10 +720,12 @@ export type OrganizationMemberSelectScalar = {
   userId?: boolean
   organizationId?: boolean
   role?: boolean
+  lastAccessedAt?: boolean
+  accessCount?: boolean
   createdAt?: boolean
 }
 
-export type OrganizationMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "organizationId" | "role" | "createdAt", ExtArgs["result"]["organizationMember"]>
+export type OrganizationMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "organizationId" | "role" | "lastAccessedAt" | "accessCount" | "createdAt", ExtArgs["result"]["organizationMember"]>
 export type OrganizationMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -628,6 +750,8 @@ export type $OrganizationMemberPayload<ExtArgs extends runtime.Types.Extensions.
     userId: string
     organizationId: string
     role: $Enums.OrgRole
+    lastAccessedAt: Date | null
+    accessCount: number
     createdAt: Date
   }, ExtArgs["result"]["organizationMember"]>
   composites: {}
@@ -1058,6 +1182,8 @@ export interface OrganizationMemberFieldRefs {
   readonly userId: Prisma.FieldRef<"OrganizationMember", 'String'>
   readonly organizationId: Prisma.FieldRef<"OrganizationMember", 'String'>
   readonly role: Prisma.FieldRef<"OrganizationMember", 'OrgRole'>
+  readonly lastAccessedAt: Prisma.FieldRef<"OrganizationMember", 'DateTime'>
+  readonly accessCount: Prisma.FieldRef<"OrganizationMember", 'Int'>
   readonly createdAt: Prisma.FieldRef<"OrganizationMember", 'DateTime'>
 }
     

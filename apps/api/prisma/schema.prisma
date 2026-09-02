@@ -162,6 +162,8 @@ model OrganizationMember {
   userId         String       @map("user_id")
   organizationId String       @map("organization_id")
   role           OrgRole      @default(MEMBER)
+  lastAccessedAt DateTime?    @map("last_accessed_at")
+  accessCount    Int          @default(0) @map("access_count")
   createdAt      DateTime     @default(now()) @map("created_at")
 
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)

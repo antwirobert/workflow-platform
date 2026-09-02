@@ -202,6 +202,8 @@ export const OrganizationMemberScalarFieldEnum = {
   userId: 'userId',
   organizationId: 'organizationId',
   role: 'role',
+  lastAccessedAt: 'lastAccessedAt',
+  accessCount: 'accessCount',
   createdAt: 'createdAt'
 } as const
 

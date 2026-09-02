@@ -98,7 +98,8 @@ const WorkspaceOverview = ({
                     taskCount,
                   } = project;
                   const color = getIdentityColor(id);
-                  const progressCount = completedTasks / totalTasks;
+                  const progressPercentage =
+                    (completedTasks / totalTasks) * 100;
 
                   return (
                     <Link
@@ -133,7 +134,7 @@ const WorkspaceOverview = ({
                           </span>
                           <span>Updated {timeAgo(updatedAt)}</span>
                         </div>
-                        <ProgressBar progress={progressCount} />
+                        <ProgressBar progress={progressPercentage} />
                       </div>
                     </Link>
                   );

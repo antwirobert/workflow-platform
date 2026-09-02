@@ -12,33 +12,23 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { columns } from "./columns";
 import type { Task } from "@/types/task";
-import TaskDetailsSheet from "./TaskDetailsSheet";
-import { useState } from "react";
 import ErrorState from "@/components/ErrorState";
+import { columns } from "./columns";
 
-interface TasksTableProps {
+interface WorkspaceTasksTableProps {
   tasks: Task[];
   isError: boolean;
   isFetching: boolean;
   refetch: () => void;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  isClickable?: boolean;
 }
 
-const TasksTable = ({
+const WorkspaceTasksTable = ({
   tasks,
   isError,
   isFetching,
   refetch,
-  open,
-  onOpenChange,
-  isClickable,
-}: TasksTableProps) => {
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-
+}: WorkspaceTasksTableProps) => {
   const table = useReactTable({
     data: tasks,
     columns,
@@ -55,13 +45,6 @@ const TasksTable = ({
       />
     );
   }
-
-  const handleRowClick = (id: string): void => {
-    onOpenChange?.(true);
-    setSelectedTaskId(id);
-  };
-
-  const activeTask = tasks.find((t) => t.id === selectedTaskId) || null;
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
@@ -97,12 +80,8 @@ const TasksTable = ({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className={cn(
-                    "border-b border-border/40",
-                    isClickable
-                      ? "cursor-pointer hover:bg-muted/30 transition-colors"
-                      : "cursor-default hover:bg-transparent",
+                    "border-b border-border/40 cursor-default hover:bg-transparent",
                   )}
-                  onClick={() => handleRowClick(row.original.id)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="px-4 py-3">
@@ -127,19 +106,8 @@ const TasksTable = ({
           </TableBody>
         </Table>
       </div>
-
-      {open && onOpenChange && (
-        <TaskDetailsSheet
-          task={activeTask}
-          open={open}
-          onOpenChange={(isOpen) => {
-            onOpenChange(isOpen);
-            if (!isOpen) setSelectedTaskId(null);
-          }}
-        />
-      )}
     </div>
   );
 };
 
-export default TasksTable;
+export default WorkspaceTasksTable;

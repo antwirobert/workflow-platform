@@ -11,10 +11,12 @@ import ErrorState from "@/components/ErrorState";
 import WorkspaceDetailSkeleton from "../components/WorkspaceDetailSkeleton";
 import CreateProjectDialog from "@/features/projects/components/CeateProjectDialog";
 import MembersTable from "@/features/organizations/components/MembersTable";
+import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
+import { usePaginationState } from "@/hooks/usePaginationState";
 
 const WorkspaceDetailPage = () => {
+  const { page, limit, setPage, handlePageSizeChange } = usePaginationState();
   const [isOpen, setIsOpen] = useState(false);
-
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
@@ -22,23 +24,34 @@ const WorkspaceDetailPage = () => {
 
   const {
     data: workspace,
-    isLoading,
-    isError,
-    refetch,
-    isFetching,
+    isLoading: isWorkspaceLoading,
+    isError: isWorkspaceError,
+    refetch: refetchWorkspace,
+    isFetching: isWorkspaceFetching,
   } = useWorkspace(orgSlug ?? null, workspaceSlug ?? null);
 
-  if (isLoading) {
+  const {
+    data: members,
+    isError: isMembersError,
+    refetch: refetchMembers,
+    isFetching: isMembersFetching,
+    isPlaceholderData: isMembersPlaceholderData,
+  } = useOrganizationMembers(orgSlug ?? null, {
+    page,
+    limit,
+  });
+
+  if (isWorkspaceLoading) {
     return <WorkspaceDetailSkeleton />;
   }
 
-  if (isError || !workspace) {
+  if (isWorkspaceError || !workspace) {
     return (
       <ErrorState
         title="Couldn't load this workspace"
         description="We couldn't reach the workspace data. Please try again."
-        onRetry={refetch}
-        isRetrying={isFetching}
+        onRetry={refetchWorkspace}
+        isRetrying={isWorkspaceFetching}
         className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8"
       />
     );
@@ -128,7 +141,19 @@ const WorkspaceDetailPage = () => {
             value="members"
             className="mt-6 focus-visible:outline-none"
           >
-            <MembersTable />
+            {members?.data && (members?.data.length ?? 0) > 0 && (
+              <MembersTable
+                members={members}
+                isError={isMembersError}
+                isFetching={isMembersFetching}
+                isPlaceholderData={isMembersPlaceholderData}
+                refetch={refetchMembers}
+                page={page}
+                limit={limit}
+                onPageChange={setPage}
+                onPageSizeChange={(size) => handlePageSizeChange(size)}
+              />
+            )}
           </TabsContent>
         </Tabs>
       </div>

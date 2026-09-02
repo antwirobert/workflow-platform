@@ -1,16 +1,13 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import TextAvatar from "@/components/TextAvatar";
-import { cn, getIdentityColor, timeAgo } from "@/lib/utils";
+import { getIdentityColor, timeAgo } from "@/lib/utils";
 import PaginationControls from "@/components/PaginationControls";
 import ErrorState from "@/components/ErrorState";
 import { useProjects } from "@/features/projects/hooks/useProjects";
-import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
+import { usePaginationState } from "@/hooks/usePaginationState";
 
 const WorkspaceProjects = () => {
-  const [page, setPage] = useState(DEFAULT_PAGE);
-  const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
-
+  const { page, limit, setPage, handlePageSizeChange } = usePaginationState();
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
@@ -26,11 +23,6 @@ const WorkspaceProjects = () => {
     page,
     limit,
   });
-
-  const handlePageSizeChange = (newLimit: number) => {
-    setLimit(newLimit);
-    setPage(DEFAULT_PAGE);
-  };
 
   return (
     <div className="space-y-6">
@@ -58,18 +50,14 @@ const WorkspaceProjects = () => {
 
       {!isError && projects && projects.data.length > 0 && (
         <>
-          <div
-            className={cn(
-              "grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
-              isPlaceholderData ? "opacity-60 pointer-events-none" : "",
-            )}
-          >
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {projects.data.map((project) => {
-              const { id, name, description, updatedAt } = project;
+              const { id, name, slug, description, updatedAt } = project;
               const color = getIdentityColor(id);
 
               return (
-                <div
+                <Link
+                  to={`/organizations/${orgSlug}/workspaces/${workspaceSlug}/projects/${slug}`}
                   key={id}
                   className="group relative flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md"
                 >
@@ -101,7 +89,7 @@ const WorkspaceProjects = () => {
                       </p>
                     )}
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
@@ -110,9 +98,10 @@ const WorkspaceProjects = () => {
             currentPage={page}
             limit={limit}
             onPageChange={setPage}
-            onPageSizeChange={handlePageSizeChange}
+            onPageSizeChange={(size) => handlePageSizeChange(size)}
             totalItems={projects.meta.total}
             totalPages={projects.meta.totalPages}
+            isPlaceholderData={isPlaceholderData}
           />
         </>
       )}

@@ -101,7 +101,7 @@ const OrganizationCard = ({
                 </Button>
               }
             />
-            <DropdownMenuContent className="w-48 p-1" align="end">
+            <DropdownMenuContent className="w-52 p-1" align="end">
               <DropdownMenuGroup>
                 <DropdownMenuItem
                   onClick={() => setIsEditOpen(true)}
@@ -121,7 +121,7 @@ const OrganizationCard = ({
                           Edit organization
                         </span>
                         <span className="text-[11px] leading-snug text-muted-foreground/70">
-                          Only an owner or admin can edit
+                          Only the owner or an admin can edit this organization.
                         </span>
                       </div>
                     </div>
@@ -134,7 +134,7 @@ const OrganizationCard = ({
                   }
                   className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm"
                   onClick={() => setIsDeleteOpen(true)}
-                  disabled={!ROLE_OWNER.includes(role)}
+                  disabled={role !== ROLE_OWNER}
                 >
                   {ROLES_MANAGEMENT.includes(role) ? (
                     <>
@@ -149,7 +149,7 @@ const OrganizationCard = ({
                           Delete organization
                         </span>
                         <span className="text-[11px] leading-snug text-muted-foreground/70">
-                          Only the owner can delete
+                          Only the organization owner can delete it.
                         </span>
                       </div>
                     </div>

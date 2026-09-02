@@ -124,7 +124,7 @@ const OrganizationSwitcher = () => {
             <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-dashed border-border bg-muted/40">
               <Plus className="size-3.5" strokeWidth={2.5} />
             </div>
-            <span className="text-sm font-medium">New organization</span>
+            <span className="text-sm font-medium">View all organizations</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

@@ -6,6 +6,7 @@ import { NotFoundError } from "../common/errors";
 import { CommentDetailParams } from "../modules/comments/comments.schemas";
 import { WorkspaceDetailParams } from "../modules/workspaces/workspaces.schemas";
 import { ProjectSlugParam } from "../modules/projects/projects.schemas";
+import { touchOrgAccess } from "../lib/org-access-tracking";
 
 export const assertOrgMembership = async (
   req: AuthenticatedRequest,
@@ -26,6 +27,8 @@ export const assertOrgMembership = async (
   if (!membership) {
     throw new NotFoundError("Organization");
   }
+
+  touchOrgAccess(membership);
 
   req.user!.orgRole = membership.role;
   req.organization = membership.organization;

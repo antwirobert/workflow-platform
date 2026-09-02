@@ -33,11 +33,13 @@ export class WorkspacesController {
     next: NextFunction,
   ) => {
     try {
-      const { page, limit } = req.validated!.query as listWorkspacesQueryInput;
+      const { page, limit, q } = req.validated!
+        .query as listWorkspacesQueryInput;
 
       const workspaces = await workspacesService.list({
         page,
         limit,
+        q,
         organizationId: req.organization!.id,
         userId: req.user!.userId,
       });

@@ -57,7 +57,16 @@ export class ProjectsService {
           createdAt: "desc",
         },
         include: {
-          _count: { select: { tasks: { where: { deletedAt: null } } } },
+          _count: {
+            select: {
+              tasks: {
+                where: {
+                  deletedAt: null,
+                  status: { notIn: ["CANCELLED", "DONE"] },
+                },
+              },
+            },
+          },
           workspace: {
             select: {
               organization: {

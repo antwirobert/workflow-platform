@@ -60,8 +60,7 @@ const Topbar = () => {
                     <span
                       className={cn(
                         "truncate font-medium text-muted-foreground",
-                        isLast &&
-                          "hidden truncate text-muted-foreground sm:inline",
+                        isLast && "hidden truncate text-foreground sm:inline",
                       )}
                     >
                       {crumb.label}

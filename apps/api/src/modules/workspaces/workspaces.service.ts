@@ -1,12 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import { ConflictError, NotFoundError } from "../../common/errors";
-import {
-  Priority,
-  Prisma,
-  Task,
-  TaskStatus,
-  Workspace,
-} from "../../generated/prisma/client";
+import { Prisma, Workspace } from "../../generated/prisma/client";
 import {
   CreateWorkspaceInput,
   listWorkspacesQuery,
@@ -111,7 +105,20 @@ export class WorkspacesService {
           select: {
             id: true,
             name: true,
-            _count: { select: { tasks: { where: { deletedAt: null } } } },
+            _count: {
+              select: {
+                tasks: {
+                  where: {
+                    deletedAt: null,
+                    status: { notIn: ["CANCELLED", "DONE"] },
+                  },
+                },
+              },
+            },
+            tasks: {
+              where: { deletedAt: null, status: "DONE" },
+              select: { id: true },
+            },
           },
         },
         organization: {
@@ -131,15 +138,24 @@ export class WorkspacesService {
       throw new NotFoundError("Workspace");
     }
 
+    const openTaskCount = workspace.projects.reduce(
+      (acc, project) => acc + project._count.tasks,
+      0,
+    );
+
+    const completedTaskCount = workspace.projects.reduce(
+      (acc, project) => acc + project.tasks.length,
+      0,
+    );
+
     return this.buildWorkspaceResult(
       workspace,
       workspace.organization.members[0].role,
       {
         projectCount: workspace._count.projects,
-        taskCount: workspace.projects.reduce(
-          (acc, project) => acc + project._count.tasks,
-          0,
-        ),
+        openTaskCount,
+        completedTaskCount,
+        totalTaskCount: openTaskCount + completedTaskCount,
         memberCount: workspace.organization._count.members,
       },
     );
@@ -238,7 +254,9 @@ export class WorkspacesService {
     role?: string,
     counts?: {
       projectCount?: number;
-      taskCount?: number;
+      openTaskCount?: number;
+      totalTaskCount?: number;
+      completedTaskCount?: number;
       memberCount?: number;
     },
   ): WorkspaceResult {
@@ -253,7 +271,9 @@ export class WorkspacesService {
       ...(counts
         ? {
             projectCount: counts.projectCount,
-            taskCount: counts.taskCount,
+            openTaskCount: counts.openTaskCount,
+            completedTaskCount: counts.completedTaskCount,
+            totalTaskCount: counts.totalTaskCount,
             memberCount: counts.memberCount,
           }
         : {}),

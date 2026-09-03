@@ -7,5 +7,6 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
   role?: string;
-  taskCount?: number;
+  totalTaskCount?: number;
+  completedTaskCount?: number;
 }

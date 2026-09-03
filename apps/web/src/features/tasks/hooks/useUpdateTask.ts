@@ -11,6 +11,7 @@ export function useUpdateTask(
   taskId: string,
 ) {
   const queryClient = useQueryClient();
+  const workspaceKey = ["organizations", orgSlug, "workspaces", workspaceSlug];
   const detailKey = [
     "organizations",
     orgSlug,
@@ -20,14 +21,6 @@ export function useUpdateTask(
     projectSlug,
     "tasks",
     taskId,
-  ];
-  const projectKey = [
-    "organizations",
-    orgSlug,
-    "workspaces",
-    workspaceSlug,
-    "projects",
-    projectSlug,
   ];
 
   return useMutation<
@@ -74,11 +67,7 @@ export function useUpdateTask(
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [...projectKey, "tasks", taskId],
-      });
-      queryClient.invalidateQueries({ queryKey: [...projectKey, "tasks"] });
-      queryClient.invalidateQueries({ queryKey: [...projectKey, "assignees"] });
+      queryClient.invalidateQueries({ queryKey: workspaceKey });
     },
   });
 }

@@ -1,10 +1,15 @@
 import { Link, useParams } from "react-router-dom";
 import TextAvatar from "@/components/TextAvatar";
-import { getIdentityColor, timeAgo } from "@/lib/utils";
+import {
+  calculateProgressPercentage,
+  getIdentityColor,
+  timeAgo,
+} from "@/lib/utils";
 import PaginationControls from "@/components/PaginationControls";
 import ErrorState from "@/components/ErrorState";
 import { useProjects } from "@/features/projects/hooks/useProjects";
 import { usePaginationState } from "@/hooks/usePaginationState";
+import ProgressBar from "@/components/ProgressBar";
 
 const WorkspaceProjects = () => {
   const { page, limit, setPage, handlePageSizeChange } = usePaginationState();
@@ -52,8 +57,22 @@ const WorkspaceProjects = () => {
         <>
           <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {projects.data.map((project) => {
-              const { id, name, slug, description, updatedAt } = project;
+              const {
+                id,
+                name,
+                slug,
+                description,
+                updatedAt,
+                totalTaskCount,
+                completedTaskCount,
+              } = project;
               const color = getIdentityColor(id);
+              const total = totalTaskCount ?? 0;
+              const completed = completedTaskCount ?? 0;
+              const progressPercentage = calculateProgressPercentage(
+                total,
+                completed,
+              );
 
               return (
                 <Link
@@ -88,6 +107,17 @@ const WorkspaceProjects = () => {
                         No description
                       </p>
                     )}
+                    <div className="flex w-full flex-col gap-2">
+                      <ProgressBar progress={progressPercentage} />
+                      <div className="flex gap-1 items-center">
+                        <span className="text-[11px] tabular-nums text-muted-foreground">
+                          {progressPercentage}%
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          complete
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </Link>
               );

@@ -14,7 +14,7 @@ import {
 } from "@tanstack/react-table";
 import type { Task } from "@/types/task";
 import ErrorState from "@/components/ErrorState";
-import { columns } from "./task-columns";
+import { taskColumns } from "./task-columns";
 
 interface WorkspaceTasksTableProps {
   tasks: Task[];
@@ -31,7 +31,7 @@ const WorkspaceTasksTable = ({
 }: WorkspaceTasksTableProps) => {
   const table = useReactTable({
     data: tasks,
-    columns,
+    columns: taskColumns,
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -96,7 +96,7 @@ const WorkspaceTasksTable = ({
             ) : (
               <TableRow className="hover:bg-transparent">
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={taskColumns.length}
                   className="h-32 text-center text-sm text-muted-foreground"
                 >
                   No tasks yet

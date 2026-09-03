@@ -41,6 +41,14 @@ router.get(
   workspacesController.listWorkspaceTasks,
 );
 
+router.get(
+  "/:workspaceSlug/members",
+  validate(workspaceDetailParamsSchema, "params"),
+  validate(listWorkspacesQuerySchema, "query"),
+  assertWorkspaceToOrg,
+  workspacesController.listWorkspaceMembers,
+);
+
 router.patch(
   "/:workspaceSlug",
   validate(workspaceDetailParamsSchema, "params"),

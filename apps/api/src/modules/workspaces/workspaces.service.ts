@@ -262,13 +262,25 @@ export class WorkspacesService {
         skip,
         take: limit,
         orderBy: {
-          name: "asc",
+          assignedTasks: {
+            _count: "asc",
+          },
         },
         select: {
           id: true,
           name: true,
           email: true,
           memberships: { where: { organizationId }, select: { role: true } },
+          _count: {
+            select: {
+              assignedTasks: {
+                where: {
+                  deletedAt: null,
+                  status: { notIn: ["CANCELLED", "DONE"] },
+                },
+              },
+            },
+          },
         },
       }),
 
@@ -276,10 +288,11 @@ export class WorkspacesService {
     ]);
 
     return {
-      data: members.map(({ memberships, ...user }) => {
+      data: members.map(({ memberships, _count, ...user }) => {
         return {
           ...user,
           role: memberships[0].role,
+          assignedTaskCount: _count.assignedTasks,
         };
       }),
       meta: {

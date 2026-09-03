@@ -10,14 +10,7 @@ export function useCreateTask(
   projectSlug: string,
 ) {
   const queryClient = useQueryClient();
-  const projectKey = [
-    "organizations",
-    orgSlug,
-    "workspaces",
-    workspaceSlug,
-    "projects",
-    projectSlug,
-  ];
+  const workspaceKey = ["organizations", orgSlug, "workspaces", workspaceSlug];
 
   return useMutation<Task, ApiError, CreateTaskPaylaod>({
     mutationFn: (payload: CreateTaskPaylaod) =>
@@ -28,8 +21,7 @@ export function useCreateTask(
         payload,
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...projectKey, "tasks"] });
-      queryClient.invalidateQueries({ queryKey: [...projectKey, "assignees"] });
+      queryClient.invalidateQueries({ queryKey: workspaceKey });
     },
   });
 }

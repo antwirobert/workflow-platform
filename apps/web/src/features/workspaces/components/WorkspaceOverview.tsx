@@ -6,10 +6,14 @@ import { useProjects } from "@/features/projects/hooks/useProjects";
 import { useWorkspaceTasks } from "../hooks/useWorkspaceTasks";
 import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
 import { DEFAULT_TABLE_LIMIT } from "@/constants";
-import { getIdentityColor, timeAgo } from "@/lib/utils";
+import {
+  calculateProgressPercentage,
+  getIdentityColor,
+  timeAgo,
+} from "@/lib/utils";
 import { usePaginationState } from "@/hooks/usePaginationState";
 import WorkspaceTasksTable from "./WorkspaceTasksTable";
-import ProgressBar from "./ProgressBar";
+import ProgressBar from "@/components/ProgressBar";
 
 interface WorkspaceOverviewProps {
   activeProjects: number;
@@ -95,11 +99,18 @@ const WorkspaceOverview = ({
                     slug: projectSlug,
                     description,
                     updatedAt,
-                    taskCount,
+                    totalTaskCount,
+                    completedTaskCount,
                   } = project;
                   const color = getIdentityColor(id);
-                  const progressPercentage =
-                    (completedTasks / totalTasks) * 100;
+
+                  const total = totalTaskCount ?? 0;
+                  const completed = completedTaskCount ?? 0;
+                  const open = total - completed;
+                  const progressPercentage = calculateProgressPercentage(
+                    total,
+                    completed,
+                  );
 
                   return (
                     <Link
@@ -127,14 +138,20 @@ const WorkspaceOverview = ({
                         </div>
                       </div>
 
-                      <div>
-                        <div className="hidden shrink-0 flex-col items-end gap-0.5 text-xs text-muted-foreground sm:flex">
+                      <div className="flex shrink-0 items-center gap-4">
+                        <div className="hidden flex-col items-end gap-0.5 text-xs text-muted-foreground sm:flex">
                           <span className="font-medium text-foreground/80">
-                            {taskCount} open
+                            {open} open
                           </span>
                           <span>Updated {timeAgo(updatedAt)}</span>
                         </div>
-                        <ProgressBar progress={progressPercentage} />
+
+                        <div className="flex w-24 flex-col items-end gap-1">
+                          <ProgressBar progress={progressPercentage} />
+                          <span className="text-[11px] tabular-nums text-muted-foreground">
+                            {progressPercentage}%
+                          </span>
+                        </div>
                       </div>
                     </Link>
                   );

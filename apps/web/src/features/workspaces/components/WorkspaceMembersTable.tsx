@@ -13,7 +13,6 @@ import {
 } from "@tanstack/react-table";
 import PaginationControls from "@/components/PaginationControls";
 import ErrorState from "@/components/ErrorState";
-import { columns } from "./task-columns";
 import type { PaginatedResponse, WorkspaceMember } from "../types";
 import { memberColumns } from "./member-columns";
 
@@ -106,7 +105,7 @@ const WorkspaceMembersTable = ({
               ) : (
                 <TableRow className="hover:bg-transparent">
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={memberColumns.length}
                     className="h-32 text-center text-sm text-muted-foreground"
                   >
                     No members found

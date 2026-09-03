@@ -4,7 +4,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 
 const columnHelper = createColumnHelper<Task>();
 
-export const columns = [
+export const taskColumns = [
   columnHelper.accessor("title", {
     header: "Task",
     cell: (info) => {

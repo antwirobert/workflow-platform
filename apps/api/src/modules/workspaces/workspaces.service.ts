@@ -263,7 +263,7 @@ export class WorkspacesService {
         take: limit,
         orderBy: {
           assignedTasks: {
-            _count: "asc",
+            _count: "desc",
           },
         },
         select: {

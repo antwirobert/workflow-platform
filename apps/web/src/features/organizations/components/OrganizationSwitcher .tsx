@@ -10,7 +10,7 @@ import {
 import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 import TextAvatar from "../../../components/TextAvatar";
 import { cn, getIdentityColor } from "@/lib/utils";
-import { Check, Plus, RotateCw } from "lucide-react";
+import { Building2, Check, Plus, RotateCw } from "lucide-react";
 import OrganizationSwitcherTrigger from "./OrganizationSwitcherTrigger ";
 import { useOrgStore } from "@/stores/orgStore";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
@@ -121,10 +121,12 @@ const OrganizationSwitcher = () => {
             onClick={() => navigate("/organizations")}
             className="flex items-center gap-2.5 rounded-md px-2 py-2 cursor-pointer text-muted-foreground hover:text-foreground focus:bg-accent"
           >
-            <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-dashed border-border bg-muted/40">
-              <Plus className="size-3.5" strokeWidth={2.5} />
+            <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border bg-muted/40 text-muted-foreground">
+              <Building2 className="size-3.5" />
             </div>
-            <span className="text-sm font-medium">View all organizations</span>
+            <span className="text-sm font-medium text-foreground">
+              View all organizations
+            </span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

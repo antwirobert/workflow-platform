@@ -239,8 +239,8 @@ const WorkspaceOverview = ({
 
           {isMembersError && (
             <ErrorState
-              title="Couldn't load members"
-              description="Something went wrong fetching members for this workspace."
+              title="Couldn't load contributors"
+              description="Something went wrong fetching contributors for this workspace."
               onRetry={refetchMembers}
               isRetrying={isMembersFetching}
             />
@@ -252,7 +252,6 @@ const WorkspaceOverview = ({
                 {members.data.map((member) => {
                   const { id, name, role, assignedTaskCount } = member;
                   const color = getIdentityColor(id);
-                  // console.log(id);
 
                   return (
                     <div key={id} className="flex justify-between items-center">
@@ -294,7 +293,7 @@ const WorkspaceOverview = ({
             )}
           </div>
 
-          {members && (
+          {members && (members?.data.length ?? 0) > 0 && (
             <PaginationControls
               currentPage={memberPage}
               limit={DEFAULT_TABLE_LIMIT}

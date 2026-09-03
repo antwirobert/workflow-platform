@@ -261,6 +261,9 @@ export class WorkspacesService {
         where,
         skip,
         take: limit,
+        orderBy: {
+          name: "asc",
+        },
         select: {
           id: true,
           name: true,
@@ -273,12 +276,10 @@ export class WorkspacesService {
     ]);
 
     return {
-      data: members.map((member) => {
-        const { memberships, ...userProps } = member;
-
+      data: members.map(({ memberships, ...user }) => {
         return {
-          ...userProps,
-          role: member.memberships[0].role,
+          ...user,
+          role: memberships[0].role,
         };
       }),
       meta: {

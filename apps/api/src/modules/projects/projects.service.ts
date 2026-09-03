@@ -54,7 +54,7 @@ export class ProjectsService {
         skip,
         take: limit,
         orderBy: {
-          createdAt: "desc",
+          updatedAt: "desc",
         },
         include: {
           _count: {
@@ -62,10 +62,17 @@ export class ProjectsService {
               tasks: {
                 where: {
                   deletedAt: null,
-                  status: { notIn: ["CANCELLED", "DONE"] },
+                  status: { notIn: ["CANCELLED"] },
                 },
               },
             },
+          },
+          tasks: {
+            where: {
+              deletedAt: null,
+              status: "DONE",
+            },
+            select: { id: true },
           },
           workspace: {
             select: {
@@ -88,7 +95,8 @@ export class ProjectsService {
           project,
           project.workspace.organization.members[0].role,
           {
-            taskCount: project._count.tasks,
+            totalTaskCount: project._count.tasks,
+            completedTaskCount: project.tasks.length,
           },
         ),
       ),
@@ -222,7 +230,7 @@ export class ProjectsService {
   private buildProjectResult(
     project: Project,
     role?: string,
-    counts?: { taskCount: number },
+    counts?: { totalTaskCount: number; completedTaskCount: number },
   ): ProjectResult {
     return {
       id: project.id,
@@ -233,7 +241,12 @@ export class ProjectsService {
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
       role,
-      ...(counts ? { taskCount: counts.taskCount } : {}),
+      ...(counts
+        ? {
+            taskCount: counts.totalTaskCount,
+            completedTaskCount: counts.completedTaskCount,
+          }
+        : {}),
     };
   }
 }

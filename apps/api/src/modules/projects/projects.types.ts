@@ -17,7 +17,8 @@ export interface ProjectResult {
   createdAt: Date;
   updatedAt: Date;
   role?: string;
-  taskCount?: number;
+  totalTaskCount?: number;
+  completedTaskCount?: number;
 }
 
 export interface UpdateProjectInput extends UpdateProjectPayload {

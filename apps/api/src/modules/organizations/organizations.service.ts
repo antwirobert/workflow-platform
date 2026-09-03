@@ -193,6 +193,9 @@ export class OrganizationsService {
         where,
         skip,
         take: limit,
+        orderBy: {
+          role: "asc",
+        },
         include: {
           organization: true,
           user: { select: { id: true, name: true, email: true } },

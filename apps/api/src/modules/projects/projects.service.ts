@@ -43,7 +43,7 @@ export class ProjectsService {
   async list(
     query: ListProjectsQuery,
   ): Promise<ListProjectsQueryResult<ProjectResult>> {
-    const { page, limit, userId, workspaceId } = query;
+    const { page, limit, workspaceId } = query;
 
     const skip = (page - 1) * limit;
     const where = { workspaceId };
@@ -74,15 +74,6 @@ export class ProjectsService {
             },
             select: { id: true },
           },
-          workspace: {
-            select: {
-              organization: {
-                select: {
-                  members: { where: { userId }, select: { role: true } },
-                },
-              },
-            },
-          },
         },
       }),
 
@@ -91,14 +82,10 @@ export class ProjectsService {
 
     return {
       data: projects.map((project) =>
-        this.buildProjectResult(
-          project,
-          project.workspace.organization.members[0].role,
-          {
-            totalTaskCount: project._count.tasks,
-            completedTaskCount: project.tasks.length,
-          },
-        ),
+        this.buildProjectResult(project, {
+          totalTaskCount: project._count.tasks,
+          completedTaskCount: project.tasks.length,
+        }),
       ),
       meta: {
         page,
@@ -229,7 +216,6 @@ export class ProjectsService {
   // Maps database model to public API response format
   private buildProjectResult(
     project: Project,
-    role?: string,
     counts?: { totalTaskCount: number; completedTaskCount: number },
   ): ProjectResult {
     return {
@@ -240,7 +226,6 @@ export class ProjectsService {
       workspaceId: project.workspaceId,
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
-      role,
       ...(counts
         ? {
             totalTaskCount: counts.totalTaskCount,

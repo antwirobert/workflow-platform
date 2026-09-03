@@ -6,6 +6,7 @@ import {
   UpdateOrganizationPayload,
   ListOrganizationsQueryInput,
 } from "./organizations.schemas";
+import { ListProjectsQueryInput } from "../projects/projects.schemas";
 
 export class OrganizationsController {
   create = async (
@@ -113,6 +114,26 @@ export class OrganizationsController {
         organizationId: req.organization!.id,
       });
       res.status(200).json(members);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  listProjects = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { page, limit, q } = req.validated!.query as ListProjectsQueryInput;
+
+      const projects = await organizationsService.listProjects({
+        page,
+        limit,
+        q,
+        organizationId: req.organization!.id,
+      });
+      res.status(200).json(projects);
     } catch (error) {
       next(error);
     }

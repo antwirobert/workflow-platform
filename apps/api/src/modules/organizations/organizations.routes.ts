@@ -13,6 +13,7 @@ import workspacesRouter from "../workspaces/workspaces.routes";
 import searchRouter from "../../search/search.routes";
 import invitationsRouter from "../invitations/invitations.routes";
 import { assertOrgMembership } from "../../middleware/guards";
+import { listProjectsQuerySchema } from "../projects/projects.schemas";
 
 const router = Router();
 
@@ -45,6 +46,15 @@ router.get(
   validate(listOrganizationsQuerySchema, "query"),
   assertOrgMembership,
   organizationsController.listMembers,
+);
+
+router.get(
+  "/:orgSlug/projects",
+  authenticate,
+  validate(orgSlugParamSchema, "params"),
+  validate(listProjectsQuerySchema, "query"),
+  assertOrgMembership,
+  organizationsController.listProjects,
 );
 
 router.get(

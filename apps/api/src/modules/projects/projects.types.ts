@@ -32,6 +32,7 @@ export interface ProjectAssignneeResult {
 
 export interface ListProjectsQuery extends ListProjectsQueryInput {
   userId?: string;
+  organizationId?: string;
   workspaceId?: string;
   projectId?: string;
 }

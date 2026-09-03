@@ -108,7 +108,7 @@ const WorkspaceCard = ({
                           </span>
                           <span className="text-[11px] leading-snug text-muted-foreground/70">
                             Only the creator, an admin, or the owner can edit
-                            this workspace
+                            this workspace.
                           </span>
                         </div>
                       </div>
@@ -139,7 +139,7 @@ const WorkspaceCard = ({
                           </span>
                           <span className="text-[11px] leading-snug text-muted-foreground/70">
                             Only the creator, an admin, or the owner can delete
-                            this workspace
+                            this workspace.
                           </span>
                         </div>
                       </div>

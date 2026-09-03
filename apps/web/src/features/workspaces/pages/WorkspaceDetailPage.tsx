@@ -64,7 +64,7 @@ const WorkspaceDetailPage = () => {
   return (
     <section className="px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="mb-8 flex flex-col items-baseline gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 items-start gap-3">
             <div
               className={cn(
@@ -146,7 +146,7 @@ const WorkspaceDetailPage = () => {
             value="members"
             className="mt-6 focus-visible:outline-none"
           >
-            {members?.data && (members?.data.length ?? 0) > 0 && (
+            {members?.data && (members?.data.length ?? 0) > 0 ? (
               <WorkspaceMembersTable
                 members={members}
                 isError={isMembersError}
@@ -158,6 +158,15 @@ const WorkspaceDetailPage = () => {
                 onPageChange={setPage}
                 onPageSizeChange={(size) => handlePageSizeChange(size)}
               />
+            ) : (
+              <div className="min-h-32 rounded-xl border border-dashed border-border bg-muted/20 px-3 py-8 text-center">
+                <p className="text-sm font-medium text-foreground">
+                  No contributors found
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  No one is assigned to tasks here yet.
+                </p>
+              </div>
             )}
           </TabsContent>
         </Tabs>

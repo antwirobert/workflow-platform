@@ -231,7 +231,10 @@ export class WorkspacesService {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: [
+          { dueDate: { sort: "asc", nulls: "last" } },
+          { createdAt: "desc" },
+        ],
       }),
 
       prisma.task.count({ where }),
@@ -253,48 +256,49 @@ export class WorkspacesService {
     const skip = (page - 1) * limit;
 
     const where = {
-      assignedTasks: { some: { deletedAt: null, project: { workspaceId } } },
+      organizationId,
     };
 
     const [members, total] = await Promise.all([
-      prisma.user.findMany({
+      prisma.organizationMember.findMany({
         where,
         skip,
         take: limit,
-        orderBy: {
-          assignedTasks: {
-            _count: "desc",
-          },
-        },
         select: {
-          id: true,
-          name: true,
-          email: true,
-          memberships: { where: { organizationId }, select: { role: true } },
-          _count: {
+          role: true,
+          user: {
             select: {
-              assignedTasks: {
-                where: {
-                  deletedAt: null,
-                  status: { notIn: ["CANCELLED", "DONE"] },
+              id: true,
+              name: true,
+              email: true,
+              _count: {
+                select: {
+                  assignedTasks: {
+                    where: {
+                      deletedAt: null,
+                      status: { notIn: ["CANCELLED", "DONE"] },
+                      project: { workspaceId },
+                    },
+                  },
                 },
               },
             },
           },
         },
+        orderBy: { user: { assignedTasks: { _count: "desc" } } },
       }),
 
-      prisma.user.count({ where }),
+      prisma.organizationMember.count({ where }),
     ]);
 
     return {
-      data: members.map(({ memberships, _count, ...user }) => {
-        return {
-          ...user,
-          role: memberships[0].role,
-          assignedTaskCount: _count.assignedTasks,
-        };
-      }),
+      data: members.map(({ role, user }) => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role,
+        assignedTaskCount: user._count.assignedTasks,
+      })),
       meta: {
         page,
         limit,

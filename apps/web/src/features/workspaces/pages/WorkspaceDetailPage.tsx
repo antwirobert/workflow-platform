@@ -10,9 +10,9 @@ import { cn, getIdentityColor } from "@/lib/utils";
 import ErrorState from "@/components/ErrorState";
 import WorkspaceDetailSkeleton from "../components/WorkspaceDetailSkeleton";
 import CreateProjectDialog from "@/features/projects/components/CeateProjectDialog";
-import MembersTable from "@/features/organizations/components/MembersTable";
-import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
 import { usePaginationState } from "@/hooks/usePaginationState";
+import WorkspaceMembersTable from "../components/WorkspaceMembersTable";
+import { useWorkspaceMembers } from "../hooks/useWorkspaceMembers";
 
 const WorkspaceDetailPage = () => {
   const { page, limit, setPage, handlePageSizeChange } = usePaginationState();
@@ -36,7 +36,7 @@ const WorkspaceDetailPage = () => {
     refetch: refetchMembers,
     isFetching: isMembersFetching,
     isPlaceholderData: isMembersPlaceholderData,
-  } = useOrganizationMembers(orgSlug ?? null, {
+  } = useWorkspaceMembers(orgSlug ?? null, workspaceSlug ?? null, {
     page,
     limit,
   });
@@ -147,7 +147,7 @@ const WorkspaceDetailPage = () => {
             className="mt-6 focus-visible:outline-none"
           >
             {members?.data && (members?.data.length ?? 0) > 0 && (
-              <MembersTable
+              <WorkspaceMembersTable
                 members={members}
                 isError={isMembersError}
                 isFetching={isMembersFetching}

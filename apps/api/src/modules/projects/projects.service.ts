@@ -243,7 +243,7 @@ export class ProjectsService {
       role,
       ...(counts
         ? {
-            taskCount: counts.totalTaskCount,
+            totalTaskCount: counts.totalTaskCount,
             completedTaskCount: counts.completedTaskCount,
           }
         : {}),

@@ -14,7 +14,7 @@ import {
 } from "@tanstack/react-table";
 import type { Task } from "@/types/task";
 import ErrorState from "@/components/ErrorState";
-import { columns } from "./columns";
+import { columns } from "./task-columns";
 
 interface WorkspaceTasksTableProps {
   tasks: Task[];

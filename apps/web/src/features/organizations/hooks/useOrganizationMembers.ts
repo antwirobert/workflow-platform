@@ -17,7 +17,7 @@ export function useOrganizationMembers(
   };
 
   return useQuery({
-    queryKey: ["organizations", orgSlug, "members", params],
+    queryKey: ["organizations", orgSlug, "orgMembers", params],
     queryFn: () => organizationsApi.listOrgMembers(orgSlug as string, params),
     enabled: !!orgSlug,
     placeholderData: keepPreviousData,

@@ -1,3 +1,5 @@
+import type { OrgRole } from "@/types/organization";
+
 export interface CreateWorkspacePayload {
   name: string;
   slug: string;
@@ -22,4 +24,12 @@ export interface PaginatedResponse<T> {
     total: number;
     totalPages: number;
   };
+}
+
+export interface WorkspaceMember {
+  id: string;
+  name: string;
+  email: string;
+  role: OrgRole;
+  assignedTaskCount: number;
 }

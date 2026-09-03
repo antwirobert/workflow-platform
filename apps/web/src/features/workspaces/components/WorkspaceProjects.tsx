@@ -107,7 +107,7 @@ const WorkspaceProjects = () => {
                         No description
                       </p>
                     )}
-                    <div className="flex w-full flex-col gap-2">
+                    <div className="mt-1 flex flex-col gap-1">
                       <ProgressBar progress={progressPercentage} />
                       <div className="flex gap-1 items-center">
                         <span className="text-[11px] tabular-nums text-muted-foreground">

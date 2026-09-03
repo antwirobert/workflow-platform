@@ -5,6 +5,7 @@ import type {
   PaginatedResponse,
   UpdateWorkspacePayload,
   WorkspacelistParams,
+  WorkspaceMember,
 } from "./types";
 import type { Task } from "@/types/task";
 
@@ -37,6 +38,20 @@ export const workspacesApi = {
   ) =>
     apiClient.get<PaginatedResponse<Task>>(
       `${base(orgSlug)}${workspaceSlug}/tasks`,
+      {
+        params: {
+          page: String(params.page),
+          limit: String(params.limit),
+        },
+      },
+    ),
+  listWorkspaceMembers: (
+    orgSlug: string,
+    workspaceSlug: string,
+    params: WorkspacelistParams,
+  ) =>
+    apiClient.get<PaginatedResponse<WorkspaceMember>>(
+      `${base(orgSlug)}${workspaceSlug}/members`,
       {
         params: {
           page: String(params.page),

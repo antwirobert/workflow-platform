@@ -4,7 +4,6 @@ import TextAvatar from "@/components/TextAvatar";
 import ErrorState from "@/components/ErrorState";
 import { useProjects } from "@/features/projects/hooks/useProjects";
 import { useWorkspaceTasks } from "../hooks/useWorkspaceTasks";
-import { useOrganizationMembers } from "@/features/organizations/hooks/useOrganizationMembers";
 import { DEFAULT_TABLE_LIMIT } from "@/constants";
 import {
   calculateProgressPercentage,
@@ -14,6 +13,7 @@ import {
 import { usePaginationState } from "@/hooks/usePaginationState";
 import WorkspaceTasksTable from "./WorkspaceTasksTable";
 import ProgressBar from "@/components/ProgressBar";
+import { useWorkspaceMembers } from "../hooks/useWorkspaceMembers";
 
 interface WorkspaceOverviewProps {
   activeProjects: number;
@@ -65,7 +65,7 @@ const WorkspaceOverview = ({
     isFetching: isMembersFetching,
     isPlaceholderData: isMembersPlaceholderData,
     refetch: refetchMembers,
-  } = useOrganizationMembers(orgSlug ?? null, {
+  } = useWorkspaceMembers(orgSlug ?? null, workspaceSlug ?? null, {
     page: memberPage,
     limit: DEFAULT_TABLE_LIMIT,
   });
@@ -234,7 +234,7 @@ const WorkspaceOverview = ({
         {/* Members */}
         <section className="space-y-3">
           <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Members
+            Contributors
           </h3>
 
           {isMembersError && (
@@ -250,28 +250,32 @@ const WorkspaceOverview = ({
             {!isMembersError && members && members.data.length > 0 ? (
               <div className="space-y-3">
                 {members.data.map((member) => {
-                  const {
-                    user: { id, name },
-                    role,
-                  } = member;
+                  const { id, name, role, assignedTaskCount } = member;
                   const color = getIdentityColor(id);
+                  // console.log(id);
 
                   return (
-                    <div key={id} className="flex items-center gap-2.5">
-                      <TextAvatar
-                        name={name}
-                        colorClass={color.bg}
-                        textClass={color.text}
-                        className="size-8 shrink-0 rounded-full text-xs font-semibold"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-foreground">
-                          {name}
-                        </p>
-                        <p className="text-[11px] capitalize text-muted-foreground">
-                          {role.toLowerCase()}
-                        </p>
+                    <div key={id} className="flex justify-between items-center">
+                      <div className="flex items-center gap-2.5">
+                        <TextAvatar
+                          name={name}
+                          colorClass={color.bg}
+                          textClass={color.text}
+                          className="size-8 shrink-0 rounded-full text-xs font-semibold"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-foreground">
+                            {name}
+                          </p>
+                          <p className="text-[11px] capitalize text-muted-foreground">
+                            {role.toLowerCase()}
+                          </p>
+                        </div>
                       </div>
+                      <span className="text-muted-foreground">
+                        {assignedTaskCount}{" "}
+                        {assignedTaskCount === 1 ? "task" : "tasks"}
+                      </span>
                     </div>
                   );
                 })}
@@ -280,10 +284,10 @@ const WorkspaceOverview = ({
               !isMembersError && (
                 <div className="px-3 py-8 text-center">
                   <p className="text-sm font-medium text-foreground">
-                    No members found
+                    No contributors found
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Workspace members will appear here.
+                    No one is assigned to tasks here yet.
                   </p>
                 </div>
               )

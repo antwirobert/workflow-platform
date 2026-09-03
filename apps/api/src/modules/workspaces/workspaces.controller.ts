@@ -117,6 +117,26 @@ export class WorkspacesController {
       next(error);
     }
   };
+
+  listWorkspaceMembers = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { page, limit } = req.validated!.query as listWorkspacesQueryInput;
+
+      const workspaceMembers = await workspacesService.listWorkspaceMembers({
+        page,
+        limit,
+        organizationId: req.organization!.id,
+        workspaceId: req.workspace!.id,
+      });
+      res.status(200).json(workspaceMembers);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export const workspacesController = new WorkspacesController();

@@ -248,6 +248,48 @@ export class WorkspacesService {
     };
   }
 
+  async listWorkspaceMembers(query: listWorkspacesQuery) {
+    const { page, limit, organizationId, workspaceId } = query;
+    const skip = (page - 1) * limit;
+
+    const where = {
+      assignedTasks: { some: { deletedAt: null, project: { workspaceId } } },
+    };
+
+    const [members, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          memberships: { where: { organizationId }, select: { role: true } },
+        },
+      }),
+
+      prisma.user.count({ where }),
+    ]);
+
+    return {
+      data: members.map((member) => {
+        const { memberships, ...userProps } = member;
+
+        return {
+          ...userProps,
+          role: member.memberships[0].role,
+        };
+      }),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
   // Maps database model to public API response format
   private buildWorkspaceResult(
     workspace: Workspace,

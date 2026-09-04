@@ -20,6 +20,8 @@ import EditProjectDialog from "./EditProjectDialog";
 import DeleteProjectDialog from "./DeleteProjectDialog";
 import { useProjectAssignees } from "../hooks/useProjectAssignees";
 import TextAvatar from "@/components/TextAvatar";
+import ProgressBar from "@/components/ProgressBar";
+import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 
 interface ProjectCardProps {
   id: string;
@@ -28,8 +30,8 @@ interface ProjectCardProps {
   description: string | null;
   targetOrgSlug: string;
   targetWorkspaceSlug: string;
-  role?: string;
-  taskCount?: number;
+  totalTaskCount?: number;
+  completedTaskCount?: number;
 }
 
 const ProjectCard = ({
@@ -39,8 +41,8 @@ const ProjectCard = ({
   description,
   targetOrgSlug,
   targetWorkspaceSlug,
-  role,
-  taskCount,
+  totalTaskCount,
+  completedTaskCount,
 }: ProjectCardProps) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -57,8 +59,18 @@ const ProjectCard = ({
       limit: DEFAULT_SIDEBAR_LIMIT,
     },
   );
+  const { activeOrganization } = useActiveOrganization();
+
+  const isPriviledged = ROLES_MANAGEMENT.includes(
+    activeOrganization?.role ?? "",
+  );
 
   const color = getIdentityColor(id);
+  const completed = completedTaskCount ?? 0;
+  const total = totalTaskCount ?? 0;
+
+  const progressPercentage =
+    total > 0 ? Math.round((completed / total) * 100) : 0;
 
   return (
     <div className="min-w-0">
@@ -97,10 +109,10 @@ const ProjectCard = ({
                   <DropdownMenuGroup>
                     <DropdownMenuItem
                       onClick={() => setIsEditOpen(true)}
-                      disabled={!ROLES_MANAGEMENT.includes(role!)}
+                      disabled={!isPriviledged}
                       className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-100"
                     >
-                      {ROLES_MANAGEMENT.includes(role!) ? (
+                      {isPriviledged ? (
                         <>
                           <Pencil className="size-3.5 text-muted-foreground" />
                           Edit project
@@ -123,15 +135,15 @@ const ProjectCard = ({
 
                     <DropdownMenuItem
                       onClick={() => setIsDeleteOpen(true)}
-                      disabled={!ROLES_MANAGEMENT.includes(role!)}
+                      disabled={!isPriviledged}
                       className={
-                        ROLES_MANAGEMENT.includes(role!)
+                        isPriviledged
                           ? "cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm text-destructive focus:bg-destructive/10 focus:text-destructive [&_svg]:text-destructive"
                           : "cursor-not-allowed gap-2 rounded-md px-2 py-1.5 text-sm disabled:opacity-100"
                       }
                       variant="destructive"
                     >
-                      {ROLES_MANAGEMENT.includes(role!) ? (
+                      {isPriviledged ? (
                         <>
                           <Trash2 className="size-3.5" />
                           Delete project
@@ -203,9 +215,18 @@ const ProjectCard = ({
                 </div>
               )}
 
-            <p className="text-xs text-muted-foreground">
-              {taskCount} {taskCount === 1 ? "task" : "tasks"}
-            </p>
+            <div className="flex items-center gap-1">
+              <p className="text-xs text-muted-foreground">
+                {totalTaskCount} {totalTaskCount === 1 ? "task" : "tasks"}
+              </p>
+              <span className="text-muted-foreground/40">•</span>
+              <span className="text-[11px] tabular-nums text-muted-foreground">
+                {progressPercentage}%
+              </span>
+            </div>
+          </div>
+          <div className="mt-2">
+            <ProgressBar progress={progressPercentage} />
           </div>
         </div>
       </Link>

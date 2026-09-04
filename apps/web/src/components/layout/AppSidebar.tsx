@@ -310,7 +310,8 @@ const AppSidebar = () => {
                 })}
             </SidebarMenu>
 
-            {!projectsLoading &&
+            {activeWorkspaceSlug &&
+              !projectsLoading &&
               !projectsError &&
               (projects?.data ?? []).length > 0 && (
                 <SidebarMenu className="mt-1">

@@ -3,20 +3,20 @@ import CreateProjectDialog from "../components/CeateProjectDialog";
 import { FolderOpen, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ErrorState from "@/components/ErrorState";
-import { useProjects } from "../hooks/useProjects";
 import EmptyState from "@/components/EmptyState";
 import ProjectCard from "../components/ProjectCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
-import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import PaginationControls from "@/components/PaginationControls";
-import { cn } from "@/lib/utils";
+import { useProjects } from "../hooks/useProjects";
+import { usePagination } from "@/hooks/usePagination";
+import { useProjectFilters } from "../hooks/useProjectFilters";
 
 const ProjectsPage = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [page, setPage] = useState(DEFAULT_PAGE);
-  const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
+  const { page, limit, onPageChange, onPageSizeChange } = usePagination();
+  const { search, onSearchChange } = useProjectFilters();
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
@@ -29,10 +29,17 @@ const ProjectsPage = () => {
     refetch,
     isFetching,
     isPlaceholderData,
-  } = useProjects(orgSlug ?? null, workspaceSlug ?? null, {
-    page,
-    limit,
-  });
+  } = useProjects(
+    orgSlug ?? null,
+    workspaceSlug ?? null,
+    {
+      page,
+      limit,
+    },
+    search || undefined,
+  );
+
+  console.log(projects?.data);
 
   if (!orgSlug || !workspaceSlug) return null;
 
@@ -55,6 +62,8 @@ const ProjectsPage = () => {
           type="text"
           placeholder="Search projects..."
           className="w-full pl-9 pr-3 bg-muted/50 focus:bg-background transition"
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
         />
       </div>
 
@@ -100,12 +109,7 @@ const ProjectsPage = () => {
 
       {!isLoading && !isError && (projects?.data.length ?? 0) > 0 && (
         <>
-          <div
-            className={cn(
-              "grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
-              isPlaceholderData ? "opacity-60 pointer-events-none" : "",
-            )}
-          >
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {projects?.data.map((project) => (
               <ProjectCard
                 key={project.id}
@@ -119,13 +123,11 @@ const ProjectsPage = () => {
           <PaginationControls
             currentPage={page}
             limit={limit}
-            onPageChange={setPage}
-            onPageSizeChange={(size) => {
-              setLimit(size);
-              setPage(DEFAULT_PAGE);
-            }}
+            onPageChange={(newPage) => onPageChange(newPage)}
+            onPageSizeChange={(size) => onPageSizeChange(size)}
             totalItems={projects!.meta.total}
             totalPages={projects!.meta.totalPages}
+            isPlaceholderData={isPlaceholderData}
           />
         </>
       )}

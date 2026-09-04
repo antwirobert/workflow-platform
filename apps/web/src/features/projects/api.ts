@@ -22,6 +22,7 @@ export const projectsApi = {
       params: {
         page: String(params.page),
         limit: String(params.limit),
+        ...(params.search ? { q: params.search } : {}),
       },
     }),
   getById: (orgSlug: string, workspaceSlug: string, projectSlug: string) =>

@@ -18,6 +18,7 @@ export interface ProjectAssignee {
 export interface ProjectlistParams {
   page: number;
   limit: number;
+  search?: string;
 }
 
 export interface PaginatedResponse<T> {

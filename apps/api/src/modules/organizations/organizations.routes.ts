@@ -13,7 +13,6 @@ import workspacesRouter from "../workspaces/workspaces.routes";
 import searchRouter from "../../search/search.routes";
 import invitationsRouter from "../invitations/invitations.routes";
 import { assertOrgMembership } from "../../middleware/guards";
-import { listProjectsQuerySchema } from "../projects/projects.schemas";
 
 const router = Router();
 

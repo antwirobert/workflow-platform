@@ -11,13 +11,7 @@ import {
   Organization,
   OrganizationMember,
   Prisma,
-  Project,
 } from "../../generated/prisma/client";
-import {
-  ListProjectsQuery,
-  ListProjectsQueryResult,
-  ProjectResult,
-} from "../projects/projects.types";
 
 export class OrganizationsService {
   async create(input: CreateOrganizationInput): Promise<OrganizationResult> {

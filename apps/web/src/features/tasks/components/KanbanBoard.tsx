@@ -52,7 +52,7 @@ export function KanbanBoard({
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
-  const { columns, isLoading, isPlaceholderData } = useKanbanTasks(
+  const { columns, isLoading } = useKanbanTasks(
     orgSlug ?? null,
     workspaceSlug ?? null,
     projectSlug ?? null,
@@ -155,7 +155,6 @@ export function KanbanBoard({
               key={status}
               status={status}
               tasks={columns[status]}
-              isPlaceholderData={isPlaceholderData}
               onTaskClick={handleTaskClick}
             />
           ))}

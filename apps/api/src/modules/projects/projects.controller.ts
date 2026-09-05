@@ -36,12 +36,12 @@ export class ProjectsController {
     next: NextFunction,
   ) => {
     try {
-      const { page, limit } = req.validated!.query as ListProjectsQueryInput;
+      const { page, limit, q } = req.validated!.query as ListProjectsQueryInput;
 
       const projects = await projectsService.list({
         page,
         limit,
-        userId: req.user!.userId,
+        q,
         workspaceId: req.workspace!.id,
       });
 

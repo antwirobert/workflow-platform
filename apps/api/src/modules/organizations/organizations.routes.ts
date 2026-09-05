@@ -49,15 +49,6 @@ router.get(
 );
 
 router.get(
-  "/:orgSlug/projects",
-  authenticate,
-  validate(orgSlugParamSchema, "params"),
-  validate(listProjectsQuerySchema, "query"),
-  assertOrgMembership,
-  organizationsController.listProjects,
-);
-
-router.get(
   "/:orgSlug/dashboard",
   authenticate,
   validate(orgSlugParamSchema, "params"),

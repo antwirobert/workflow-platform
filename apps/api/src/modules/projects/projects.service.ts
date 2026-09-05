@@ -1,5 +1,5 @@
 import { ConflictError, NotFoundError } from "../../common/errors";
-import { Project } from "../../generated/prisma/client";
+import { Prisma, Project } from "../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 import {
   CreateProjectInput,
@@ -43,10 +43,21 @@ export class ProjectsService {
   async list(
     query: ListProjectsQuery,
   ): Promise<ListProjectsQueryResult<ProjectResult>> {
-    const { page, limit, workspaceId } = query;
+    const { page, limit, q, workspaceId } = query;
 
     const skip = (page - 1) * limit;
-    const where = { workspaceId };
+    const search = q?.trim();
+
+    const where: Prisma.ProjectWhereInput = {
+      workspaceId,
+      ...(search && {
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { slug: { contains: search, mode: "insensitive" } },
+          { description: { contains: search, mode: "insensitive" } },
+        ],
+      }),
+    };
 
     const [projects, total] = await Promise.all([
       prisma.project.findMany({
@@ -104,6 +115,25 @@ export class ProjectsService {
       where: {
         id: projectId,
       },
+      include: {
+        _count: {
+          select: {
+            tasks: {
+              where: {
+                deletedAt: null,
+                status: { notIn: ["CANCELLED"] },
+              },
+            },
+          },
+        },
+        tasks: {
+          where: {
+            deletedAt: null,
+            status: "DONE",
+          },
+          select: { id: true },
+        },
+      },
     });
 
     // Ensure project exists and belongs to the specified workspace
@@ -111,7 +141,10 @@ export class ProjectsService {
       throw new NotFoundError("Project");
     }
 
-    return this.buildProjectResult(project);
+    return this.buildProjectResult(project, {
+      totalTaskCount: project._count.tasks,
+      completedTaskCount: project.tasks.length,
+    });
   }
 
   async update(input: UpdateProjectInput): Promise<ProjectResult> {

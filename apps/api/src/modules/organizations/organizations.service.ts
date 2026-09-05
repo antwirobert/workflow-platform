@@ -228,72 +228,6 @@ export class OrganizationsService {
     };
   }
 
-  async listProjects(
-    query: ListProjectsQuery,
-  ): Promise<ListProjectsQueryResult<ProjectResult>> {
-    const { page, limit, q, organizationId } = query;
-
-    const skip = (page - 1) * limit;
-    const searchTerm = q?.trim();
-
-    const where: Prisma.ProjectWhereInput = {
-      workspace: { organizationId },
-      ...(searchTerm && {
-        OR: [
-          { name: { contains: searchTerm, mode: "insensitive" } },
-          { slug: { contains: searchTerm, mode: "insensitive" } },
-        ],
-      }),
-    };
-
-    const [projects, total] = await Promise.all([
-      prisma.project.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: {
-          updatedAt: "desc",
-        },
-        include: {
-          _count: {
-            select: {
-              tasks: {
-                where: {
-                  deletedAt: null,
-                  status: { notIn: ["CANCELLED"] },
-                },
-              },
-            },
-          },
-          tasks: {
-            where: {
-              deletedAt: null,
-              status: "DONE",
-            },
-            select: { id: true },
-          },
-        },
-      }),
-
-      prisma.project.count({ where }),
-    ]);
-
-    return {
-      data: projects.map((project) =>
-        this.buildProjectResult(project, {
-          totalTaskCount: project._count.tasks,
-          completedTaskCount: project.tasks.length,
-        }),
-      ),
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  }
-
   async getDashboard(organizationId: string, userId: string) {
     const [assignedTasks, projectsAcrossWorkspaces] = await Promise.all([
       prisma.task.findMany({
@@ -336,27 +270,6 @@ export class OrganizationsService {
           }
         : {}),
       ...(user ? { user } : {}),
-    };
-  }
-
-  private buildProjectResult(
-    project: Project,
-    counts?: { totalTaskCount: number; completedTaskCount: number },
-  ): ProjectResult {
-    return {
-      id: project.id,
-      name: project.name,
-      slug: project.slug,
-      description: project.description,
-      workspaceId: project.workspaceId,
-      createdAt: project.createdAt,
-      updatedAt: project.updatedAt,
-      ...(counts
-        ? {
-            totalTaskCount: counts.totalTaskCount,
-            completedTaskCount: counts.completedTaskCount,
-          }
-        : {}),
     };
   }
 }

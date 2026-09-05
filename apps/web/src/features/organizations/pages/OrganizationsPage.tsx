@@ -7,16 +7,12 @@ import OrganizationCard from "../components/OrganizationCard";
 import CreateOrganizationDialog from "../components/CreateOrganizationDialog";
 import PageHeader from "@/components/PageHeader";
 import PaginationControls from "@/components/PaginationControls";
-import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import OrganizationCardSkeleton from "../components/OrganizationCardSkeleton";
-import { useUrlParams } from "@/hooks/useUrlParams";
+import { usePagination } from "@/hooks/usePagination";
 
 const OrganizationsPage = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { searchParams, updateParams } = useUrlParams();
-
-  const page = Number(searchParams.get("page") ?? `${DEFAULT_PAGE}`);
-  const limit = Number(searchParams.get("limit") ?? `${DEFAULT_TABLE_LIMIT}`);
+  const { page, limit, onPageChange, onPageSizeChange } = usePagination();
 
   const {
     data: organizations,
@@ -69,10 +65,8 @@ const OrganizationsPage = () => {
           <PaginationControls
             currentPage={page}
             limit={limit}
-            onPageChange={(newPage) => updateParams({ page: String(newPage) })}
-            onPageSizeChange={(size) =>
-              updateParams({ limit: String(size), page: String(DEFAULT_PAGE) })
-            }
+            onPageChange={(newPage) => onPageChange(newPage)}
+            onPageSizeChange={(size) => onPageSizeChange(size)}
             totalItems={organizations!.meta.total}
             totalPages={organizations!.meta.totalPages}
             isPlaceholderData={isPlaceholderData}

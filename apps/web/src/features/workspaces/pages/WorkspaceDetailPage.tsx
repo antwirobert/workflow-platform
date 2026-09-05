@@ -15,7 +15,7 @@ import WorkspaceMembersTable from "../components/WorkspaceMembersTable";
 import { useWorkspaceMembers } from "../hooks/useWorkspaceMembers";
 
 const WorkspaceDetailPage = () => {
-  const { page, limit, setPage, handlePageSizeChange } = usePaginationState();
+  const { page, limit, setPage, onPageSizeChange } = usePaginationState();
   const [isOpen, setIsOpen] = useState(false);
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
@@ -156,7 +156,7 @@ const WorkspaceDetailPage = () => {
                 page={page}
                 limit={limit}
                 onPageChange={setPage}
-                onPageSizeChange={(size) => handlePageSizeChange(size)}
+                onPageSizeChange={(size) => onPageSizeChange(size)}
               />
             ) : (
               <div className="min-h-32 rounded-xl border border-dashed border-border bg-muted/20 px-3 py-8 text-center">

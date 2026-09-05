@@ -85,6 +85,6 @@ export const SELECT_ITEMS_LIMIT = 100;
 
 export const ROLE_OWNER = "OWNER";
 export const ROLE_ADMIN = "ADMIN";
-export const ROLES_MANAGEMENT = [ROLE_ADMIN];
+export const ROLES_MANAGEMENT = [ROLE_OWNER, ROLE_ADMIN];
 
 export const DELAY_MS = 300;

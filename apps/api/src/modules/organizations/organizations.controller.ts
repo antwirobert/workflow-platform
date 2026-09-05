@@ -6,7 +6,6 @@ import {
   UpdateOrganizationPayload,
   ListOrganizationsQueryInput,
 } from "./organizations.schemas";
-import { ListProjectsQueryInput } from "../projects/projects.schemas";
 
 export class OrganizationsController {
   create = async (

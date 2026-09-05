@@ -7,20 +7,17 @@ import { useActiveOrganization } from "@/features/organizations/hooks/useActiveO
 import WorkspaceCard from "../components/WorkspaceCard";
 import { Input } from "@/components/ui/input";
 import ErrorState from "@/components/ErrorState";
-import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import { useState } from "react";
 import PaginationControls from "@/components/PaginationControls";
 import { useParams } from "react-router-dom";
 import WorkspaceCardSkeleton from "../components/WorkspaceCardSkeleton";
-import { useUrlParams } from "@/hooks/useUrlParams";
+import { usePagination } from "@/hooks/usePagination";
+import { useWorkspaceFilters } from "../hooks/useWorkspaceFilters";
 
 const WorkspacesPage = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { searchParams, updateParams } = useUrlParams();
-
-  const page = Number(searchParams.get("page") ?? `${DEFAULT_PAGE}`);
-  const limit = Number(searchParams.get("limit") ?? `${DEFAULT_TABLE_LIMIT}`);
-  const search = searchParams.get("q") ?? "";
+  const { page, limit, onPageChange, onPageSizeChange } = usePagination();
+  const { search, onSearchChange } = useWorkspaceFilters();
 
   const { orgSlug } = useParams<{ orgSlug: string }>();
   const { activeOrganization } = useActiveOrganization();
@@ -63,9 +60,7 @@ const WorkspacesPage = () => {
           placeholder="Search workspaces..."
           className="w-full pl-9 pr-3 bg-muted/50 focus:bg-background transition"
           value={search}
-          onChange={(e) =>
-            updateParams({ q: e.target.value, page: String(DEFAULT_PAGE) })
-          }
+          onChange={(e) => onSearchChange(e.target.value)}
         />
       </div>
 
@@ -118,10 +113,8 @@ const WorkspacesPage = () => {
           <PaginationControls
             currentPage={page}
             limit={limit}
-            onPageChange={(newPage) => updateParams({ page: String(newPage) })}
-            onPageSizeChange={(size) =>
-              updateParams({ limit: String(size), page: String(DEFAULT_PAGE) })
-            }
+            onPageChange={(newPage) => onPageChange(newPage)}
+            onPageSizeChange={(size) => onPageSizeChange(size)}
             totalPages={workspaces!.meta.totalPages}
             totalItems={workspaces!.meta.total}
             isPlaceholderData={isPlaceholderData}

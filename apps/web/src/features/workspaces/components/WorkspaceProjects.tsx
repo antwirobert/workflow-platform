@@ -12,7 +12,7 @@ import { usePaginationState } from "@/hooks/usePaginationState";
 import ProgressBar from "@/components/ProgressBar";
 
 const WorkspaceProjects = () => {
-  const { page, limit, setPage, handlePageSizeChange } = usePaginationState();
+  const { page, limit, setPage, onPageSizeChange } = usePaginationState();
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
@@ -128,7 +128,7 @@ const WorkspaceProjects = () => {
             currentPage={page}
             limit={limit}
             onPageChange={setPage}
-            onPageSizeChange={(size) => handlePageSizeChange(size)}
+            onPageSizeChange={(size) => onPageSizeChange(size)}
             totalItems={projects.meta.total}
             totalPages={projects.meta.totalPages}
             isPlaceholderData={isPlaceholderData}

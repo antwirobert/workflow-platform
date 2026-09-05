@@ -7,18 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import MembersTable from "../components/MembersTable";
 import OrganizationSkeleton from "../components/OrganizationSkeleton";
 import { useOrganizationMembers } from "../hooks/useOrganizationMembers";
-import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
-import type { OrgRole } from "@/types/organization";
-import { useUrlParams } from "@/hooks/useUrlParams";
 import MemberFilters from "../components/MemberFilters";
+import { usePagination } from "@/hooks/usePagination";
+import { useOrganizationMemberFilters } from "../hooks/useOrganizationMemberFilters";
 
 const OrganizationMembersPage = () => {
-  const { searchParams, updateParams } = useUrlParams();
-
-  const page = Number(searchParams.get("page") ?? `${DEFAULT_PAGE}`);
-  const limit = Number(searchParams.get("limit") ?? `${DEFAULT_TABLE_LIMIT}`);
-  const search = searchParams.get("q") ?? "";
-  const role = (searchParams.get("role") as OrgRole | null) ?? "ALL";
+  const { page, limit, onPageChange, onPageSizeChange } = usePagination();
+  const { search, role, onSearchChange, onRoleChange } =
+    useOrganizationMemberFilters();
 
   const { orgSlug } = useParams<{ orgSlug: string }>();
   const {
@@ -96,13 +92,9 @@ const OrganizationMembersPage = () => {
 
         <MemberFilters
           role={role}
-          onRoleChange={(value) =>
-            updateParams({ role: value, page: String(DEFAULT_PAGE) })
-          }
+          onRoleChange={(value) => onRoleChange(value)}
           search={search}
-          onSearchChange={(value) =>
-            updateParams({ q: value, page: String(DEFAULT_PAGE) })
-          }
+          onSearchChange={(value) => onSearchChange(value)}
         />
 
         {hasFilters && isEmpty && (
@@ -125,10 +117,8 @@ const OrganizationMembersPage = () => {
             refetch={membersRefetch}
             page={page}
             limit={limit}
-            onPageChange={(newPage) => updateParams({ page: String(newPage) })}
-            onPageSizeChange={(size) => {
-              updateParams({ limit: String(size), page: String(DEFAULT_PAGE) });
-            }}
+            onPageChange={(newPage) => onPageChange(newPage)}
+            onPageSizeChange={(size) => onPageSizeChange(size)}
           />
         )}
       </div>

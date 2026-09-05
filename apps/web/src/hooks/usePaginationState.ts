@@ -8,10 +8,10 @@ export function usePaginationState(
   const [page, setPage] = useState(initialPage);
   const [limit, setLimit] = useState(initialLimit);
 
-  function handlePageSizeChange(newLimit: number) {
+  function onPageSizeChange(newLimit: number) {
     setLimit(newLimit);
     setPage(DEFAULT_PAGE);
   }
 
-  return { page, limit, setPage, handlePageSizeChange };
+  return { page, limit, setPage, onPageSizeChange };
 }

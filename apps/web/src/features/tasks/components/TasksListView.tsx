@@ -5,7 +5,6 @@ interface TasksListViewProps {
   tasks: Task[];
   isError: boolean;
   isFetching: boolean;
-  isPlaceholderData: boolean;
   refetch: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -15,7 +14,6 @@ const TasksListView = ({
   tasks,
   isError,
   isFetching,
-  isPlaceholderData,
   refetch,
   open,
   onOpenChange,
@@ -25,7 +23,6 @@ const TasksListView = ({
       tasks={tasks}
       isError={isError}
       isFetching={isFetching}
-      isPlaceholderData={isPlaceholderData}
       refetch={refetch}
       open={open}
       onOpenChange={onOpenChange}

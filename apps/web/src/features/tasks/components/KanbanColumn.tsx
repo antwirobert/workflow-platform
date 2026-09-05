@@ -22,14 +22,12 @@ const statusDot: Record<TaskStatus, string> = {
 interface KanbanColumnProps {
   status: TaskStatus;
   tasks: Task[];
-  isPlaceholderData: boolean;
   onTaskClick: (taskId: string) => void;
 }
 
 export function KanbanColumn({
   status,
   tasks,
-  isPlaceholderData,
   onTaskClick,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
@@ -56,12 +54,7 @@ export function KanbanColumn({
           {tasks.length}
         </span>
       </div>
-      <div
-        className={cn(
-          "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto",
-          isPlaceholderData ? "opacity-60 pointer-events-none select-none" : "",
-        )}
-      >
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
         {tasks.map((task) => (
           <KanbanCard key={task.id} task={task} onTaskClick={onTaskClick} />
         ))}

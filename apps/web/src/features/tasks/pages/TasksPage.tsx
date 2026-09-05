@@ -2,13 +2,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TasksListView from "../components/TasksListView";
 import { useTasks } from "../hooks/useTasks";
 import { useState } from "react";
-import type { Priority, TaskStatus } from "@/types/task";
 import { Separator } from "@/components/ui/separator";
 import TaskFilters from "../components/TaskFilters";
-import { DEFAULT_PAGE, DEFAULT_TABLE_LIMIT } from "@/constants";
 import PaginationControls from "@/components/PaginationControls";
 import CreateTaskDialog from "../components/CreateTaskDialog";
 import { KanbanBoard } from "../components/KanbanBoard";
+import { usePagination } from "@/hooks/usePagination";
+import { useTaskFilters } from "../hooks/useTaskFilters";
 
 interface TasksPageProps {
   open: boolean;
@@ -26,11 +26,15 @@ const TasksPage = ({
   projectSlug,
 }: TasksPageProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
-  const [page, setPage] = useState(DEFAULT_PAGE);
-  const [limit, setLimit] = useState(DEFAULT_TABLE_LIMIT);
-  const [status, setStatus] = useState<TaskStatus | "ALL">("ALL");
-  const [priority, setPriority] = useState<Priority | "ALL">("ALL");
-  const [assignee, setAssignee] = useState<string | "ALL">("ALL");
+  const { page, limit, onPageChange, onPageSizeChange } = usePagination();
+  const {
+    status,
+    priority,
+    assignee,
+    onStatusChange,
+    onPriorityChange,
+    onAssigneeChange,
+  } = useTaskFilters();
 
   const {
     data: tasks,
@@ -46,15 +50,8 @@ const TasksPage = ({
     assigneeId: assignee === "ALL" ? undefined : assignee,
   });
 
-  function handleFilterChange<T>(setter: (value: T) => void) {
-    return (value: T) => {
-      setter(value);
-      setPage(1);
-    };
-  }
-
   return (
-    <div className="flex h-full flex-col p-4">
+    <div className="flex h-full flex-col py-4">
       <Tabs defaultValue="kanban-board" className="flex h-full flex-col">
         <div className="flex shrink-0 items-center justify-between gap-4">
           <TabsList variant="line" className="w-fit">
@@ -65,11 +62,11 @@ const TasksPage = ({
           <TaskFilters
             orgSlug={orgSlug}
             status={status}
-            onStatusChange={handleFilterChange(setStatus)}
+            onStatusChange={(value) => onStatusChange(value)}
             priority={priority}
-            onPriorityChange={handleFilterChange(setPriority)}
+            onPriorityChange={(value) => onPriorityChange(value)}
             assignee={assignee}
-            onAssigneeChange={handleFilterChange(setAssignee)}
+            onAssigneeChange={(value) => onAssigneeChange(value)}
           />
         </div>
 
@@ -110,20 +107,18 @@ const TasksPage = ({
                 isError={isError}
                 isFetching={isFetching}
                 refetch={refetch}
-                isPlaceholderData={isPlaceholderData}
                 open={isSheetOpen}
                 onOpenChange={setIsSheetOpen}
               />
+
               <PaginationControls
                 currentPage={page}
                 limit={limit}
-                onPageChange={setPage}
-                onPageSizeChange={(size) => {
-                  setLimit(size);
-                  setPage(DEFAULT_PAGE);
-                }}
+                onPageChange={(newPage) => onPageChange(newPage)}
+                onPageSizeChange={(size) => onPageSizeChange(size)}
                 totalItems={tasks!.meta.total}
                 totalPages={tasks!.meta.totalPages}
+                isPlaceholderData={isPlaceholderData}
               />
             </>
           )}

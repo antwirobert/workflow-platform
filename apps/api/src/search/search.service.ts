@@ -92,9 +92,13 @@ export class SearchService {
         },
       },
       select: {
-        id: true,
-        name: true,
-        slug: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        role: true,
       },
       take: 20,
     });

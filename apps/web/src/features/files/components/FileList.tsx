@@ -21,7 +21,7 @@ import { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useUploadFile } from "../hooks/useUploadFile";
 import { useFiles } from "../hooks/useFiles";
-import { API_URL, ROLES_MANAGEMENT } from "@/constants";
+import { ROLES_MANAGEMENT } from "@/constants";
 import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 import { useAuthStore } from "@/stores/authStore";
 import DeleteFileDialog from "./DeleteFileDialog";
@@ -184,14 +184,9 @@ const FileList = ({ taskId }: FileListProps) => {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <a
-                    href={`${API_URL}/organizations/${orgSlug}/workspaces/${workspaceSlug}/tasks/${taskId}/files/${id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block truncate text-sm font-medium text-foreground hover:underline"
-                  >
+                  <p className=" truncate text-sm font-medium text-foreground">
                     {filename}
-                  </a>
+                  </p>
                   <p className="truncate text-[11px] text-muted-foreground">
                     {formatBytes(size)}
                     <span className="mx-1 text-muted-foreground/40">·</span>

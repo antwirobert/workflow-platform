@@ -51,9 +51,7 @@ export function timeAgo(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-export function formatDueDate(dateInput: string | null): string | null {
-  if (!dateInput) return null;
-
+export function formatDueDate(dateInput: string): string {
   const date = parseISO(dateInput);
 
   if (isToday(date)) return "Today";

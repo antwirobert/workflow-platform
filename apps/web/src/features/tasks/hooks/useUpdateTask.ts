@@ -43,18 +43,10 @@ export function useUpdateTask(
       const previousTask = queryClient.getQueryData<Task>(detailKey);
 
       if (previousTask) {
-        const nextTask: Task = {
+        queryClient.setQueryData<Task>(detailKey, {
           ...previousTask,
           ...payload,
-          dueDate:
-            payload.dueDate === undefined
-              ? previousTask.dueDate
-              : payload.dueDate instanceof Date
-                ? payload.dueDate.toISOString()
-                : (payload.dueDate ?? null),
-        };
-
-        queryClient.setQueryData<Task>(detailKey, nextTask);
+        });
       }
 
       return { previousTask };

@@ -7,19 +7,22 @@ export class SearchService {
 
     const formattedQuery = q.trim().split(/\s+/).join(" & ");
 
-    const [tasks, projects, comments] = await Promise.all([
+    const [tasks, projects, workspaces, people] = await Promise.all([
       !type || type === "tasks"
         ? this.searchTasks(organizationId, formattedQuery)
         : [],
       !type || type === "projects"
         ? this.searchProjects(organizationId, formattedQuery)
         : [],
-      !type || type === "comments"
-        ? this.searchComments(organizationId, formattedQuery)
+      !type || type === "workspaces"
+        ? this.searchWorkspaces(organizationId, formattedQuery)
+        : [],
+      !type || type === "people"
+        ? this.searchPeople(organizationId, formattedQuery)
         : [],
     ]);
 
-    return { tasks, projects, comments };
+    return { tasks, projects, workspaces, people };
   }
 
   private async searchTasks(orgId: string, query: string) {
@@ -34,14 +37,13 @@ export class SearchService {
       select: {
         id: true,
         title: true,
-        description: true,
         status: true,
-        priority: true,
+        dueDate: true,
         project: {
           select: {
             id: true,
-            name: true,
-            workspace: { select: { id: true, name: true } },
+            slug: true,
+            workspace: { select: { id: true, slug: true } },
           },
         },
       },
@@ -58,34 +60,41 @@ export class SearchService {
       select: {
         id: true,
         name: true,
+        slug: true,
         description: true,
-        workspace: { select: { id: true, name: true } },
+        workspace: { select: { id: true, slug: true } },
       },
       take: 20,
     });
   }
 
-  private async searchComments(orgId: string, query: string) {
-    return prisma.comment.findMany({
+  private async searchWorkspaces(orgId: string, query: string) {
+    return prisma.workspace.findMany({
       where: {
-        task: {
-          deletedAt: null,
-          project: { workspace: { organizationId: orgId } },
-        },
-        body: { search: query },
+        organizationId: orgId,
+        name: { search: query },
       },
       select: {
         id: true,
-        body: true,
-        createdAt: true,
-        author: { select: { id: true, name: true, email: true } },
-        task: {
-          select: {
-            id: true,
-            title: true,
-            project: { select: { id: true, name: true } },
-          },
+        name: true,
+        slug: true,
+      },
+      take: 20,
+    });
+  }
+
+  private async searchPeople(orgId: string, query: string) {
+    return prisma.organizationMember.findMany({
+      where: {
+        organizationId: orgId,
+        user: {
+          OR: [{ name: { search: query } }, { email: { search: query } }],
         },
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
       },
       take: 20,
     });

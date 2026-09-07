@@ -49,7 +49,16 @@ const editTaskSchema = z.object({
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val))
     .optional(),
-  dueDate: z.coerce.date().optional(),
+  dueDate: z.string().optional(),
+  labels: z.preprocess((val) => {
+    if (typeof val === "string") {
+      return val
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
+    }
+    return val ?? [];
+  }, z.array(z.string())),
 });
 
 type EditTaskFormInput = z.input<typeof editTaskSchema>;
@@ -93,7 +102,8 @@ const EditTaskForm = ({
       status: task.status,
       priority: task.priority,
       assigneeId: task.assignee?.id ?? "",
-      dueDate: task.dueDate,
+      dueDate: task.dueDate ?? undefined,
+      labels: task.labels.join(", "),
     },
   });
 
@@ -104,7 +114,8 @@ const EditTaskForm = ({
       status: task.status,
       priority: task.priority,
       assigneeId: task.assignee?.id ?? "",
-      dueDate: task.dueDate,
+      dueDate: task.dueDate ?? undefined,
+      labels: task.labels.join(", "),
     });
   }, [form, task]);
 
@@ -317,6 +328,26 @@ const EditTaskForm = ({
             )}
           />
         </div>
+
+        <Controller
+          name="labels"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="task-labels" className="font-semibold">
+                Labels
+              </FieldLabel>
+              <Input
+                {...field}
+                id="task-labels"
+                aria-invalid={fieldState.invalid}
+                placeholder="Backend, Security, Frontend"
+                value={typeof field.value === "string" ? field.value : ""}
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
 
         {error && error.code !== ERROR_CODES.VALIDATION && (
           <div className="rounded-lg bg-destructive/10 p-3 text-sm font-medium text-destructive">

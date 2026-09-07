@@ -20,6 +20,9 @@ export interface Task {
   };
   createdById: string;
   dueDate: string | null;
+  labels: string[];
   createdAt: string;
   updatedAt: string;
+  commentCount?: number;
+  fileCount?: number;
 }

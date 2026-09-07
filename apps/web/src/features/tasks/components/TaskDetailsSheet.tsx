@@ -27,6 +27,7 @@ import {
   Trash2,
   Send,
   Loader2,
+  Tag,
 } from "lucide-react";
 import { TaskStatusBadge } from "./TaskStatusBadge";
 import { TaskPriorityBadge } from "./TaskPriorityBadge";
@@ -44,6 +45,7 @@ import { useCreateComment } from "@/features/comments/hooks/useCreateComment";
 import { toast } from "@/components/ui/toast";
 import { useComments } from "@/features/comments/hooks/useComments";
 import FileList from "@/features/files/components/FileList";
+import { Badge } from "@/components/ui/badge";
 
 interface TaskDetailsSheetProps {
   task: Task | null;
@@ -238,6 +240,28 @@ const TaskDetailsSheet = ({
               <span className="text-sm tabular-nums text-muted-foreground">
                 {task.dueDate ? formatDueDate(task.dueDate) : "—"}
               </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="flex w-28 shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                <Tag className="size-3.5 opacity-70" />
+                Labels
+              </span>
+              {task.labels.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {task.labels.map((label) => (
+                    <Badge
+                      key={label}
+                      variant="secondary"
+                      className="h-5 rounded-md px-1.5 text-[11px] font-medium text-muted-foreground"
+                    >
+                      {label}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-sm text-muted-foreground">None</span>
+              )}
             </div>
           </div>
 

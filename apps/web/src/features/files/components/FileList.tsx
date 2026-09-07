@@ -169,6 +169,7 @@ const FileList = ({ taskId }: FileListProps) => {
               id,
               filename,
               size,
+              path,
               uploadedBy: { id: uploadedById, name },
               createdAt,
             } = file;
@@ -184,9 +185,14 @@ const FileList = ({ taskId }: FileListProps) => {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-foreground">
+                  <a
+                    href={path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block truncate text-sm font-medium text-foreground hover:underline"
+                  >
                     {filename}
-                  </p>
+                  </a>
                   <p className="truncate text-[11px] text-muted-foreground">
                     {formatBytes(size)}
                     <span className="mx-1 text-muted-foreground/40">·</span>

@@ -43,9 +43,11 @@ export const columns = [
 
       return (
         <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">
-            {formatDueDate(dueDate)}
-          </span>
+          {dueDate && (
+            <span className="text-muted-foreground">
+              {formatDueDate(dueDate)}
+            </span>
+          )}
           {assignee?.name && (
             <TextAvatar
               name={assignee?.name ?? ""}

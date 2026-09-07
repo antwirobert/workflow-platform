@@ -28,8 +28,11 @@ export interface TaskResult {
   };
   createdById: string;
   dueDate: Date | null;
+  labels: string[];
   createdAt: Date;
   updatedAt: Date;
+  commentCount?: number;
+  fileCount?: number;
 }
 
 export interface ListTasksQuery extends ListTasksQueryInput {

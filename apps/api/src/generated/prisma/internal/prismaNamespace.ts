@@ -1261,6 +1261,7 @@ export const TaskScalarFieldEnum = {
   assigneeId: 'assigneeId',
   createdById: 'createdById',
   dueDate: 'dueDate',
+  labels: 'labels',
   deletedAt: 'deletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1402,7 +1403,8 @@ export const TaskOrderByRelevanceFieldEnum = {
   description: 'description',
   projectId: 'projectId',
   assigneeId: 'assigneeId',
-  createdById: 'createdById'
+  createdById: 'createdById',
+  labels: 'labels'
 } as const
 
 export type TaskOrderByRelevanceFieldEnum = (typeof TaskOrderByRelevanceFieldEnum)[keyof typeof TaskOrderByRelevanceFieldEnum]

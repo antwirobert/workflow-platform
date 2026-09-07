@@ -38,6 +38,17 @@ export class FilesController {
     }
   };
 
+  getById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { taskId, fileId } = req.validated!.params as fileTaskParams;
+
+      const file = await filesService.getById(taskId, fileId);
+      res.status(200).json(file);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   delete = async (
     req: AuthenticatedRequest,
     res: Response,

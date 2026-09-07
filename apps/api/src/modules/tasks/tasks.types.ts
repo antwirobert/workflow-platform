@@ -31,6 +31,8 @@ export interface TaskResult {
   labels: string[];
   createdAt: Date;
   updatedAt: Date;
+  commentCount?: number;
+  fileCount?: number;
 }
 
 export interface ListTasksQuery extends ListTasksQueryInput {

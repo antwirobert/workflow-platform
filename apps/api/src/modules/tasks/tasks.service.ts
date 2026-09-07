@@ -64,6 +64,14 @@ export class TasksService {
         },
         include: {
           assignee: { select: { id: true, name: true } },
+          _count: {
+            select: {
+              comments: true,
+            },
+          },
+          files: {
+            select: { id: true },
+          },
         },
       }),
 
@@ -72,10 +80,17 @@ export class TasksService {
 
     return {
       data: tasks.map((task) =>
-        this.buildTaskResult(task, {
-          id: task.assignee?.id ?? null,
-          name: task.assignee?.name ?? null,
-        }),
+        this.buildTaskResult(
+          task,
+          {
+            id: task.assignee?.id ?? null,
+            name: task.assignee?.name ?? null,
+          },
+          {
+            commentCount: task._count.comments,
+            fileCount: task.files.length,
+          },
+        ),
       ),
       meta: {
         total,
@@ -90,6 +105,16 @@ export class TasksService {
     const task = await prisma.task.findUnique({
       where: {
         id: taskId,
+      },
+      include: {
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
+        files: {
+          select: { id: true },
+        },
       },
     });
 
@@ -164,6 +189,7 @@ export class TasksService {
   private buildTaskResult(
     task: Task,
     assignee?: { id: string | null; name: string | null },
+    counts?: { commentCount: number; fileCount: number },
   ): TaskResult {
     return {
       id: task.id,
@@ -178,6 +204,9 @@ export class TasksService {
       labels: task.labels,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
+      ...(counts
+        ? { commentCount: counts.commentCount, fileCount: counts.fileCount }
+        : {}),
     };
   }
 }

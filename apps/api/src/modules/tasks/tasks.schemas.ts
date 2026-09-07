@@ -12,6 +12,7 @@ export const createTaskSchema = z.object({
   priority: z.enum(Priority).default("MEDIUM"),
   assigneeId: z.string().uuid("Invalid assigneeId format").optional(),
   dueDate: z.coerce.date().optional(),
+  labels: z.array(z.string()).default([]),
 });
 
 export const updateTaskSchema = z
@@ -34,6 +35,7 @@ export const updateTaskSchema = z
     dueDate: z
       .union([z.string().datetime("Invalid dueDate format"), z.null()])
       .optional(),
+    labels: z.array(z.string()).optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "At least one field is required to update a task",

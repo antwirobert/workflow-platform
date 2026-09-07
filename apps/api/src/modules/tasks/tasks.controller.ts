@@ -15,8 +15,15 @@ export class TasksController {
     next: NextFunction,
   ) => {
     try {
-      const { title, description, status, priority, assigneeId, dueDate } = req
-        .validated!.body as CreateTaskPayload;
+      const {
+        title,
+        description,
+        status,
+        priority,
+        assigneeId,
+        dueDate,
+        labels,
+      } = req.validated!.body as CreateTaskPayload;
 
       const task = await tasksService.create({
         projectId: req.project!.id,
@@ -27,6 +34,7 @@ export class TasksController {
         assigneeId,
         createdById: req.user!.userId,
         dueDate,
+        labels,
       });
 
       res.status(201).json(task);

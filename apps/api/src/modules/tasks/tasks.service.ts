@@ -20,6 +20,7 @@ export class TasksService {
       assigneeId,
       createdById,
       dueDate,
+      labels,
     } = input;
 
     const task = await prisma.task.create({
@@ -32,6 +33,7 @@ export class TasksService {
         assigneeId,
         createdById,
         dueDate,
+        labels,
       },
     });
 
@@ -108,6 +110,7 @@ export class TasksService {
       priority,
       assigneeId,
       dueDate,
+      labels,
     } = input;
 
     const existing = await prisma.task.findUnique({
@@ -129,6 +132,7 @@ export class TasksService {
         ...(priority !== undefined && { priority }),
         ...(assigneeId !== undefined && { assigneeId }),
         ...(dueDate !== undefined && { dueDate }),
+        ...(labels !== undefined && { labels }),
       },
     });
 
@@ -171,6 +175,7 @@ export class TasksService {
       ...(assignee ? { assignee } : {}),
       createdById: task.createdById,
       dueDate: task.dueDate,
+      labels: task.labels,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
     };

@@ -35,6 +35,18 @@ export class FilesService {
     });
   }
 
+  async getById(taskId: string, fileId: string) {
+    const file = await prisma.file.findUnique({
+      where: { id: fileId },
+    });
+
+    if (!file || file.taskId !== taskId) {
+      throw new NotFoundError("File");
+    }
+
+    return file;
+  }
+
   async delete(
     fileId: string,
     taskId: string,

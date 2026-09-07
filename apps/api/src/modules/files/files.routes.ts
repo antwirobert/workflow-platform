@@ -10,6 +10,12 @@ router.post("/", upload.single("file"), filesController.upload);
 
 router.get("/", filesController.list);
 
+router.get(
+  "/:fileId",
+  validate(fileTaskParamsSchema, "params"),
+  filesController.getById,
+);
+
 router.delete(
   "/:fileId",
   validate(fileTaskParamsSchema, "params"),

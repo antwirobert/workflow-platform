@@ -46,6 +46,12 @@ export class SearchService {
             workspace: { select: { id: true, slug: true } },
           },
         },
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
       take: 20,
     });
@@ -96,6 +102,7 @@ export class SearchService {
           select: {
             id: true,
             name: true,
+            email: true,
           },
         },
         role: true,

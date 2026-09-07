@@ -5,20 +5,18 @@ export class SearchService {
   async search(searchQuery: SearchQuery, organizationId: string) {
     const { q, type } = searchQuery;
 
-    const formattedQuery = q.trim().split(/\s+/).join(" & ");
+    const query = q.trim();
 
     const [tasks, projects, workspaces, people] = await Promise.all([
-      !type || type === "tasks"
-        ? this.searchTasks(organizationId, formattedQuery)
-        : [],
+      !type || type === "tasks" ? this.searchTasks(organizationId, query) : [],
       !type || type === "projects"
-        ? this.searchProjects(organizationId, formattedQuery)
+        ? this.searchProjects(organizationId, query)
         : [],
       !type || type === "workspaces"
-        ? this.searchWorkspaces(organizationId, formattedQuery)
+        ? this.searchWorkspaces(organizationId, query)
         : [],
       !type || type === "people"
-        ? this.searchPeople(organizationId, formattedQuery)
+        ? this.searchPeople(organizationId, query)
         : [],
     ]);
 
@@ -32,7 +30,10 @@ export class SearchService {
         project: {
           workspace: { organizationId: orgId },
         },
-        OR: [{ title: { search: query } }, { description: { search: query } }],
+        OR: [
+          { title: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } },
+        ],
       },
       select: {
         id: true,
@@ -46,12 +47,6 @@ export class SearchService {
             workspace: { select: { id: true, slug: true } },
           },
         },
-        assignee: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
       },
       take: 20,
     });
@@ -61,7 +56,10 @@ export class SearchService {
     return prisma.project.findMany({
       where: {
         workspace: { organizationId: orgId },
-        OR: [{ name: { search: query } }, { description: { search: query } }],
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } },
+        ],
       },
       select: {
         id: true,
@@ -78,7 +76,7 @@ export class SearchService {
     return prisma.workspace.findMany({
       where: {
         organizationId: orgId,
-        name: { search: query },
+        name: { contains: query, mode: "insensitive" },
       },
       select: {
         id: true,
@@ -94,7 +92,10 @@ export class SearchService {
       where: {
         organizationId: orgId,
         user: {
-          OR: [{ name: { search: query } }, { email: { search: query } }],
+          OR: [
+            { name: { contains: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
+          ],
         },
       },
       select: {
@@ -102,7 +103,6 @@ export class SearchService {
           select: {
             id: true,
             name: true,
-            email: true,
           },
         },
         role: true,

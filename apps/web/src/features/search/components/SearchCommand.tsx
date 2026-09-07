@@ -1,153 +1,123 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Command,
   CommandDialog,
   CommandEmpty,
+  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
+  CommandShortcut,
 } from "@/components/ui/command";
-import { Hash, CheckSquare, MessageSquare } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useSearch } from "../hooks/useSearch";
-import { useOrgStore } from "@/stores/orgStore";
-import { useWorkspaceStore } from "@/stores/workspaceStore";
+import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
+import { useSearchFilters } from "../hooks/useSearchFilters";
+import { Badge } from "@/components/ui/badge";
 import type { SearchType } from "../types";
+import { CheckSquare, Hash, Search } from "lucide-react";
 
-const TYPES: { value: SearchType; label: string }[] = [
-  { value: "tasks", label: "Tasks" },
-  { value: "projects", label: "Projects" },
-  { value: "comments", label: "Comments" },
-];
-
-export function SearchCommand({
-  open,
-  onOpenChange,
-}: {
+interface SearchCommandProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}) {
-  const [query, setQuery] = useState("");
-  const [type, setType] = useState<SearchType>("tasks");
-  const navigate = useNavigate();
-  const activeOrgSlug = useOrgStore((s) => s.activeOrgSlug);
-  const activeWorkspaceSlug = useWorkspaceStore((s) => s.activeWorkspaceSlug);
+}
 
-  const { data, isFetching } = useSearch(activeOrgSlug, query, type);
+const TYPES: { label: string; value: SearchType | "ALL" }[] = [
+  { label: "All", value: "ALL" },
+  { label: "Tasks", value: "tasks" },
+  { label: "Projects", value: "projects" },
+  { label: "Workspaces", value: "workspaces" },
+  { label: "People", value: "people" },
+];
 
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        onOpenChange(!open);
-      }
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, onOpenChange]);
+const SearchCommand = ({ open, onOpenChange }: SearchCommandProps) => {
+  const { activeOrganization } = useActiveOrganization();
+  const {
+    search: query,
+    type,
+    onSearchChange,
+    onTypeChange,
+  } = useSearchFilters();
+  const { data, isFetching } = useSearch(
+    activeOrganization?.slug ?? null,
+    query,
+    type === "ALL" ? undefined : type,
+  );
 
-  function close() {
-    onOpenChange(false);
-    setQuery("");
-  }
-
-  function goToProject(projectId: string, workspaceId: string) {
-    close();
-    navigate(
-      `/organizations/${activeOrgSlug}/workspaces/${workspaceId}/projects/${projectId}`,
-    );
-  }
-
-  // Same workspaceId gap as before — see note below
-  function goToTask(taskId: string, projectId: string) {
-    close();
-    navigate(
-      `/organizations/${activeOrgSlug}/workspaces/${activeWorkspaceSlug}/projects/${projectId}/tasks/${taskId}`,
-    );
-  }
-
-  function goToComment(taskId: string, projectId: string) {
-    close();
-    navigate(
-      `/organizations/${activeOrgSlug}/workspaces/${activeWorkspaceSlug}/projects/${projectId}/tasks/${taskId}`,
-    );
-  }
+  const taskCount = data?.tasks.length ?? 0;
+  const projectCount = data?.projects.length ?? 0;
+  const workspaceCount = data?.workspaces.length ?? 0;
+  const peopleCount = data?.people.length ?? 0;
+  const totalCount = taskCount + projectCount + workspaceCount + peopleCount;
 
   const hasResults =
     data &&
-    ((type === "tasks" && data.tasks.length > 0) ||
-      (type === "projects" && data.projects.length > 0) ||
-      (type === "comments" && data.comments.length > 0));
+    (data.tasks.length > 0 || type === "tasks") &&
+    (data.projects.length > 0 || type === "projects") &&
+    (data.workspaces.length > 0 || type === "workspaces") &&
+    (data.people.length > 0 || type === "people");
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <Command shouldFilter={false}>
+      <Command shouldFilter={false} className="max-w-sm rounded-lg border">
         <CommandInput
-          placeholder={`Search ${type}...`}
+          placeholder="Search tasks, projects, workspaces and people..."
           value={query}
-          onValueChange={setQuery}
+          onValueChange={onSearchChange}
         />
-
-        <div className="flex gap-1 border-b border-border px-3 py-2">
-          {TYPES.map((t) => (
-            <button
-              key={t.value}
-              onClick={() => setType(t.value)}
-              className={cn(
-                "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-                type === t.value
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-accent/50",
-              )}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
         <CommandList>
-          {query.trim().length < 2 && (
-            <CommandEmpty>Type at least 2 characters to search.</CommandEmpty>
+          <div>
+            {TYPES.map((t) => (
+              <Badge
+                key={t.value}
+                onClick={() => onTypeChange(t.value)}
+                variant={type === t.value ? "default" : "ghost"}
+              >
+                {t.label}
+              </Badge>
+            ))}
+          </div>
+
+          {query.trim().length < 3 && !isFetching && !hasResults && (
+            <CommandEmpty>
+              <Search />
+              <h3>Search anything</h3>
+              <p>
+                Find tasks, projects, workspaces, and people across your
+                organizatoin.
+              </p>
+            </CommandEmpty>
           )}
-          {query.trim().length >= 2 && !isFetching && !hasResults && (
-            <CommandEmpty>No {type} found.</CommandEmpty>
+
+          {query.trim().length >= 3 && (
+            <CommandEmpty>
+              <Search />
+              <h3>No results for "{query}"</h3>
+              <p>Try different keywords or broaden your search scope.</p>
+            </CommandEmpty>
           )}
 
-          {type === "projects" &&
-            data?.projects.map((project) => (
-              <CommandItem
-                key={project.id}
-                onSelect={() => goToProject(project.id, project.workspaceId)}
-              >
-                <Hash className="mr-2 h-4 w-4 text-muted-foreground" />
-                {project.name}
-              </CommandItem>
-            ))}
+          <CommandGroup>
+            {type === "projects" &&
+              (data?.projects.length ?? 0) > 0 &&
+              data?.projects.map((project) => (
+                <CommandItem key={project.id}>
+                  <Hash className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {project.name}
+                </CommandItem>
+              ))}
 
-          {type === "tasks" &&
-            data?.tasks.map((task) => (
-              <CommandItem
-                key={task.id}
-                onSelect={() => goToTask(task.id, task.projectId)}
-              >
-                <CheckSquare className="mr-2 h-4 w-4 text-muted-foreground" />
-                {task.title}
-              </CommandItem>
-            ))}
-
-          {type === "comments" &&
-            data?.comments.map((comment) => (
-              <CommandItem
-                key={comment.id}
-                onSelect={() => goToComment(comment.taskId, "")}
-              >
-                <MessageSquare className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="truncate">{comment.body}</span>
-              </CommandItem>
-            ))}
+            {type === "tasks" &&
+              (data?.tasks.length ?? 0) > 0 &&
+              data?.tasks.map((task) => (
+                <CommandItem key={task.id}>
+                  <CheckSquare className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {task.title}
+                </CommandItem>
+              ))}
+          </CommandGroup>
         </CommandList>
       </Command>
     </CommandDialog>
   );
-}
+};
+
+export default SearchCommand;

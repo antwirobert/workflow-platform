@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { Fragment, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import { cn } from "@/lib/utils";
-import { SearchCommand } from "@/features/search/components/SearchCommand";
+import SearchCommand from "@/features/search/components/SearchCommand";
 
 type Match = {
   pathname: string;

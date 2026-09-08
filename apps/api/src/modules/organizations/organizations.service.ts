@@ -13,6 +13,7 @@ import {
   Prisma,
 } from "../../generated/prisma/client";
 import { getMonthRange, getNextNDaysRange } from "../../common/utils/date";
+import { TaskWhereInput } from "../../generated/prisma/models";
 
 export class OrganizationsService {
   async create(input: CreateOrganizationInput): Promise<OrganizationResult> {
@@ -227,15 +228,17 @@ export class OrganizationsService {
     const thisMonth = getMonthRange();
     const next7Days = getNextNDaysRange(7);
 
-    const assignedTasksWhere = {
+    const assignedTasksWhere: TaskWhereInput = {
       deletedAt: null,
       assigneeId: userId,
+      status: { not: "DONE" },
       project: { workspace: { organizationId } },
     };
 
-    const dueThisWeekWhere = {
+    const dueThisWeekWhere: TaskWhereInput = {
       deletedAt: null,
       assigneeId: userId,
+      status: { not: "DONE" },
       project: { workspace: { organizationId } },
       dueDate: {
         gte: next7Days.start,
@@ -243,8 +246,8 @@ export class OrganizationsService {
       },
     };
 
-    const projectsWhere = {
-      workspace: { organizationId },
+    const workspacesWhere = {
+      organizationId,
     };
 
     const [
@@ -253,11 +256,15 @@ export class OrganizationsService {
       dueThisWeek,
       dueThisWeekCount,
       completedThisMonthCount,
-      projectsAcrossWorkspaces,
-      projectCount,
+      allWorkspaces,
+      workspaceCount,
     ] = await Promise.all([
       prisma.task.findMany({
         where: assignedTasksWhere,
+        orderBy: [
+          { dueDate: { sort: "asc", nulls: "last" } },
+          { createdAt: "desc" },
+        ],
         take: limit,
       }),
       prisma.task.count({
@@ -266,6 +273,10 @@ export class OrganizationsService {
 
       prisma.task.findMany({
         where: dueThisWeekWhere,
+        orderBy: [
+          { dueDate: { sort: "asc", nulls: "last" } },
+          { createdAt: "desc" },
+        ],
         take: limit,
       }),
       prisma.task.count({
@@ -276,6 +287,7 @@ export class OrganizationsService {
         where: {
           deletedAt: null,
           assigneeId: userId,
+          status: { not: "DONE" },
           project: { workspace: { organizationId } },
           completedAt: {
             gte: thisMonth.start,
@@ -284,12 +296,13 @@ export class OrganizationsService {
         },
       }),
 
-      prisma.project.findMany({
-        where: projectsWhere,
+      prisma.workspace.findMany({
+        where: workspacesWhere,
+        orderBy: { updatedAt: "desc" },
         take: limit,
       }),
-      prisma.project.count({
-        where: projectsWhere,
+      prisma.workspace.count({
+        where: workspacesWhere,
       }),
     ]);
 
@@ -297,9 +310,9 @@ export class OrganizationsService {
       assignedTaskCount,
       dueThisWeekCount,
       completedThisMonthCount,
-      projectCount,
+      workspaceCount,
       assignedTasks,
-      projectsAcrossWorkspaces,
+      allWorkspaces,
       dueThisWeek,
     };
   }

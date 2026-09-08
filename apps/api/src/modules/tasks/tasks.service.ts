@@ -59,9 +59,10 @@ export class TasksService {
         where,
         skip,
         take: limit,
-        orderBy: {
-          createdAt: "desc",
-        },
+        orderBy: [
+          { dueDate: { sort: "asc", nulls: "last" } },
+          { createdAt: "desc" },
+        ],
         include: {
           assignee: { select: { id: true, name: true } },
           _count: {

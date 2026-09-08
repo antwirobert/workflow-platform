@@ -41,6 +41,10 @@ export const listOrganizationsQuerySchema = z.object({
   q: z.string().min(1).max(100).optional(),
 });
 
+export const dashboardQuerySchema = z.object({
+  limit: z.coerce.number().min(1).max(100).default(2),
+});
+
 export type CreateOrganizationPayload = z.infer<
   typeof createOrganizationSchema
 >;
@@ -51,3 +55,4 @@ export type OrganizationSlugParams = z.infer<typeof orgSlugParamSchema>;
 export type ListOrganizationsQueryInput = z.infer<
   typeof listOrganizationsQuerySchema
 >;
+export type DashboardQueryInput = z.infer<typeof dashboardQuerySchema>;

@@ -43,7 +43,6 @@ import { Textarea } from "@/components/ui/textarea";
 import CommentThread from "@/features/comments/components/CommentThread";
 import { useCreateComment } from "@/features/comments/hooks/useCreateComment";
 import { toast } from "@/components/ui/toast";
-import { useComments } from "@/features/comments/hooks/useComments";
 import FileList from "@/features/files/components/FileList";
 import { Badge } from "@/components/ui/badge";
 
@@ -73,13 +72,6 @@ const TaskDetailsSheet = ({
     isPending,
     error,
   } = useCreateComment(orgSlug!, workspaceSlug!, projectSlug!, task?.id ?? "");
-
-  const { data, isLoading, isError, isFetching, refetch } = useComments(
-    orgSlug!,
-    workspaceSlug!,
-    projectSlug!,
-    task?.id ?? "",
-  );
 
   if (
     !task ||
@@ -284,14 +276,7 @@ const TaskDetailsSheet = ({
 
           <Separator />
 
-          <CommentThread
-            comments={data!}
-            isLoading={isLoading}
-            isError={isError}
-            isFetching={isFetching}
-            refetch={refetch}
-            taskId={task.id}
-          />
+          <CommentThread taskId={task.id} />
         </div>
 
         <SheetFooter className="mt-auto border-t p-3">

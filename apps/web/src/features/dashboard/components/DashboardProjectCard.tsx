@@ -1,4 +1,3 @@
-// components/DashboardProjectCard.tsx
 import { getIdentityColor, getInitials, timeAgo } from "@/lib/utils";
 
 interface DashboardProjectCardProps {
@@ -6,7 +5,6 @@ interface DashboardProjectCardProps {
   name: string;
   description?: string | null;
   updatedAt: string;
-  /** 0–100; omit if you don't have progress yet */
   progress?: number;
 }
 

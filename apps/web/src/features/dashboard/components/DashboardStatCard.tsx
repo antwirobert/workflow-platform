@@ -1,4 +1,3 @@
-// components/DashboardStatCard.tsx
 import type { LucideIcon } from "lucide-react";
 
 interface DashboardStatCardProps {

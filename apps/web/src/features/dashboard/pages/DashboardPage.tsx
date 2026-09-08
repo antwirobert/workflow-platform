@@ -74,7 +74,6 @@ const DashboardPage = () => {
     isLoading,
     isError,
     isFetching,
-    isPlaceholderData,
     refetch,
   } = useDashboard(activeOrganization?.slug ?? null);
 
@@ -120,13 +119,13 @@ const DashboardPage = () => {
           />
           <DashboardStatCard
             label="Due soon"
-            value={4}
+            value={dashboardData?.dueThisWeekCount ?? 0}
             hint="Next 7 days"
             icon={Clock}
           />
           <DashboardStatCard
             label="Completed"
-            value={1}
+            value={dashboardData?.completedThisMonthCount ?? 0}
             hint="This month"
             icon={CheckCircle2}
           />
@@ -163,7 +162,6 @@ const DashboardPage = () => {
                     tasks={dashboardData?.assignedTasks ?? []}
                     isError={isError}
                     isFetching={isFetching}
-                    isPlaceholderData={isPlaceholderData}
                     refetch={refetch}
                   />
                 )}

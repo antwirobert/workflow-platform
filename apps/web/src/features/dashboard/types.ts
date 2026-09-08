@@ -3,7 +3,10 @@ import type { Task } from "@/types/task";
 
 export interface DashboardData {
   assignedTaskCount: number;
+  dueThisWeekCount: number;
+  completedThisMonthCount: number;
   projectCount: number;
   assignedTasks: Task[];
   projectsAcrossWorkspaces: Project[];
+  dueThisWeek: Task[];
 }

@@ -1,19 +1,17 @@
-// pages/DashboardPage.tsx
 import { Button } from "@/components/ui/button";
 import TextAvatar from "@/components/TextAvatar";
-import { getIdentityColor } from "@/lib/utils";
+import { cn, formatDueDate, getIdentityColor } from "@/lib/utils";
 import {
   ArrowUpRight,
   CheckCircle2,
   Clock,
-  FolderKanban,
+  FolderOpen,
   Plus,
-  UserRound,
+  Zap,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { useDashboard } from "../hooks/useDashboard";
-import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 import TasksTable from "@/features/tasks/components/TasksTable";
 import { DashboardStatCard } from "../components/DashboardStatCard";
 import { DashboardProjectCard } from "../components/DashboardProjectCard";
@@ -68,14 +66,14 @@ const ACTIVITY = [
 
 const DashboardPage = () => {
   const user = useAuthStore((state) => state.user);
-  const { activeOrganization } = useActiveOrganization();
+  const { orgSlug } = useParams<{ orgSlug: string }>();
   const {
     data: dashboardData,
     isLoading,
     isError,
     isFetching,
     refetch,
-  } = useDashboard(activeOrganization?.slug ?? null);
+  } = useDashboard(orgSlug ?? null);
 
   const hour = new Date().getHours();
   const greeting =
@@ -115,7 +113,7 @@ const DashboardPage = () => {
             label="Assigned to you"
             value={dashboardData?.assignedTaskCount ?? 0}
             hint="Open tasks"
-            icon={UserRound}
+            icon={Zap}
           />
           <DashboardStatCard
             label="Due soon"
@@ -133,7 +131,7 @@ const DashboardPage = () => {
             label="Active projects"
             value={dashboardData?.projectCount ?? 0}
             hint="Across your workspaces"
-            icon={FolderKanban}
+            icon={FolderOpen}
           />
         </div>
 
@@ -147,7 +145,7 @@ const DashboardPage = () => {
                   Assigned to you
                 </h2>
                 <Link
-                  to="/tasks"
+                  to={`/organizations/${orgSlug}/tasks`}
                   className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   View all
@@ -182,7 +180,7 @@ const DashboardPage = () => {
                   Recent projects
                 </h2>
                 <Link
-                  to="/projects"
+                  to={`/organizations/${orgSlug}/projects`}
                   className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   View all
@@ -199,7 +197,6 @@ const DashboardPage = () => {
                       name={project.name}
                       description={project.description}
                       updatedAt={project.updatedAt}
-                      // progress={project.progress} // wire when API exposes it
                     />
                   ))}
                 </div>
@@ -214,47 +211,108 @@ const DashboardPage = () => {
             </section>
           </div>
 
-          {/* Activity */}
-          <aside className="space-y-3">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Activity
-            </h2>
+          <div className="space-y-8">
+            {/* Activity */}
+            <aside className="space-y-3">
+              <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Activity
+              </h2>
 
-            <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
-              <div className="space-y-4">
-                {ACTIVITY.map((item) => {
-                  const color = getIdentityColor(item.userId);
+              <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
+                <div className="space-y-4">
+                  {ACTIVITY.map((item) => {
+                    const color = getIdentityColor(item.userId);
 
-                  return (
-                    <div key={item.id} className="flex gap-2.5">
-                      <TextAvatar
-                        name={item.userName}
-                        colorClass={color.bg}
-                        textClass={color.text}
-                        className="size-7 shrink-0 rounded-full text-[10px] font-semibold"
-                      />
-                      <div className="min-w-0 flex-1 space-y-0.5">
-                        <p className="text-sm leading-snug text-foreground">
-                          <span className="font-medium">{item.userName}</span>{" "}
-                          <span className="text-muted-foreground">
-                            {item.action}
-                          </span>{" "}
-                          <span className="font-medium">{item.target}</span>
-                        </p>
-                        <p className="text-[11px] text-muted-foreground">
-                          {item.context}
-                          <span className="mx-1 text-muted-foreground/40">
-                            ·
-                          </span>
-                          {item.time}
-                        </p>
+                    return (
+                      <div key={item.id} className="flex gap-2.5">
+                        <TextAvatar
+                          name={item.userName}
+                          colorClass={color.bg}
+                          textClass={color.text}
+                          className="size-7 shrink-0 rounded-full text-[10px] font-semibold"
+                        />
+                        <div className="min-w-0 flex-1 space-y-0.5">
+                          <p className="text-sm leading-snug text-foreground">
+                            <span className="font-medium">{item.userName}</span>{" "}
+                            <span className="text-muted-foreground">
+                              {item.action}
+                            </span>{" "}
+                            <span className="font-medium">{item.target}</span>
+                          </p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {item.context}
+                            <span className="mx-1 text-muted-foreground/40">
+                              ·
+                            </span>
+                            {item.time}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          </aside>
+            </aside>
+
+            <section className="space-y-3">
+              {/* Due This Week */}
+              <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Due this week
+              </h2>
+
+              <div className="flex flex-col gap-2">
+                {dashboardData?.dueThisWeek &&
+                dashboardData.dueThisWeek.length > 0
+                  ? dashboardData.dueThisWeek.map((task) => {
+                      const priorityColor = getIdentityColor(task.id);
+                      const assigneeColor = getIdentityColor(
+                        task.assignee?.id ?? "",
+                      );
+
+                      return (
+                        <div
+                          key={task.id}
+                          className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-card px-4 py-3 shadow-sm transition-colors hover:border-border hover:bg-muted/20"
+                        >
+                          <div className="flex min-w-0 items-start gap-2.5">
+                            <div
+                              className={cn(
+                                "mt-1.5 size-2 shrink-0 rounded-full ring-1 ring-black/5 dark:ring-white/10",
+                                priorityColor.bg,
+                              )}
+                            />
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium leading-snug text-foreground">
+                                {task.title || "Untitled task"}
+                              </p>
+                              <p className="mt-0.5 text-xs tabular-nums text-muted-foreground">
+                                {task.dueDate
+                                  ? formatDueDate(task.dueDate)
+                                  : "No due date"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {task.assignee?.name && assigneeColor && (
+                            <TextAvatar
+                              name={task.assignee.name}
+                              colorClass={assigneeColor.bg}
+                              textClass={assigneeColor.text}
+                              className="size-7 shrink-0 rounded-full text-[10px] font-semibold"
+                            />
+                          )}
+                        </div>
+                      );
+                    })
+                  : !isLoading &&
+                    !isError && (
+                      <p className="text-sm text-muted-foreground">
+                        Nothing due this week
+                      </p>
+                    )}
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </section>

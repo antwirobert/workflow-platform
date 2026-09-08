@@ -148,6 +148,15 @@ export class TasksService {
       throw new NotFoundError("Task");
     }
 
+    let completedAt: Date | null | undefined = undefined;
+    if (status !== undefined && status !== existing.status) {
+      if (status === TaskStatus.DONE) {
+        completedAt = new Date();
+      } else if (existing.status === TaskStatus.DONE) {
+        completedAt = null;
+      }
+    }
+
     const task = await prisma.task.update({
       where: { id: taskId },
       data: {

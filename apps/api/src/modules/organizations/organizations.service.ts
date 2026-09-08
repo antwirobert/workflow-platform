@@ -12,6 +12,7 @@ import {
   OrganizationMember,
   Prisma,
 } from "../../generated/prisma/client";
+import { getMonthRange, getNextNDaysRange } from "../../common/utils/date";
 
 export class OrganizationsService {
   async create(input: CreateOrganizationInput): Promise<OrganizationResult> {
@@ -222,25 +223,59 @@ export class OrganizationsService {
     };
   }
 
-  async getDashboard(organizationId: string, userId: string) {
-    const [assignedTasks, projectsAcrossWorkspaces] = await Promise.all([
+  async getDashboard(userId: string, organizationId: string) {
+    const thisMonth = getMonthRange();
+    const next7Days = getNextNDaysRange(7);
+
+    const [
+      assignedTasks,
+      dueThisWeek,
+      completedThisMonthCount,
+      projectsAcrossWorkspaces,
+    ] = await Promise.all([
       prisma.task.findMany({
         where: {
           deletedAt: null,
           assigneeId: userId,
           project: { workspace: { organizationId } },
         },
+        take: 5,
+      }),
+      prisma.task.findMany({
+        where: {
+          deletedAt: null,
+          project: { workspace: { organizationId } },
+          dueDate: {
+            gte: next7Days.start,
+            lt: next7Days.end,
+          },
+        },
+        take: 4,
+      }),
+      prisma.task.count({
+        where: {
+          deletedAt: null,
+          project: { workspace: { organizationId } },
+          completedAt: {
+            gte: thisMonth.start,
+            lt: thisMonth.end,
+          },
+        },
       }),
       prisma.project.findMany({
         where: { workspace: { organizationId } },
+        take: 4,
       }),
     ]);
 
     return {
       assignedTaskCount: assignedTasks.length,
+      dueThisWeekCount: dueThisWeek.length,
+      completedThisMonthCount,
       projectCount: projectsAcrossWorkspaces.length,
       assignedTasks,
       projectsAcrossWorkspaces,
+      dueThisWeek,
     };
   }
 

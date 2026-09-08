@@ -39,8 +39,6 @@ const ProjectsPage = () => {
     search || undefined,
   );
 
-  console.log(projects?.data);
-
   if (!orgSlug || !workspaceSlug) return null;
 
   return (

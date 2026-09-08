@@ -15,6 +15,6 @@ export function useSearch(
     queryKey: ["organizations", orgSlug, "search", type, debouncedQuery],
     queryFn: () =>
       searchApi.search(orgSlug as string, { query: debouncedQuery, type }),
-    enabled: !!orgSlug && debouncedQuery.trim().length >= 3,
+    enabled: !!orgSlug,
   });
 }

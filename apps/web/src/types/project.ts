@@ -8,4 +8,7 @@ export interface Project {
   updatedAt: string;
   totalTaskCount?: number;
   completedTaskCount?: number;
+  workspace: {
+    slug: string;
+  };
 }

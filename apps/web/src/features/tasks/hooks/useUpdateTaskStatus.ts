@@ -52,22 +52,11 @@ export function useUpdateTaskStatus(
 
     // Always runs after success or failure — reconcile with server truth
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: kanbanKey });
-      queryClient.invalidateQueries({
-        queryKey: [
-          "organizations",
-          orgSlug,
-          "workspaces",
-          workspaceSlug,
-          "projects",
-          projectSlug,
-          "tasks",
-        ],
-        exact: false,
-      });
       queryClient.invalidateQueries({
         queryKey: ["organizations", orgSlug, "workspaces", workspaceSlug],
-        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["organizations", orgSlug, "dashboard"],
       });
     },
   });

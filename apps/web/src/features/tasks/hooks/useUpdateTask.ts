@@ -60,6 +60,9 @@ export function useUpdateTask(
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: workspaceKey });
+      queryClient.invalidateQueries({
+        queryKey: ["organizations", orgSlug, "dashboard"],
+      });
     },
   });
 }

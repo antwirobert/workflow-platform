@@ -17,6 +17,9 @@ export function useDeleteProject(orgSlug: string, workspaceSlug: string) {
           "projects",
         ],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["organizations", orgSlug, "dashboard"],
+      });
     },
   });
 }

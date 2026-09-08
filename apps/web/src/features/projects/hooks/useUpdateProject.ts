@@ -24,6 +24,9 @@ export function useUpdateProject(
           "projects",
         ],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["organizations", orgSlug, "dashboard"],
+      });
     },
   });
 }

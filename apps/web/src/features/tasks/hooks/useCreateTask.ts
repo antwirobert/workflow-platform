@@ -22,6 +22,9 @@ export function useCreateTask(
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: workspaceKey });
+      queryClient.invalidateQueries({
+        queryKey: ["organizations", orgSlug, "dashboard"],
+      });
     },
   });
 }

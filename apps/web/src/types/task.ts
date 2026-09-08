@@ -21,6 +21,12 @@ export interface Task {
   createdById: string;
   dueDate: string | null;
   labels: string[];
+  project: {
+    slug: string;
+    workspace: {
+      slug: string;
+    };
+  };
   createdAt: string;
   updatedAt: string;
   commentCount?: number;

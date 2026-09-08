@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import { TaskStatusBadge } from "@/features/tasks/components/TaskStatusBadge";
 import { OrgRoleBadge } from "@/features/organizations/components/OrgRoleBadge";
+import { useNavigate } from "react-router-dom";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 interface SearchCommandProps {
   open: boolean;
@@ -39,6 +41,7 @@ const TYPES: { label: string; value: SearchType | "ALL" }[] = [
 ];
 
 const SearchCommand = ({ open, onOpenChange }: SearchCommandProps) => {
+  const navigate = useNavigate();
   const { activeOrganization } = useActiveOrganization();
   const {
     search: query,
@@ -46,6 +49,9 @@ const SearchCommand = ({ open, onOpenChange }: SearchCommandProps) => {
     onSearchChange,
     onTypeChange,
   } = useSearchFilters();
+  const setActiveWorkspaceSlug = useWorkspaceStore(
+    (state) => state.setActiveWorkspaceSlug,
+  );
 
   const { data, isFetching } = useSearch(
     activeOrganization?.slug ?? null,
@@ -59,12 +65,36 @@ const SearchCommand = ({ open, onOpenChange }: SearchCommandProps) => {
   const memberCount = data?.people.length ?? 0;
   const totalCount = taskCount + projectCount + workspaceCount + memberCount;
 
-  const showEmptyPrompt = query.trim().length < 3 && !isFetching;
+  const showEmptyPrompt = query.trim().length === 0 && !isFetching;
   const showNoResults =
-    query.trim().length >= 3 && !isFetching && totalCount === 0;
+    query.trim().length > 0 && !isFetching && totalCount === 0;
+
+  const goToProject = (workspaceSlug: string, projectSlug: string) => {
+    setActiveWorkspaceSlug(workspaceSlug);
+    navigate(
+      `/organizations/${activeOrganization?.slug}/workspaces/${workspaceSlug}/projects/${projectSlug}`,
+    );
+    onSearchChange("");
+    onOpenChange(false);
+  };
+
+  const goToWorkspace = (workspaceSlug: string) => {
+    setActiveWorkspaceSlug(workspaceSlug);
+    navigate(
+      `/organizations/${activeOrganization?.slug}/workspaces/${workspaceSlug}`,
+    );
+    onOpenChange(false);
+    onSearchChange("");
+  };
 
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange}>
+    <CommandDialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onOpenChange(isOpen);
+        onSearchChange("");
+      }}
+    >
       <Command
         shouldFilter={false}
         className="rounded-xl border border-border/60 shadow-lg"
@@ -195,7 +225,10 @@ const SearchCommand = ({ open, onOpenChange }: SearchCommandProps) => {
                   <CommandItem
                     key={project.id}
                     value={`project-${project.id}`}
-                    className="gap-2.5 px-3 py-2"
+                    className="gap-2.5 px-3 py-2 hover:cursor-pointer"
+                    onSelect={() =>
+                      goToProject(project.workspace.slug, project.slug)
+                    }
                   >
                     <TextAvatar
                       name={project.name}
@@ -239,7 +272,8 @@ const SearchCommand = ({ open, onOpenChange }: SearchCommandProps) => {
                   <CommandItem
                     key={workspace.id}
                     value={`workspace-${workspace.id}`}
-                    className="gap-2.5 px-3 py-2"
+                    className="gap-2.5 px-3 py-2 hover:cursor-pointer"
+                    onSelect={() => goToWorkspace(workspace.slug)}
                   >
                     <div
                       className={cn(

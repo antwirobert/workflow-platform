@@ -2,7 +2,7 @@ import { Bell, Search } from "lucide-react";
 import { SidebarTrigger } from "../ui/sidebar";
 import { Link, useMatches } from "react-router-dom";
 import { Button } from "../ui/button";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import { cn } from "@/lib/utils";
 import SearchCommand from "@/features/search/components/SearchCommand";
@@ -19,6 +19,18 @@ type Match = {
 const Topbar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const matches = useMatches() as Match[];
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((open) => !open);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   const crumbs = matches
     .filter((match) => Boolean(match.handle?.title))
@@ -80,13 +92,14 @@ const Topbar = () => {
 
         <div className="flex shrink-0 items-center gap-2">
           <button
+            type="button"
             onClick={() => setSearchOpen(true)}
-            className="flex h-8 w-56 items-center gap-2 rounded-lg border border-input bg-background px-2.5 text-sm text-muted-foreground hover:bg-accent"
+            className="group flex h-8 w-56 items-center gap-2 rounded-md border border-transparent bg-muted/50 px-2.5 text-sm text-muted-foreground transition-colors hover:border-border hover:bg-background hover:text-foreground"
           >
-            <Search className="h-3.5 w-3.5" />
+            <Search className="size-3.5 shrink-0 opacity-70" />
             <span className="flex-1 text-left">Search...</span>
-            <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium">
-              ⌘K
+            <kbd className="pointer-events-none hidden h-5 select-none items-center gap-0.5 rounded border border-border/60 bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground sm:inline-flex">
+              <span className="text-xs">⌘</span>K
             </kbd>
           </button>
 

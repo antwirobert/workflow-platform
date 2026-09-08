@@ -42,7 +42,7 @@ export const listOrganizationsQuerySchema = z.object({
 });
 
 export const dashboardQuerySchema = z.object({
-  limit: z.coerce.number().min(1).max(100).default(2),
+  limit: z.coerce.number().min(1).max(100).default(4),
 });
 
 export type CreateOrganizationPayload = z.infer<

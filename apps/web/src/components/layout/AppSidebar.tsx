@@ -12,7 +12,15 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import { Separator } from "../ui/separator";
-import { Archive, Hash, Lock, Plus, RotateCw } from "lucide-react";
+import {
+  Archive,
+  CheckSquare,
+  Hash,
+  LayoutDashboard,
+  Lock,
+  Plus,
+  RotateCw,
+} from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 import { useWorkspaces } from "@/features/workspaces/hooks/useWorkspaces";
@@ -197,6 +205,39 @@ const AppSidebar = () => {
                   </SidebarMenuItem>
                 </SidebarMenu>
               )}
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Menu */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span>Menu</span>
+          </SidebarGroupLabel>
+
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => navigate("/dashboard")}
+                  isActive={location.pathname === "/dashboard"}
+                  className="gap-2.5"
+                >
+                  <LayoutDashboard className="size-4" />
+                  <span>Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => navigate("/tasks")}
+                  isActive={location.pathname === "/tasks"}
+                  className="gap-2.5"
+                >
+                  <CheckSquare className="size-4" />
+                  <span>My Tasks</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 

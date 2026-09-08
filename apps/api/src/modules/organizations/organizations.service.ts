@@ -223,38 +223,59 @@ export class OrganizationsService {
     };
   }
 
-  async getDashboard(userId: string, organizationId: string) {
+  async getDashboard(limit: number, userId: string, organizationId: string) {
     const thisMonth = getMonthRange();
     const next7Days = getNextNDaysRange(7);
 
+    const assignedTasksWhere = {
+      deletedAt: null,
+      assigneeId: userId,
+      project: { workspace: { organizationId } },
+    };
+
+    const dueThisWeekWhere = {
+      deletedAt: null,
+      assigneeId: userId,
+      project: { workspace: { organizationId } },
+      dueDate: {
+        gte: next7Days.start,
+        lt: next7Days.end,
+      },
+    };
+
+    const projectsWhere = {
+      workspace: { organizationId },
+    };
+
     const [
       assignedTasks,
+      assignedTaskCount,
       dueThisWeek,
+      dueThisWeekCount,
       completedThisMonthCount,
       projectsAcrossWorkspaces,
+      projectCount,
     ] = await Promise.all([
       prisma.task.findMany({
-        where: {
-          deletedAt: null,
-          assigneeId: userId,
-          project: { workspace: { organizationId } },
-        },
-        take: 5,
+        where: assignedTasksWhere,
+        take: limit,
       }),
+      prisma.task.count({
+        where: assignedTasksWhere,
+      }),
+
       prisma.task.findMany({
-        where: {
-          deletedAt: null,
-          project: { workspace: { organizationId } },
-          dueDate: {
-            gte: next7Days.start,
-            lt: next7Days.end,
-          },
-        },
-        take: 4,
+        where: dueThisWeekWhere,
+        take: limit,
       }),
+      prisma.task.count({
+        where: dueThisWeekWhere,
+      }),
+
       prisma.task.count({
         where: {
           deletedAt: null,
+          assigneeId: userId,
           project: { workspace: { organizationId } },
           completedAt: {
             gte: thisMonth.start,
@@ -262,17 +283,21 @@ export class OrganizationsService {
           },
         },
       }),
+
       prisma.project.findMany({
-        where: { workspace: { organizationId } },
-        take: 4,
+        where: projectsWhere,
+        take: limit,
+      }),
+      prisma.project.count({
+        where: projectsWhere,
       }),
     ]);
 
     return {
-      assignedTaskCount: assignedTasks.length,
-      dueThisWeekCount: dueThisWeek.length,
+      assignedTaskCount,
+      dueThisWeekCount,
       completedThisMonthCount,
-      projectCount: projectsAcrossWorkspaces.length,
+      projectCount,
       assignedTasks,
       projectsAcrossWorkspaces,
       dueThisWeek,

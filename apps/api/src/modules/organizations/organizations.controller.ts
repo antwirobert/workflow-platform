@@ -5,6 +5,7 @@ import {
   CreateOrganizationPayload,
   UpdateOrganizationPayload,
   ListOrganizationsQueryInput,
+  DashboardQueryInput,
 } from "./organizations.schemas";
 
 export class OrganizationsController {
@@ -124,9 +125,12 @@ export class OrganizationsController {
     next: NextFunction,
   ) => {
     try {
+      const { limit } = req.validated!.query as DashboardQueryInput;
+
       const dashboard = await organizationsService.getDashboard(
-        req.organization!.id,
+        limit,
         req.user!.userId,
+        req.organization!.id,
       );
       res.status(200).json(dashboard);
     } catch (error) {

@@ -4,6 +4,7 @@ import { authenticate } from "../../middleware/authenticate";
 import { validate } from "../../middleware/validate";
 import {
   createOrganizationSchema,
+  dashboardQuerySchema,
   listOrganizationsQuerySchema,
   orgSlugParamSchema,
 } from "./organizations.schemas";
@@ -51,6 +52,7 @@ router.get(
   "/:orgSlug/dashboard",
   authenticate,
   validate(orgSlugParamSchema, "params"),
+  validate(dashboardQuerySchema, "query"),
   assertOrgMembership,
   organizationsController.getDashboard,
 );

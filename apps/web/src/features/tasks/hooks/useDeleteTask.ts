@@ -19,6 +19,9 @@ export function useDeleteTask(
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: workspaceKey });
+      queryClient.invalidateQueries({
+        queryKey: ["organizations", orgSlug, "dashboard"],
+      });
     },
   });
 }

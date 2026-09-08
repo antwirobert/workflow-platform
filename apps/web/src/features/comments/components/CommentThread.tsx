@@ -2,7 +2,6 @@ import TextAvatar from "@/components/TextAvatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn, getIdentityColor, timeAgo } from "@/lib/utils";
-import type { Comment } from "@/types/comment";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,24 +15,27 @@ import { ROLES_MANAGEMENT } from "@/constants";
 import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 import { useAuthStore } from "@/stores/authStore";
 import DeleteCommentDialog from "./DeleteCommentDialog";
+import { useComments } from "../hooks/useComments";
+import { useParams } from "react-router-dom";
 
 interface CommentThreadProps {
-  comments: Comment[];
-  isLoading: boolean;
-  isError: boolean;
-  isFetching: boolean;
-  refetch: () => void;
   taskId: string;
 }
 
-const CommentThread = ({
-  comments,
-  isLoading,
-  isError,
-  isFetching,
-  refetch,
-  taskId,
-}: CommentThreadProps) => {
+const CommentThread = ({ taskId }: CommentThreadProps) => {
+  const { orgSlug, workspaceSlug, projectSlug } = useParams<{
+    orgSlug: string;
+    workspaceSlug: string;
+    projectSlug: string;
+  }>();
+  const {
+    data: comments,
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  } = useComments(orgSlug!, workspaceSlug!, projectSlug!, taskId);
+
   const user = useAuthStore((state) => state.user);
   const { activeOrganization } = useActiveOrganization();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -87,9 +89,9 @@ const CommentThread = ({
         </div>
       )}
 
-      {!isLoading && !isError && comments.length > 0 ? (
+      {!isLoading && !isError && (comments?.length ?? 0) > 0 ? (
         <div className="space-y-4">
-          {comments.map((comment) => {
+          {comments?.map((comment) => {
             const {
               id,
               body,

@@ -12,6 +12,7 @@ import { organizationLoader } from "@/features/organizations/loaders";
 import { workspaceLoader } from "@/features/workspaces/loaders";
 import { projectLoader } from "@/features/projects/loaders";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
+import MyTasksPage from "@/features/tasks/pages/MyTasksPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },
@@ -21,9 +22,14 @@ export const router = createBrowserRouter([
     element: <ProtectedLayout />,
     children: [
       {
-        path: "/dashboard",
+        path: "/organizations/:orgSlug/dashboard",
         element: <DashboardPage />,
         handle: { title: "Dashboard" },
+      },
+      {
+        path: "/organizations/:orgSlug/my-tasks",
+        element: <MyTasksPage />,
+        handle: { title: "Tasks" },
       },
       {
         path: "/organizations",
@@ -71,20 +77,20 @@ export const router = createBrowserRouter([
       },
 
       {
-        path: "/organizations/:orgSlug/workspaces/:workspaceSlug/projects",
+        path: "/organizations/:orgSlug/projects",
         element: <Outlet />,
         handle: { title: "Projects" },
         children: [
           { index: true, element: <ProjectsPage /> },
-          {
-            path: ":projectSlug",
-            element: <ProjectTasksPage />,
-            loader: projectLoader,
-            handle: {
-              title: (project: { name: string } | undefined) =>
-                project?.name ?? "…",
-            },
-          },
+          // {
+          //   path: ":projectSlug",
+          //   element: <ProjectTasksPage />,
+          //   loader: projectLoader,
+          //   handle: {
+          //     title: (project: { name: string } | undefined) =>
+          //       project?.name ?? "…",
+          //   },
+          // },
         ],
       },
     ],

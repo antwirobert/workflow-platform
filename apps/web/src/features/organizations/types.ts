@@ -1,4 +1,5 @@
 import type { OrgRole } from "@/types/organization";
+import type { Priority, TaskScope, TaskStatus } from "@/types/task";
 
 export interface CreateOrganizationPayload {
   name: string;
@@ -15,6 +16,10 @@ export interface OrganizationlistParams {
   limit: number;
   search?: string;
   role?: OrgRole;
+  status?: TaskStatus;
+  priority?: Priority;
+  projectId?: string;
+  tab?: TaskScope;
 }
 
 export interface PaginatedResponse<T> {

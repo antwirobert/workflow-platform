@@ -34,7 +34,7 @@ const UserTaskFilters = ({
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Search workspaces..."
+          placeholder="Search tasks..."
           className="w-full pl-9 pr-3 bg-muted/50 focus:bg-background transition"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}

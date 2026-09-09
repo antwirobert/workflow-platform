@@ -9,6 +9,7 @@ import TasksTable from "../components/TasksTable";
 import { useState } from "react";
 import PaginationControls from "@/components/PaginationControls";
 import { CheckSquare } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const UserTasksPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,6 +45,53 @@ const UserTasksPage = () => {
     },
     search || undefined,
   );
+
+  if (isLoading) {
+    return (
+      <section className="px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-6 max-w-xl space-y-2">
+            <Skeleton className="h-6 w-28" />
+            <Skeleton className="h-4 w-56" />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-8 w-28 rounded-md" />
+            <Skeleton className="h-8 w-28 rounded-md" />
+            <Skeleton className="h-8 w-16 rounded-md" />
+          </div>
+          <Skeleton className="mt-0 h-px w-full" />
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <Skeleton className="h-9 w-48 rounded-md" />
+            <Skeleton className="h-9 w-28 rounded-md" />
+            <Skeleton className="h-9 w-28 rounded-md" />
+          </div>
+
+          <div className="mt-4 overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
+            <div className="flex items-center gap-4 border-b border-border/60 bg-muted/40 px-4 py-2.5">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="ml-auto h-3 w-14" />
+            </div>
+
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-4 border-b border-border/40 px-4 py-3 last:border-0"
+              >
+                <Skeleton className="h-4 w-48 flex-1" />
+                <Skeleton className="h-5 w-16 rounded-md" />
+                <Skeleton className="h-5 w-20 rounded-md" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="px-4 py-8 sm:px-6 lg:px-8">

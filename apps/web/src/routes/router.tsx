@@ -12,7 +12,7 @@ import { organizationLoader } from "@/features/organizations/loaders";
 import { workspaceLoader } from "@/features/workspaces/loaders";
 import { projectLoader } from "@/features/projects/loaders";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
-import MyTasksPage from "@/features/tasks/pages/MyTasksPage";
+import UserTasksPage from "@/features/tasks/pages/UserTasksPage";
 
 export const router = createBrowserRouter([
   {
@@ -54,8 +54,8 @@ export const router = createBrowserRouter([
               },
               {
                 path: "my-tasks",
-                element: <MyTasksPage />,
-                handle: { title: "Dashboard" },
+                element: <UserTasksPage />,
+                handle: { title: "Tasks" },
               },
             ],
           },

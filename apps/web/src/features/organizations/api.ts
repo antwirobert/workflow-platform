@@ -6,7 +6,7 @@ import type {
   UpdateOrganizationPayload,
 } from "./types";
 import type { Member, Organization } from "@/types/organization";
-import type { Project } from "@/types/project";
+import type { Task } from "@/types/task";
 
 const base = "/api/organizations/";
 
@@ -34,12 +34,16 @@ export const organizationsApi = {
         ...(params.role ? { role: params.role } : {}),
       },
     }),
-  listOrgProjects: (orgSlug: string, params: OrganizationlistParams) =>
-    apiClient.get<PaginatedResponse<Project>>(`${base}${orgSlug}/projects`, {
+  listUserTasks: (orgSlug: string, params: OrganizationlistParams) =>
+    apiClient.get<PaginatedResponse<Task>>(`${base}${orgSlug}/tasks`, {
       params: {
         page: String(params.page),
         limit: String(params.limit),
         ...(params.search ? { q: params.search } : {}),
+        ...(params.status ? { status: params.status } : {}),
+        ...(params.priority ? { priority: params.priority } : {}),
+        ...(params.projectId ? { projectId: params.projectId } : {}),
+        ...(params.tab ? { tab: params.tab } : {}),
       },
     }),
 };

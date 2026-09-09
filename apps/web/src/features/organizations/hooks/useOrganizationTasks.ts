@@ -4,7 +4,7 @@ import type { OrganizationlistParams } from "../types";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DELAY_MS } from "@/constants";
 
-export function useOrganizationProjects(
+export function useOrganizationTasks(
   orgSlug: string | null,
   filters: OrganizationlistParams,
   rawQuery?: string,
@@ -17,8 +17,8 @@ export function useOrganizationProjects(
   };
 
   return useQuery({
-    queryKey: ["organizations", orgSlug, "orgProjects", params],
-    queryFn: () => organizationsApi.listOrgProjects(orgSlug as string, params),
+    queryKey: ["organizations", orgSlug, "orgTasks", params],
+    queryFn: () => organizationsApi.listUserTasks(orgSlug as string, params),
     enabled: !!orgSlug,
     placeholderData: keepPreviousData,
   });

@@ -63,6 +63,9 @@ export function useUpdateTask(
       queryClient.invalidateQueries({
         queryKey: ["organizations", orgSlug, "dashboard"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["organizations", orgSlug, "orgTasks"],
+      });
     },
   });
 }

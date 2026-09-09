@@ -1,7 +1,6 @@
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -29,6 +28,7 @@ import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { useProjects } from "@/features/projects/hooks/useProjects";
 import OrganizationSwitcher from "@/features/organizations/components/OrganizationSwitcher ";
 import { DEFAULT_PAGE, DEFAULT_SIDEBAR_LIMIT } from "@/constants";
+import SidebarUserButton from "./SidebarUserButton";
 
 const AppSidebar = () => {
   const navigate = useNavigate();
@@ -386,7 +386,7 @@ const AppSidebar = () => {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter />
+      <SidebarUserButton />
     </Sidebar>
   );
 };

@@ -7,6 +7,8 @@ export type TaskStatus =
 
 export type Priority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
+export type TaskScope = "assigned" | "created" | "all";
+
 export interface Task {
   id: string;
   title: string;
@@ -18,7 +20,10 @@ export interface Task {
     id: string | null;
     name: string | null;
   };
-  createdById: string;
+  createdBy?: {
+    id: string | null;
+    name: string | null;
+  };
   dueDate: string | null;
   labels: string[];
   project: {

@@ -4,6 +4,7 @@ import { TaskPriorityBadge } from "./TaskPriorityBadge";
 import { TaskStatusBadge } from "./TaskStatusBadge";
 import { formatDueDate, getIdentityColor } from "@/lib/utils";
 import TextAvatar from "@/components/TextAvatar";
+import { Badge } from "@/components/ui/badge";
 
 const columnHelper = createColumnHelper<Task>();
 
@@ -12,17 +13,31 @@ export const columns = [
     header: "Task",
     cell: (info) => {
       const value = info.getValue();
+      const labels = info.row.original.labels;
 
       return (
-        <span
-          className={
-            value
-              ? "block max-w-120 truncate font-medium text-foreground"
-              : "text-muted-foreground"
-          }
-        >
-          {value}
-        </span>
+        <div className="flex flex-col space-y-1">
+          <span
+            className={
+              value
+                ? "block max-w-120 truncate font-medium text-foreground"
+                : "text-muted-foreground"
+            }
+          >
+            {value}
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {labels.map((label) => (
+              <Badge
+                key={label}
+                variant="secondary"
+                className="h-5 rounded-md px-1.5 text-[11px] font-medium text-muted-foreground"
+              >
+                {label}
+              </Badge>
+            ))}
+          </div>
+        </div>
       );
     },
   }),

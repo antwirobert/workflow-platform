@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { searchApi } from "../api";
 import { useDebounce } from "@/hooks/useDebounce";
 import type { SearchType } from "../types";
@@ -16,5 +16,6 @@ export function useSearch(
     queryFn: () =>
       searchApi.search(orgSlug as string, { query: debouncedQuery, type }),
     enabled: !!orgSlug && debouncedQuery.trim().length > 0,
+    placeholderData: keepPreviousData,
   });
 }

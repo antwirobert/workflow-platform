@@ -40,9 +40,10 @@ const LoginForm = () => {
       onSuccess: (data) => {
         toast.add({
           type: "success",
-          description: `Welcome back, ${data.user.name}`,
+          title: `Welcome back, ${data.user.name}`,
         });
-        navigate("/organizations");
+
+        navigate("/organizations", { replace: true });
       },
       onError: (err: ApiError) => {
         if (err.code === ERROR_CODES.VALIDATION && err.details) {

@@ -47,7 +47,10 @@ const createTaskSchema = z.object({
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val))
     .optional(),
-  dueDate: z.string().optional(),
+  dueDate: z
+    .instanceof(Date)
+    .optional()
+    .transform((val) => val?.toISOString()),
   labels: z.preprocess((val) => {
     if (typeof val === "string") {
       return val

@@ -51,9 +51,9 @@ const RegisterForm = () => {
       onSuccess: (data) => {
         toast.add({
           type: "success",
-          description: `Account created - Welcome ${data.user.name}`,
+          title: `Account created - Welcome ${data.user.name}`,
         });
-        navigate("/dashboard");
+        navigate("/organizations", { replace: true });
       },
       onError: (err: ApiError) => {
         if (err.code === ERROR_CODES.VALIDATION && err.details) {

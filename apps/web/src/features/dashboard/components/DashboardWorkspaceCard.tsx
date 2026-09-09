@@ -14,7 +14,7 @@ export const DashboardWorkspaceCard = ({
   const color = getIdentityColor(id);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
+    <div className="group flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
       <div className="flex items-center justify-between gap-2">
         <div
           className={cn(
@@ -22,16 +22,14 @@ export const DashboardWorkspaceCard = ({
             color.bg,
           )}
         />
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-[11px] tabular-nums text-muted-foreground">
           {timeAgo(updatedAt)}
         </span>
       </div>
 
-      <div className="min-w-0 space-y-0.5">
-        <h3 className="truncate text-sm font-semibold tracking-tight">
-          {name}
-        </h3>
-      </div>
+      <h3 className="truncate text-sm font-semibold tracking-tight text-foreground">
+        {name}
+      </h3>
     </div>
   );
 };

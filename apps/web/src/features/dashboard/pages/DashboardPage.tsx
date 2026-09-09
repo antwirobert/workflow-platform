@@ -1,12 +1,9 @@
-import { Button } from "@/components/ui/button";
-import TextAvatar from "@/components/TextAvatar";
 import { cn, formatDueDate, getIdentityColor } from "@/lib/utils";
 import {
   ArrowUpRight,
   CheckCircle2,
   Clock,
   FolderOpen,
-  Plus,
   Zap,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
@@ -16,54 +13,55 @@ import TasksTable from "@/features/tasks/components/TasksTable";
 import { DashboardStatCard } from "../components/DashboardStatCard";
 import { DashboardWorkspaceCard } from "../components/DashboardWorkspaceCard";
 import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
+import DashboardPageSkeleton from "../components/DashboardPageSkeleton";
 
-const ACTIVITY = [
-  {
-    id: "a1",
-    userId: "u1",
-    userName: "Alex Chen",
-    action: "commented on",
-    target: "CP-1024 Refactor authentication middleware",
-    context: "Core Platform",
-    time: "12m ago",
-  },
-  {
-    id: "a2",
-    userId: "u2",
-    userName: "Sara Kessler",
-    action: "completed",
-    target: "CP-1026 Update swagger documentation",
-    context: "Core Platform",
-    time: "1h ago",
-  },
-  {
-    id: "a3",
-    userId: "u3",
-    userName: "Lena Rivers",
-    action: "created",
-    target: "DS-205 Audit spacing tokens",
-    context: "Design System",
-    time: "3h ago",
-  },
-  {
-    id: "a4",
-    userId: "u4",
-    userName: "Marcus Aurelius",
-    action: "moved to review",
-    target: "CP-1027 Rate limiting for invitations",
-    context: "Core Platform",
-    time: "5h ago",
-  },
-  {
-    id: "a5",
-    userId: "u5",
-    userName: "Jordan Smith",
-    action: "assigned",
-    target: "CP-1028 Fix flake in auth tests",
-    context: "Core Platform",
-    time: "6h ago",
-  },
-];
+// const ACTIVITY = [
+//   {
+//     id: "a1",
+//     userId: "u1",
+//     userName: "Alex Chen",
+//     action: "commented on",
+//     target: "CP-1024 Refactor authentication middleware",
+//     context: "Core Platform",
+//     time: "12m ago",
+//   },
+//   {
+//     id: "a2",
+//     userId: "u2",
+//     userName: "Sara Kessler",
+//     action: "completed",
+//     target: "CP-1026 Update swagger documentation",
+//     context: "Core Platform",
+//     time: "1h ago",
+//   },
+//   {
+//     id: "a3",
+//     userId: "u3",
+//     userName: "Lena Rivers",
+//     action: "created",
+//     target: "DS-205 Audit spacing tokens",
+//     context: "Design System",
+//     time: "3h ago",
+//   },
+//   {
+//     id: "a4",
+//     userId: "u4",
+//     userName: "Marcus Aurelius",
+//     action: "moved to review",
+//     target: "CP-1027 Rate limiting for invitations",
+//     context: "Core Platform",
+//     time: "5h ago",
+//   },
+//   {
+//     id: "a5",
+//     userId: "u5",
+//     userName: "Jordan Smith",
+//     action: "assigned",
+//     target: "CP-1028 Fix flake in auth tests",
+//     context: "Core Platform",
+//     time: "6h ago",
+//   },
+// ];
 
 const DashboardPage = () => {
   const user = useAuthStore((state) => state.user);
@@ -76,6 +74,10 @@ const DashboardPage = () => {
     isFetching,
     refetch,
   } = useDashboard(orgSlug ?? null);
+
+  if (isLoading) {
+    return <DashboardPageSkeleton />;
+  }
 
   const hour = new Date().getHours();
   const greeting =
@@ -93,17 +95,6 @@ const DashboardPage = () => {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
               Here's what's moving today.
             </h1>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-2">
-            <Button variant="outline" className="gap-1.5">
-              <Plus className="size-4" />
-              New project
-            </Button>
-            <Button className="gap-1.5">
-              <Plus className="size-4" />
-              New task
-            </Button>
           </div>
         </div>
 
@@ -144,13 +135,15 @@ const DashboardPage = () => {
                 <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Assigned to you
                 </h2>
-                <Link
-                  to={`/organizations/${orgSlug}/tasks`}
-                  className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  View all
-                  <ArrowUpRight className="size-3" />
-                </Link>
+                {(dashboardData?.assignedTasks.length ?? 0) > 0 && (
+                  <Link
+                    to={`/organizations/${orgSlug}/my-tasks`}
+                    className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    View all
+                    <ArrowUpRight className="size-3" />
+                  </Link>
+                )}
               </div>
 
               {!isLoading &&
@@ -179,13 +172,15 @@ const DashboardPage = () => {
                 <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Recent workspaces
                 </h2>
-                <Link
-                  to={`/organizations/${orgSlug}/workspaces`}
-                  className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  View all
-                  <ArrowUpRight className="size-3" />
-                </Link>
+                {(dashboardData?.allWorkspaces.length ?? 0) > 0 && (
+                  <Link
+                    to={`/organizations/${orgSlug}/workspaces`}
+                    className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    View all
+                    <ArrowUpRight className="size-3" />
+                  </Link>
+                )}
               </div>
 
               {dashboardData?.allWorkspaces &&
@@ -213,7 +208,7 @@ const DashboardPage = () => {
 
           <div className="space-y-8">
             {/* Activity */}
-            <aside className="space-y-3">
+            {/* <aside className="space-y-3">
               <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Activity
               </h2>
@@ -252,7 +247,7 @@ const DashboardPage = () => {
                   })}
                 </div>
               </div>
-            </aside>
+            </aside> */}
 
             <section className="space-y-3">
               {/* Due This Week */}

@@ -15,22 +15,15 @@ import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import MyTasksPage from "@/features/tasks/pages/MyTasksPage";
 
 export const router = createBrowserRouter([
-  { path: "/", element: <Navigate to="/dashboard" replace /> },
+  {
+    path: "/",
+    element: <Navigate to="/organizations" replace />,
+  },
   { path: "/register", element: <RegisterPage /> },
   { path: "/login", element: <LoginPage /> },
   {
     element: <ProtectedLayout />,
     children: [
-      {
-        path: "/organizations/:orgSlug/dashboard",
-        element: <DashboardPage />,
-        handle: { title: "Dashboard" },
-      },
-      {
-        path: "/organizations/:orgSlug/my-tasks",
-        element: <MyTasksPage />,
-        handle: { title: "Tasks" },
-      },
       {
         path: "/organizations",
         element: <Outlet />,
@@ -53,6 +46,16 @@ export const router = createBrowserRouter([
                 path: "members",
                 element: <OrganizationMembersPage />,
                 handle: { title: "Members" },
+              },
+              {
+                path: "dashboard",
+                element: <DashboardPage />,
+                handle: { title: "Dashboard" },
+              },
+              {
+                path: "my-tasks",
+                element: <MyTasksPage />,
+                handle: { title: "Dashboard" },
               },
             ],
           },
@@ -77,20 +80,20 @@ export const router = createBrowserRouter([
       },
 
       {
-        path: "/organizations/:orgSlug/projects",
+        path: "/organizations/:orgSlug/workspaces/:workspaceSlug/projects",
         element: <Outlet />,
         handle: { title: "Projects" },
         children: [
           { index: true, element: <ProjectsPage /> },
-          // {
-          //   path: ":projectSlug",
-          //   element: <ProjectTasksPage />,
-          //   loader: projectLoader,
-          //   handle: {
-          //     title: (project: { name: string } | undefined) =>
-          //       project?.name ?? "…",
-          //   },
-          // },
+          {
+            path: ":projectSlug",
+            element: <ProjectTasksPage />,
+            loader: projectLoader,
+            handle: {
+              title: (project: { name: string } | undefined) =>
+                project?.name ?? "…",
+            },
+          },
         ],
       },
     ],

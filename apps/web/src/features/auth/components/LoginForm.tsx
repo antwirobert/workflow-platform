@@ -42,7 +42,7 @@ const LoginForm = () => {
           type: "success",
           description: `Welcome back, ${data.user.name}`,
         });
-        navigate("/dashboard");
+        navigate("/organizations");
       },
       onError: (err: ApiError) => {
         if (err.code === ERROR_CODES.VALIDATION && err.details) {

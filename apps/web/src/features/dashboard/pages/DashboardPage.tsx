@@ -14,7 +14,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { useDashboard } from "../hooks/useDashboard";
 import TasksTable from "@/features/tasks/components/TasksTable";
 import { DashboardStatCard } from "../components/DashboardStatCard";
-import { DashboardProjectCard } from "../components/DashboardProjectCard";
+import { DashboardWorkspaceCard } from "../components/DashboardWorkspaceCard";
+import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
 
 const ACTIVITY = [
   {
@@ -66,6 +67,7 @@ const ACTIVITY = [
 
 const DashboardPage = () => {
   const user = useAuthStore((state) => state.user);
+  const { activeOrganization } = useActiveOrganization();
   const { orgSlug } = useParams<{ orgSlug: string }>();
   const {
     data: dashboardData,
@@ -78,8 +80,6 @@ const DashboardPage = () => {
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-
-  const projects = dashboardData?.projectsAcrossWorkspaces ?? [];
 
   return (
     <section className="px-4 py-8 sm:px-6 lg:px-8">
@@ -128,9 +128,9 @@ const DashboardPage = () => {
             icon={CheckCircle2}
           />
           <DashboardStatCard
-            label="Active projects"
-            value={dashboardData?.projectCount ?? 0}
-            hint="Across your workspaces"
+            label="Active workspaces"
+            value={dashboardData?.workspaceCount ?? 0}
+            hint={`Inside ${activeOrganization?.name}`}
             icon={FolderOpen}
           />
         </div>
@@ -173,14 +173,14 @@ const DashboardPage = () => {
                 )}
             </section>
 
-            {/* Recent projects */}
+            {/* Recent workspaces */}
             <section className="space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Recent projects
+                  Recent workspaces
                 </h2>
                 <Link
-                  to={`/organizations/${orgSlug}/projects`}
+                  to={`/organizations/${orgSlug}/workspaces`}
                   className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   View all
@@ -188,15 +188,15 @@ const DashboardPage = () => {
                 </Link>
               </div>
 
-              {projects.length > 0 ? (
+              {dashboardData?.allWorkspaces &&
+              dashboardData.allWorkspaces.length > 0 ? (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {projects.map((project) => (
-                    <DashboardProjectCard
-                      key={project.id}
-                      id={project.id}
-                      name={project.name}
-                      description={project.description}
-                      updatedAt={project.updatedAt}
+                  {dashboardData.allWorkspaces.map((workspace) => (
+                    <DashboardWorkspaceCard
+                      key={workspace.id}
+                      id={workspace.id}
+                      name={workspace.name}
+                      updatedAt={workspace.updatedAt}
                     />
                   ))}
                 </div>
@@ -265,9 +265,6 @@ const DashboardPage = () => {
                 dashboardData.dueThisWeek.length > 0
                   ? dashboardData.dueThisWeek.map((task) => {
                       const priorityColor = getIdentityColor(task.id);
-                      const assigneeColor = getIdentityColor(
-                        task.assignee?.id ?? "",
-                      );
 
                       return (
                         <div
@@ -292,15 +289,6 @@ const DashboardPage = () => {
                               </p>
                             </div>
                           </div>
-
-                          {task.assignee?.name && assigneeColor && (
-                            <TextAvatar
-                              name={task.assignee.name}
-                              colorClass={assigneeColor.bg}
-                              textClass={assigneeColor.text}
-                              className="size-7 shrink-0 rounded-full text-[10px] font-semibold"
-                            />
-                          )}
                         </div>
                       );
                     })

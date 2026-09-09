@@ -51,9 +51,12 @@ export const taskDetailParamsSchema = z.object({
 export const listTasksQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(12),
+  q: z.string().min(1).max(100).optional(),
   status: z.nativeEnum(TaskStatus).optional(),
   priority: z.nativeEnum(Priority).optional(),
   assigneeId: z.string().uuid().optional(),
+  projectId: z.string().uuid().optional(),
+  tab: z.enum(["all", "assigned", "created"]).default("assigned"),
 });
 
 export type CreateTaskPayload = z.infer<typeof createTaskSchema>;

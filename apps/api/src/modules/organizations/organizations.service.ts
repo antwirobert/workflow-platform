@@ -10,10 +10,14 @@ import { ConflictError, NotFoundError } from "../../common/errors";
 import {
   Organization,
   OrganizationMember,
+  Priority,
   Prisma,
+  Task,
+  TaskStatus,
 } from "../../generated/prisma/client";
 import { getMonthRange, getNextNDaysRange } from "../../common/utils/date";
 import { TaskWhereInput } from "../../generated/prisma/models";
+import { ListTasksQuery, TaskResult } from "../tasks/tasks.types";
 
 export class OrganizationsService {
   async create(input: CreateOrganizationInput): Promise<OrganizationResult> {
@@ -317,6 +321,93 @@ export class OrganizationsService {
     };
   }
 
+  async listUserTasks(query: ListTasksQuery) {
+    const {
+      page,
+      limit,
+      q,
+      organizationId,
+      userId,
+      status,
+      priority,
+      projectId,
+      tab,
+    } = query;
+    const skip = (page - 1) * limit;
+    const search = q?.trim();
+
+    let scopeFilter = {};
+
+    if (tab === "assigned") {
+      scopeFilter = { assigneeId: userId };
+    } else if (tab === "created") {
+      scopeFilter = { createdById: userId };
+    } else {
+      scopeFilter = {
+        OR: [{ assigneeId: userId }, { createdById: userId }],
+      };
+    }
+
+    const where: TaskWhereInput = {
+      deletedAt: null,
+      project: { workspace: { organizationId } },
+      ...scopeFilter,
+      ...(status && { status }),
+      ...(priority && { priority }),
+      ...(projectId && { projectId }),
+      ...(search && {
+        OR: [
+          { title: { contains: search, mode: "insensitive" } },
+          { labels: { hasSome: [search] } },
+        ],
+      }),
+    };
+
+    const [allTasks, total] = await Promise.all([
+      prisma.task.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [
+          { dueDate: { sort: "asc", nulls: "last" } },
+          { createdAt: "desc" },
+        ],
+        include: {
+          assignee: {
+            select: { id: true, name: true },
+          },
+          createdBy: {
+            select: { id: true, name: true },
+          },
+        },
+      }),
+
+      prisma.task.count({ where }),
+    ]);
+
+    return {
+      data: allTasks.map((task) =>
+        this.buildTaskResult(
+          task,
+          {
+            id: task.assignee?.id ?? null,
+            name: task.assignee?.name ?? null,
+          },
+          {
+            id: task.createdBy?.id ?? null,
+            name: task.createdBy?.name ?? null,
+          },
+        ),
+      ),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
   // Combines model and membership records into a unified public API response format
   private buildOrganizationResult(
     organization: Organization,
@@ -337,6 +428,27 @@ export class OrganizationsService {
           }
         : {}),
       ...(user ? { user } : {}),
+    };
+  }
+
+  private buildTaskResult(
+    task: Task,
+    assignee?: { id: string | null; name: string | null },
+    createdBy?: { id: string | null; name: string | null },
+  ): TaskResult {
+    return {
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      status: task.status as TaskStatus,
+      priority: task.priority as Priority,
+      projectId: task.projectId,
+      ...(assignee ? { assignee } : {}),
+      ...(createdBy ? { assignee } : {}),
+      dueDate: task.dueDate,
+      labels: task.labels,
+      createdAt: task.createdAt,
+      updatedAt: task.updatedAt,
     };
   }
 }

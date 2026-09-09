@@ -26,7 +26,6 @@ export interface TaskResult {
     id: string | null;
     name: string | null;
   };
-  createdById: string;
   dueDate: Date | null;
   labels: string[];
   createdAt: Date;
@@ -36,6 +35,9 @@ export interface TaskResult {
 }
 
 export interface ListTasksQuery extends ListTasksQueryInput {
+  userId: string;
+  organizationId: string;
+
   projectId: string;
 }
 

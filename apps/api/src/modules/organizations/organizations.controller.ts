@@ -7,6 +7,7 @@ import {
   ListOrganizationsQueryInput,
   DashboardQueryInput,
 } from "./organizations.schemas";
+import { ListTasksQueryInput } from "../tasks/tasks.schemas";
 
 export class OrganizationsController {
   create = async (
@@ -133,6 +134,32 @@ export class OrganizationsController {
         req.organization!.id,
       );
       res.status(200).json(dashboard);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  listUserTasks = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { page, limit, q, status, priority, projectId, tab } = req
+        .validated!.query as ListTasksQueryInput;
+
+      const userTasks = await organizationsService.listUserTasks({
+        page,
+        limit,
+        q,
+        userId: req.user!.userId,
+        organizationId: req.organization!.id,
+        status,
+        priority,
+        projectId: projectId!,
+        tab,
+      });
+      res.status(200).json(userTasks);
     } catch (error) {
       next(error);
     }

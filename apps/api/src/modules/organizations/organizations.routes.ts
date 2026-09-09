@@ -14,6 +14,7 @@ import workspacesRouter from "../workspaces/workspaces.routes";
 import searchRouter from "../../search/search.routes";
 import invitationsRouter from "../invitations/invitations.routes";
 import { assertOrgMembership } from "../../middleware/guards";
+import { listTasksQuerySchema } from "../tasks/tasks.schemas";
 
 const router = Router();
 
@@ -55,6 +56,15 @@ router.get(
   validate(dashboardQuerySchema, "query"),
   assertOrgMembership,
   organizationsController.getDashboard,
+);
+
+router.get(
+  "/:orgSlug/tasks",
+  authenticate,
+  validate(orgSlugParamSchema, "params"),
+  validate(listTasksQuerySchema, "query"),
+  assertOrgMembership,
+  organizationsController.listUserTasks,
 );
 
 router.patch(

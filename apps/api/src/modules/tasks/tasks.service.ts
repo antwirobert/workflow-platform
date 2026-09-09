@@ -209,7 +209,6 @@ export class TasksService {
       priority: task.priority as Priority,
       projectId: task.projectId,
       ...(assignee ? { assignee } : {}),
-      createdById: task.createdById,
       dueDate: task.dueDate,
       labels: task.labels,
       createdAt: task.createdAt,

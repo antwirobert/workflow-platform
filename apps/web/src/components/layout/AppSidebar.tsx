@@ -71,6 +71,7 @@ const AppSidebar = () => {
   const allProjectsPath = `/organizations/${activeOrganization?.slug}/workspaces/${activeWorkspaceSlug}/projects`;
 
   const isAllWorkspacesActive = location.pathname === allWorkspacesPath;
+  const isAllProjectsActive = location.pathname === allProjectsPath;
 
   const handleWorkspaceClick = (slug: string) => {
     setActiveWorkspaceSlug(slug);
@@ -250,24 +251,6 @@ const AppSidebar = () => {
                   <span>My Tasks</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() =>
-                    navigate(
-                      `/organizations/${activeOrganization?.slug}/projects`,
-                    )
-                  }
-                  isActive={
-                    location.pathname ===
-                    `/organizations/${activeOrganization?.slug}/projects`
-                  }
-                  className="gap-2.5"
-                >
-                  <Archive className="size-4" />
-                  <span>All projects</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -381,6 +364,24 @@ const AppSidebar = () => {
                   );
                 })}
             </SidebarMenu>
+
+            {activeWorkspaceSlug &&
+              !projectsLoading &&
+              !projectsError &&
+              (projects?.data ?? []).length > 0 && (
+                <SidebarMenu className="mt-1">
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => navigate(allProjectsPath)}
+                      isActive={isAllProjectsActive}
+                      className="flex gap-2.5 text-muted-foreground"
+                    >
+                      <Archive className="size-4 opacity-70" />
+                      <span>All projects</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              )}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

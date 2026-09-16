@@ -18,6 +18,32 @@ import { listTasksQuerySchema } from "../tasks/tasks.schemas";
 
 const router = Router();
 
+/**
+ * @swagger
+ * /organizations:
+ *   post:
+ *     summary: Create an organization
+ *     tags: [Organizations]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, slug]
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Acme Corp
+ *               slug:
+ *                 type: string
+ *                 example: acme
+ *     responses:
+ *       201:
+ *         description: Organization created successfully
+ *       401:
+ *         description: Unauthorized
+ */
 router.post(
   "/",
   authenticate,
@@ -25,6 +51,38 @@ router.post(
   organizationsController.create,
 );
 
+/**
+ * @swagger
+ * /organizations:
+ *   get:
+ *     summary: List organizations for the authenticated user
+ *     tags: [Organizations]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Organizations returned
+ *       401:
+ *         description: Unauthorized
+ */
 router.get(
   "/",
   authenticate,
@@ -32,6 +90,26 @@ router.get(
   organizationsController.list,
 );
 
+/**
+ * @swagger
+ * /organizations/{orgSlug}:
+ *   get:
+ *     summary: Get organization details
+ *     tags: [Organizations]
+ *     parameters:
+ *       - in: path
+ *         name: orgSlug
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Organization detail returned
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Organization not found
+ */
 router.get(
   "/:orgSlug",
   authenticate,
@@ -40,6 +118,24 @@ router.get(
   organizationsController.getById,
 );
 
+/**
+ * @swagger
+ * /organizations/{orgSlug}/members:
+ *   get:
+ *     summary: List organization members
+ *     tags: [Organizations]
+ *     parameters:
+ *       - in: path
+ *         name: orgSlug
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Members returned
+ *       401:
+ *         description: Unauthorized
+ */
 router.get(
   "/:orgSlug/members",
   authenticate,
@@ -49,6 +145,30 @@ router.get(
   organizationsController.listMembers,
 );
 
+/**
+ * @swagger
+ * /organizations/{orgSlug}/dashboard:
+ *   get:
+ *     summary: Get organization dashboard data
+ *     tags: [Organizations]
+ *     parameters:
+ *       - in: path
+ *         name: orgSlug
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *     responses:
+ *       200:
+ *         description: Dashboard data returned
+ *       401:
+ *         description: Unauthorized
+ */
 router.get(
   "/:orgSlug/dashboard",
   authenticate,
@@ -58,6 +178,24 @@ router.get(
   organizationsController.getDashboard,
 );
 
+/**
+ * @swagger
+ * /organizations/{orgSlug}/tasks:
+ *   get:
+ *     summary: List tasks for the current user in the organization
+ *     tags: [Organizations]
+ *     parameters:
+ *       - in: path
+ *         name: orgSlug
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User tasks returned
+ *       401:
+ *         description: Unauthorized
+ */
 router.get(
   "/:orgSlug/tasks",
   authenticate,
@@ -67,6 +205,35 @@ router.get(
   organizationsController.listUserTasks,
 );
 
+/**
+ * @swagger
+ * /organizations/{orgSlug}:
+ *   patch:
+ *     summary: Update organization settings
+ *     tags: [Organizations]
+ *     parameters:
+ *       - in: path
+ *         name: orgSlug
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               slug:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Organization updated successfully
+ *       403:
+ *         description: Insufficient permissions
+ */
 router.patch(
   "/:orgSlug",
   authenticate,
@@ -77,6 +244,24 @@ router.patch(
   organizationsController.update,
 );
 
+/**
+ * @swagger
+ * /organizations/{orgSlug}:
+ *   delete:
+ *     summary: Delete an organization
+ *     tags: [Organizations]
+ *     parameters:
+ *       - in: path
+ *         name: orgSlug
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Organization deleted successfully
+ *       403:
+ *         description: Forbidden
+ */
 router.delete(
   "/:orgSlug",
   authenticate,

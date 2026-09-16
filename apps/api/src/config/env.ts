@@ -19,4 +19,5 @@ export const config = {
   databaseUrl: requireEnv("DATABASE_URL"),
   jwtSecret: requireEnv("JWT_SECRET"),
   jwtExpiresIn: requireEnv("JWT_EXPIRES_IN") as SignOptions["expiresIn"],
+  redisUrl: requireEnv("REDIS_URL"),
 };

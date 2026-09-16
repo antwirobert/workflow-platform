@@ -9,7 +9,7 @@ const options: swaggerJsdoc.Options = {
       description: "Production-grade multi-tenant project management API",
     },
     servers: [
-      { url: "http://localhost:8080", description: "Development server" },
+      { url: "http://localhost:8080/api", description: "Development server" },
     ],
     components: {
       securitySchemes: {

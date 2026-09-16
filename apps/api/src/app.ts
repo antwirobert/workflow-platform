@@ -10,6 +10,12 @@ import { swaggerSpec } from "./docs/swagger";
 
 const app = express();
 
+// Middleware
+app.use(express.json());
+
+app.use("/api-docs", swaggerUi.serve);
+app.get("/api-docs", swaggerUi.setup(swaggerSpec));
+
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -18,15 +24,11 @@ app.use(
   }),
 );
 
-// Middleware
-app.use(express.json());
-
 // Routes
 app.use("/api/health", healthRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/organizations", organizationsRouter);
 app.use("/api/invitations", invitationsRouter);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Global error handler
 app.use(errorHandler);

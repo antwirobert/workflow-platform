@@ -35,9 +35,8 @@ export interface TaskResult {
 }
 
 export interface ListTasksQuery extends ListTasksQueryInput {
-  userId: string;
-  organizationId: string;
-
+  userId?: string;
+  organizationId?: string;
   projectId: string;
 }
 

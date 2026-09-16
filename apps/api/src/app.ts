@@ -7,6 +7,7 @@ import organizationsRouter from "./modules/organizations/organizations.routes";
 import invitationsRouter from "./modules/invitations/invitations.routes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./docs/swagger";
+import { authRateLimiter, generalRateLimiter } from "./middleware/rateLimiter";
 
 const app = express();
 
@@ -24,9 +25,11 @@ app.use(
   }),
 );
 
+app.use(generalRateLimiter);
+
 // Routes
 app.use("/api/health", healthRouter);
-app.use("/api/auth", authRouter);
+app.use("/api/auth", authRateLimiter, authRouter);
 app.use("/api/organizations", organizationsRouter);
 app.use("/api/invitations", invitationsRouter);
 

@@ -16,6 +16,17 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: pm_api_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   api:
     build: .
     container_name: pm_api
@@ -23,11 +34,14 @@ services:
       - "8080:8080"
     environment:
       DATABASE_URL: postgresql://postgres:3438@db:5432/postgres?schema=public
+      REDIS_URL: redis://redis:6379
       JWT_SECRET: super_secret_key
       JWT_EXPIRES_IN: 15m
       NODE_ENV: production
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
 volumes:

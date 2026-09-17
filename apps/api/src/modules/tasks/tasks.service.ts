@@ -1,5 +1,7 @@
 import { NotFoundError } from "../../common/errors";
 import { prisma } from "../../lib/prisma";
+import { deleteCacheByPattern, getCache, setCache } from "../../redis/cache";
+import { CacheKeys } from "../../redis/cacheKeys";
 import { Task, TaskStatus, Priority } from "../../generated/prisma/client";
 import {
   CreateTaskInput,
@@ -21,6 +23,8 @@ export class TasksService {
       createdById,
       dueDate,
       labels,
+      organizationId,
+      workspaceId,
     } = input;
 
     const task = await prisma.task.create({
@@ -37,11 +41,42 @@ export class TasksService {
       },
     });
 
+    await this.invalidateTaskCaches(organizationId, workspaceId, projectId, [
+      createdById,
+      assigneeId,
+    ]);
+
     return this.buildTaskResult(task);
   }
 
   async list(query: ListTasksQuery): Promise<listTasksQueryResult<TaskResult>> {
-    const { page, limit, status, priority, assigneeId, projectId } = query;
+    const {
+      page,
+      limit,
+      status,
+      priority,
+      assigneeId,
+      projectId,
+      organizationId,
+      workspaceId,
+    } = query;
+
+    const queryString = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+      ...(status ? { status } : {}),
+      ...(priority ? { priority } : {}),
+      ...(assigneeId ? { assigneeId } : {}),
+    }).toString();
+    const cacheKey = CacheKeys.tasks(
+      organizationId ?? "",
+      workspaceId ?? "",
+      projectId,
+      queryString,
+    );
+
+    const cached = await getCache<listTasksQueryResult<TaskResult>>(cacheKey);
+    if (cached) return cached;
 
     // Calculate offset for pagination
     const skip = (page - 1) * limit;
@@ -79,7 +114,7 @@ export class TasksService {
       prisma.task.count({ where }),
     ]);
 
-    return {
+    const result = {
       data: tasks.map((task) =>
         this.buildTaskResult(
           task,
@@ -100,9 +135,26 @@ export class TasksService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    await setCache(cacheKey, result, 120);
+    return result;
   }
 
-  async getById(projectId: string, taskId: string): Promise<TaskResult> {
+  async getById(
+    organizationId: string,
+    workspaceId: string,
+    projectId: string,
+    taskId: string,
+  ): Promise<TaskResult> {
+    const cacheKey = CacheKeys.task(
+      organizationId,
+      workspaceId,
+      projectId,
+      taskId,
+    );
+    const cached = await getCache<TaskResult>(cacheKey);
+    if (cached) return cached;
+
     const task = await prisma.task.findUnique({
       where: {
         id: taskId,
@@ -123,7 +175,9 @@ export class TasksService {
       throw new NotFoundError("Task");
     }
 
-    return this.buildTaskResult(task);
+    const result = this.buildTaskResult(task);
+    await setCache(cacheKey, result, 120);
+    return result;
   }
 
   async update(input: UpdateTaskInput): Promise<TaskResult> {
@@ -137,6 +191,8 @@ export class TasksService {
       assigneeId,
       dueDate,
       labels,
+      organizationId,
+      workspaceId,
     } = input;
 
     const existing = await prisma.task.findUnique({
@@ -171,10 +227,21 @@ export class TasksService {
       },
     });
 
+    await this.invalidateTaskCaches(organizationId, workspaceId, projectId, [
+      existing.createdById,
+      existing.assigneeId,
+      assigneeId,
+    ]);
+
     return this.buildTaskResult(task);
   }
 
-  async delete(projectId: string, taskId: string): Promise<TaskResult> {
+  async delete(
+    organizationId: string,
+    workspaceId: string,
+    projectId: string,
+    taskId: string,
+  ): Promise<TaskResult> {
     const existing = await prisma.task.findUnique({
       where: {
         id: taskId,
@@ -193,7 +260,38 @@ export class TasksService {
       },
     });
 
+    await this.invalidateTaskCaches(organizationId, workspaceId, projectId, [
+      existing.createdById,
+      existing.assigneeId,
+    ]);
+
     return this.buildTaskResult(task);
+  }
+
+  private async invalidateTaskCaches(
+    organizationId: string,
+    workspaceId: string,
+    projectId: string,
+    userIds: (string | null | undefined)[],
+  ) {
+    const uniqueUserIds = [...new Set(userIds.filter(Boolean))] as string[];
+
+    await Promise.all([
+      deleteCacheByPattern(
+        `organizations:${organizationId}:workspaces:${workspaceId}:projects:${projectId}:tasks:*`,
+      ),
+      deleteCacheByPattern(
+        `organizations:${organizationId}:workspaces:${workspaceId}:projects:*`,
+      ),
+      deleteCacheByPattern(
+        `organizations:${organizationId}:workspaces:${workspaceId}:*`,
+      ),
+      ...uniqueUserIds.map((userId) =>
+        deleteCacheByPattern(
+          `organizations:${organizationId}:users:${userId}:tasks:*`,
+        ),
+      ),
+    ]);
   }
 
   private buildTaskResult(

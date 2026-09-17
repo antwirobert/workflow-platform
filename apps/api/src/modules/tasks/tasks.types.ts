@@ -8,11 +8,15 @@ import {
 export interface CreateTaskInput extends CreateTaskPayload {
   projectId: string;
   createdById: string;
+  organizationId: string;
+  workspaceId: string;
 }
 
 export interface UpdateTaskInput extends UpdateTaskPayload {
   projectId: string;
   taskId: string;
+  organizationId: string;
+  workspaceId: string;
 }
 
 export interface TaskResult {
@@ -37,6 +41,7 @@ export interface TaskResult {
 export interface ListTasksQuery extends ListTasksQueryInput {
   userId?: string;
   organizationId?: string;
+  workspaceId?: string;
   projectId: string;
 }
 

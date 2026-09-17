@@ -6,6 +6,7 @@ import {
 
 export interface CreateProjectInput extends CreateProjectPayload {
   workspaceId: string;
+  organizationId: string;
 }
 
 export interface ProjectResult {
@@ -24,6 +25,7 @@ export interface ProjectResult {
 export interface UpdateProjectInput extends UpdateProjectPayload {
   projectId: string;
   workspaceId: string;
+  organizationId: string;
 }
 export interface ProjectAssignneeResult {
   id: string;

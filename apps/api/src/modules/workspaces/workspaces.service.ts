@@ -9,6 +9,8 @@ import {
   WorkspaceResult,
 } from "./workspaces.types";
 import { TaskResult } from "../tasks/tasks.types";
+import { deleteCacheByPattern, getCache, setCache } from "../../redis/cache";
+import { CacheKeys } from "../../redis/cacheKeys";
 
 export class WorkspacesService {
   async create(input: CreateWorkspaceInput): Promise<WorkspaceResult> {
@@ -38,6 +40,8 @@ export class WorkspacesService {
       },
     });
 
+    await this.invalidateOrganizationCaches(organizationId);
+
     return this.buildWorkspaceResult(workspace);
   }
 
@@ -49,6 +53,20 @@ export class WorkspacesService {
     const skip = (page - 1) * limit;
 
     const searchTerm = q?.trim();
+    const queryString = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+      ...(searchTerm ? { q: searchTerm } : {}),
+    }).toString();
+    const cacheKey = CacheKeys.workspaces(
+      organizationId ?? "",
+      userId ?? "",
+      queryString,
+    );
+
+    const cached =
+      await getCache<ListWorkspacesQueryResult<WorkspaceResult>>(cacheKey);
+    if (cached) return cached;
 
     const where: Prisma.WorkspaceWhereInput = {
       organizationId,
@@ -77,7 +95,7 @@ export class WorkspacesService {
       prisma.workspace.count({ where }),
     ]);
 
-    return {
+    const result = {
       data: workspaces.map((w) =>
         this.buildWorkspaceResult(w, w.organization.members[0].role, {
           projectCount: w._count.projects,
@@ -90,6 +108,9 @@ export class WorkspacesService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    await setCache(cacheKey, result, 300);
+    return result;
   }
 
   async getById(
@@ -97,6 +118,10 @@ export class WorkspacesService {
     workspaceId: string,
     userId: string,
   ): Promise<WorkspaceResult> {
+    const cacheKey = CacheKeys.workspace(organizationId, workspaceId, userId);
+    const cached = await getCache<WorkspaceResult>(cacheKey);
+    if (cached) return cached;
+
     const workspace = await prisma.workspace.findUnique({
       where: { id: workspaceId },
       include: {
@@ -148,7 +173,7 @@ export class WorkspacesService {
       0,
     );
 
-    return this.buildWorkspaceResult(
+    const result = this.buildWorkspaceResult(
       workspace,
       workspace.organization.members[0].role,
       {
@@ -159,6 +184,9 @@ export class WorkspacesService {
         memberCount: workspace.organization._count.members,
       },
     );
+
+    await setCache(cacheKey, result, 300);
+    return result;
   }
 
   async update(input: UpdateWorkspaceInput): Promise<WorkspaceResult> {
@@ -199,6 +227,8 @@ export class WorkspacesService {
       },
     });
 
+    await this.invalidateWorkspaceCaches(organizationId, workspaceId);
+
     return this.buildWorkspaceResult(workspace);
   }
 
@@ -212,6 +242,7 @@ export class WorkspacesService {
     }
 
     await prisma.workspace.delete({ where: { id: workspaceId } });
+    await this.invalidateWorkspaceCaches(organizationId, workspaceId);
   }
 
   async listWorkspaceTasks(
@@ -220,6 +251,19 @@ export class WorkspacesService {
     const { page, limit, workspaceId } = query;
 
     const skip = (page - 1) * limit;
+    const queryString = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    }).toString();
+    const cacheKey = CacheKeys.workspaceTasks(
+      query.organizationId ?? "",
+      workspaceId ?? "",
+      queryString,
+    );
+
+    const cached =
+      await getCache<ListWorkspacesQueryResult<TaskResult>>(cacheKey);
+    if (cached) return cached;
 
     const where = {
       deletedAt: null,
@@ -240,7 +284,7 @@ export class WorkspacesService {
       prisma.task.count({ where }),
     ]);
 
-    return {
+    const result = {
       data: tasks.map((t) => t),
       meta: {
         page,
@@ -249,11 +293,26 @@ export class WorkspacesService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    await setCache(cacheKey, result, 120);
+    return result;
   }
 
   async listWorkspaceMembers(query: listWorkspacesQuery) {
     const { page, limit, organizationId, workspaceId } = query;
     const skip = (page - 1) * limit;
+    const queryString = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    }).toString();
+    const cacheKey = CacheKeys.workspaceMembers(
+      organizationId ?? "",
+      workspaceId ?? "",
+      queryString,
+    );
+
+    const cached = await getCache(cacheKey);
+    if (cached) return cached;
 
     const where = {
       organizationId,
@@ -291,7 +350,7 @@ export class WorkspacesService {
       prisma.organizationMember.count({ where }),
     ]);
 
-    return {
+    const result = {
       data: members.map(({ role, user }) => ({
         id: user.id,
         name: user.name,
@@ -306,6 +365,28 @@ export class WorkspacesService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    await setCache(cacheKey, result, 300);
+    return result;
+  }
+
+  private async invalidateOrganizationCaches(organizationId: string) {
+    await Promise.all([
+      deleteCacheByPattern(`organizations:${organizationId}:users:*`),
+      deleteCacheByPattern(`organizations:${organizationId}:workspaces:*`),
+    ]);
+  }
+
+  private async invalidateWorkspaceCaches(
+    organizationId: string,
+    workspaceId: string,
+  ) {
+    await Promise.all([
+      this.invalidateOrganizationCaches(organizationId),
+      deleteCacheByPattern(
+        `organizations:${organizationId}:workspaces:${workspaceId}:*`,
+      ),
+    ]);
   }
 
   // Maps database model to public API response format

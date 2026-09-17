@@ -27,6 +27,8 @@ export class TasksController {
 
       const task = await tasksService.create({
         projectId: req.project!.id,
+        organizationId: req.organization!.id,
+        workspaceId: req.workspace!.id,
         title,
         description,
         status,
@@ -58,6 +60,8 @@ export class TasksController {
         status,
         priority,
         assigneeId,
+        organizationId: req.organization!.id,
+        workspaceId: req.workspace!.id,
         projectId: req.project!.id,
       });
 
@@ -75,7 +79,12 @@ export class TasksController {
     try {
       const { taskId } = req.validated!.params as TaskDetailParams;
 
-      const task = await tasksService.getById(req.project!.id, taskId);
+      const task = await tasksService.getById(
+        req.organization!.id,
+        req.workspace!.id,
+        req.project!.id,
+        taskId,
+      );
       res.status(200).json(task);
     } catch (error) {
       next(error);
@@ -94,6 +103,8 @@ export class TasksController {
       const task = await tasksService.update({
         projectId: req.project!.id,
         taskId,
+        organizationId: req.organization!.id,
+        workspaceId: req.workspace!.id,
         ...body,
       });
       res.status(200).json(task);
@@ -110,7 +121,12 @@ export class TasksController {
     try {
       const { taskId } = req.validated!.params as TaskDetailParams;
 
-      const task = await tasksService.delete(req.project!.id, taskId);
+      const task = await tasksService.delete(
+        req.organization!.id,
+        req.workspace!.id,
+        req.project!.id,
+        taskId,
+      );
       res.status(200).json(task);
     } catch (error) {
       next(error);

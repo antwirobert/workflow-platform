@@ -21,6 +21,7 @@ export class ProjectsController {
         name,
         slug,
         description,
+        organizationId: req.organization!.id,
         workspaceId: req.workspace!.id,
       });
 
@@ -42,6 +43,7 @@ export class ProjectsController {
         page,
         limit,
         q,
+        organizationId: req.organization!.id,
         workspaceId: req.workspace!.id,
       });
 
@@ -58,6 +60,7 @@ export class ProjectsController {
   ) => {
     try {
       const project = await projectsService.getById(
+        req.organization!.id,
         req.workspace!.id,
         req.project!.id,
       );
@@ -80,6 +83,7 @@ export class ProjectsController {
       const project = await projectsService.update({
         workspaceId: req.workspace!.id,
         projectId: req.project!.id,
+        organizationId: req.organization!.id,
         name,
         slug,
         description,
@@ -97,7 +101,11 @@ export class ProjectsController {
     next: NextFunction,
   ) => {
     try {
-      await projectsService.delete(req.workspace!.id, req.project!.id);
+      await projectsService.delete(
+        req.workspace!.id,
+        req.project!.id,
+        req.organization!.id,
+      );
       res.status(204).send();
     } catch (error) {
       next(error);
@@ -115,6 +123,8 @@ export class ProjectsController {
       const projectAssignees = await projectsService.listProjectAssignees({
         page,
         limit,
+        organizationId: req.organization!.id,
+        workspaceId: req.workspace!.id,
         projectId: req.project!.id,
       });
 

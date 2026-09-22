@@ -15,7 +15,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install --ignore-scripts
 
 # Copy the rest of the source code
 COPY . .
@@ -25,6 +25,7 @@ ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres
 ENV JWT_SECRET=dummy_secret_for_build
 ENV JWT_EXPIRES_IN=15m
 ENV NODE_ENV=production
+ENV REDIS_URL=redis://localhost:6379
 
 # Generate Prisma client inside the container
 RUN npx prisma generate

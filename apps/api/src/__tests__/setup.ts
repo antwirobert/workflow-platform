@@ -1,6 +1,15 @@
 import { config } from "../config/env";
 import { prisma } from "../lib/prisma";
 
+jest.mock("../jobs/queues", () => ({
+  emailQueue: { add: jest.fn() },
+  cleanupQueue: { add: jest.fn() },
+}));
+
+jest.mock("../jobs", () => ({
+  startJobSystem: jest.fn(),
+}));
+
 // Runs once before all tests
 beforeAll(async () => {
   // Point Prisma at test database

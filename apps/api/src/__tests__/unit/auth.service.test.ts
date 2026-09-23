@@ -5,6 +5,18 @@ import { prisma } from "../../lib/prisma";
 // Mock the entire Prisma client — no real DB in unit tests
 jest.mock("../../lib/prisma", () => ({
   __esModule: true,
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+    },
+    refreshToken: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      delete: jest.fn(),
+      deleteMany: jest.fn(),
+    },
+  },
   default: {
     user: {
       findUnique: jest.fn(),
@@ -22,6 +34,10 @@ jest.mock("../../lib/prisma", () => ({
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const authService = new AuthService();
 
+beforeEach(() => {
+  mockPrisma.refreshToken.create = jest.fn().mockResolvedValue({ id: "rt-1" });
+});
+
 describe("AuthService", () => {
   describe("register", () => {
     it("should throw ConflictError if email already exists", async () => {
@@ -35,7 +51,7 @@ describe("AuthService", () => {
           email: "test@test.com",
           password: "password123",
         }),
-      ).rejects.toThrow("Email already in use");
+      ).rejects.toThrow("User already exists");
     });
 
     it("should hash password and create user", async () => {
@@ -46,18 +62,18 @@ describe("AuthService", () => {
         email: "test@test.com",
       });
 
-      const result = await authService.register({
+      await authService.register({
         name: "Robert",
         email: "test@test.com",
         password: "password123",
       });
+
       expect(mockPrisma.user.create).toHaveBeenCalledTimes(1);
 
-      // Verify the password was hashed — never stored as plaintext
       const createCall = (mockPrisma.user.create as jest.Mock).mock.calls[0][0];
       const isHashed = await bcrypt.compare(
         "password123",
-        createCall.data.password,
+        createCall.data.passwordHash,
       );
       expect(isHashed).toBe(true);
     });
@@ -69,7 +85,7 @@ describe("AuthService", () => {
 
       await expect(
         authService.login({ email: "unknown@test.com", password: "password" }),
-      ).rejects.toThrow("Invalid credentials");
+      ).rejects.toThrow("Invalid email or password");
     });
 
     it("should throw 401 if password is wrong", async () => {
@@ -77,7 +93,7 @@ describe("AuthService", () => {
       mockPrisma.user.findUnique = jest.fn().mockResolvedValue({
         id: "1",
         email: "test@test.com",
-        password: hashedPassword,
+        passwordHash: hashedPassword,
       });
 
       await expect(
@@ -85,7 +101,7 @@ describe("AuthService", () => {
           email: "test@test.com",
           password: "wrongpassword",
         }),
-      ).rejects.toThrow("Invalid credentials");
+      ).rejects.toThrow("Invalid email or password");
     });
   });
 });

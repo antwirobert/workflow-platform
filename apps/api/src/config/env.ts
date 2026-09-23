@@ -17,6 +17,7 @@ export const config = {
   refreshTokenDays: parseInt(process.env.REFRESH_TOKEN_DAYS ?? "7", 10),
   nodeEnv: process.env.NODE_ENV ?? "development",
   databaseUrl: requireEnv("DATABASE_URL"),
+  databaseUrlTest: requireEnv("DATABASE_URL_TEST"),
   jwtSecret: requireEnv("JWT_SECRET"),
   jwtExpiresIn: requireEnv("JWT_EXPIRES_IN") as SignOptions["expiresIn"],
   redisUrl: requireEnv("REDIS_URL"),

@@ -18,6 +18,13 @@ import {
 import { getMonthRange, getNextNDaysRange } from "../../common/utils/date";
 import { TaskWhereInput } from "../../generated/prisma/models";
 import { ListTasksQuery, TaskResult } from "../tasks/tasks.types";
+import {
+  deleteCache,
+  deleteCacheByPattern,
+  getCache,
+  setCache,
+} from "../../redis/cache";
+import { CacheKeys } from "../../redis/cacheKeys";
 
 export class OrganizationsService {
   async create(input: CreateOrganizationInput): Promise<OrganizationResult> {
@@ -48,6 +55,8 @@ export class OrganizationsService {
         },
       });
 
+      await deleteCacheByPattern(`organizations:user:${userId}:*`);
+
       return { organization, membership };
     });
 
@@ -58,6 +67,19 @@ export class OrganizationsService {
     query: ListOrganizationsQuery,
   ): Promise<ListOrganizationsQueryResult<OrganizationResult>> {
     const { page, limit, userId } = query;
+
+    const queryString = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    }).toString();
+
+    const cacheKey = CacheKeys.organizations(userId ?? "", queryString);
+
+    const cached =
+      await getCache<ListOrganizationsQueryResult<OrganizationResult>>(
+        cacheKey,
+      );
+    if (cached) return cached;
 
     const skip = (page - 1) * limit;
 
@@ -91,7 +113,7 @@ export class OrganizationsService {
       prisma.organizationMember.count({ where }),
     ]);
 
-    return {
+    const result = {
       data: memberships.map((m) =>
         this.buildOrganizationResult(m.organization, m, {
           workspaceCount: m.organization._count.workspaces,
@@ -105,9 +127,17 @@ export class OrganizationsService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    await setCache(cacheKey, result, 300);
+    return result;
   }
 
   async getById(organizationId: string, userId: string) {
+    const cacheKey = CacheKeys.organization(organizationId, userId);
+
+    const cached = await getCache(cacheKey);
+    if (cached) return cached;
+
     const membership = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userId: {
@@ -124,9 +154,16 @@ export class OrganizationsService {
       throw new NotFoundError("Organization");
     }
 
-    return this.buildOrganizationResult(membership.organization, membership, {
-      memberCount: membership.organization._count.members,
-    });
+    const result = this.buildOrganizationResult(
+      membership.organization,
+      membership,
+      {
+        memberCount: membership.organization._count.members,
+      },
+    );
+
+    await setCache(cacheKey, result, 300);
+    return result;
   }
 
   async update(input: UpdateOrganizationInput): Promise<OrganizationResult> {
@@ -158,6 +195,18 @@ export class OrganizationsService {
       },
     });
 
+    const members = await prisma.organizationMember.findMany({
+      where: { organizationId: organizationId },
+      select: { userId: true },
+    });
+
+    await Promise.all(
+      members.map(async ({ userId }) => {
+        await deleteCache(CacheKeys.organization(organizationId, userId));
+        await deleteCacheByPattern(`organizations:users:${userId}:*`);
+      }),
+    );
+
     return this.buildOrganizationResult(updated);
   }
 
@@ -170,6 +219,19 @@ export class OrganizationsService {
       throw new NotFoundError("Organization");
     }
 
+    const members = await prisma.organizationMember.findMany({
+      where: { organizationId: organizationId },
+      select: { userId: true },
+    });
+
+    await Promise.all(
+      members.map(async ({ userId }) => {
+        await deleteCache(CacheKeys.organization(organizationId, userId));
+        await deleteCacheByPattern(`organizations:users:${userId}:*`);
+        await deleteCacheByPattern(`organizations:${organizationId}:*`);
+      }),
+    );
+
     await prisma.organization.delete({ where: { id: organizationId } });
   }
 
@@ -177,6 +239,21 @@ export class OrganizationsService {
     query: ListOrganizationsQuery,
   ): Promise<ListOrganizationsQueryResult<OrganizationResult>> {
     const { page, limit, role, q, organizationId } = query;
+
+    const queryString = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+      ...(role ? { role } : {}),
+      ...(q ? { q } : {}),
+    }).toString();
+
+    const cacheKey = CacheKeys.members(organizationId ?? "", queryString);
+
+    const cached =
+      await getCache<ListOrganizationsQueryResult<OrganizationResult>>(
+        cacheKey,
+      );
+    if (cached) return cached;
 
     const skip = (page - 1) * limit;
     const searchTerm = q?.trim();
@@ -211,7 +288,7 @@ export class OrganizationsService {
       prisma.organizationMember.count({ where }),
     ]);
 
-    return {
+    const result = {
       data: members.map((member) =>
         this.buildOrganizationResult(member.organization, member, undefined, {
           id: member.user.id,
@@ -226,6 +303,9 @@ export class OrganizationsService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    await setCache(cacheKey, result, 300);
+    return result;
   }
 
   async getDashboard(limit: number, userId: string, organizationId: string) {
@@ -333,6 +413,26 @@ export class OrganizationsService {
       projectId,
       tab,
     } = query;
+
+    const queryString = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+      ...(tab ? { tab } : {}),
+      ...(status ? { status } : {}),
+      ...(priority ? { priority } : {}),
+      ...(projectId ? { projectId } : {}),
+      ...(q ? { q } : {}),
+    }).toString();
+
+    const cacheKey = CacheKeys.userTasks(
+      organizationId ?? "",
+      userId ?? "",
+      queryString,
+    );
+
+    const cached = await getCache(cacheKey);
+    if (cached) return cached;
+
     const skip = (page - 1) * limit;
     const search = q?.trim();
 
@@ -385,7 +485,7 @@ export class OrganizationsService {
       prisma.task.count({ where }),
     ]);
 
-    return {
+    const result = {
       data: allTasks.map((task) =>
         this.buildTaskResult(
           task,
@@ -406,6 +506,9 @@ export class OrganizationsService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    await setCache(cacheKey, result, 120);
+    return result;
   }
 
   // Combines model and membership records into a unified public API response format
@@ -444,7 +547,7 @@ export class OrganizationsService {
       priority: task.priority as Priority,
       projectId: task.projectId,
       ...(assignee ? { assignee } : {}),
-      ...(createdBy ? { assignee } : {}),
+      ...(createdBy ? { createdBy } : {}),
       dueDate: task.dueDate,
       labels: task.labels,
       createdAt: task.createdAt,

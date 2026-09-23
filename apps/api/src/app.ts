@@ -5,8 +5,17 @@ import authRouter from "./modules/auth/auth.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import organizationsRouter from "./modules/organizations/organizations.routes";
 import invitationsRouter from "./modules/invitations/invitations.routes";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./docs/swagger";
+import { authRateLimiter, generalRateLimiter } from "./middleware/rateLimiter";
 
 const app = express();
+
+// Middleware
+app.use(express.json());
+
+app.use("/api-docs", swaggerUi.serve);
+app.get("/api-docs", swaggerUi.setup(swaggerSpec));
 
 app.use(
   cors({
@@ -16,12 +25,11 @@ app.use(
   }),
 );
 
-// Middleware
-app.use(express.json());
+app.use(generalRateLimiter);
 
 // Routes
 app.use("/api/health", healthRouter);
-app.use("/api/auth", authRouter);
+app.use("/api/auth", authRateLimiter, authRouter);
 app.use("/api/organizations", organizationsRouter);
 app.use("/api/invitations", invitationsRouter);
 

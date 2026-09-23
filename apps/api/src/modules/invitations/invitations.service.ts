@@ -4,6 +4,7 @@ import {
   NotFoundError,
 } from "../../common/errors";
 import { Invitation } from "../../generated/prisma/client";
+import { emailQueue } from "../../jobs/queues";
 import { prisma } from "../../lib/prisma";
 import { InvitationResult, SendInvitationInput } from "./invitations.types";
 import crypto from "crypto";
@@ -56,8 +57,11 @@ export class InvitationsService {
       },
     });
 
-    const inviteLink = `http://localhost:3000/api/invitations/accept?token=${token}`;
-    console.log(`Invite link for ${email}: ${inviteLink}`);
+    await emailQueue.add("send-invitation-email", {
+      email,
+      inviteLink: `http://localhost:8080/invitations/accept?token=${token}`,
+      orgName: org.name,
+    });
 
     return this.buildInvitationResult(invitation);
   }

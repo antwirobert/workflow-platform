@@ -110,6 +110,7 @@ export class WorkspacesController {
       const workspaceTasks = await workspacesService.listWorkspaceTasks({
         page,
         limit,
+        organizationId: req.organization!.id,
         workspaceId: req.workspace!.id,
       });
       res.status(200).json(workspaceTasks);

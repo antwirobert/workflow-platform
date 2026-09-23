@@ -1,6 +1,8 @@
 import { ConflictError, NotFoundError } from "../../common/errors";
 import { Prisma, Project } from "../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
+import { deleteCacheByPattern, getCache, setCache } from "../../redis/cache";
+import { CacheKeys } from "../../redis/cacheKeys";
 import {
   CreateProjectInput,
   ListProjectsQuery,
@@ -12,7 +14,7 @@ import {
 
 export class ProjectsService {
   async create(input: CreateProjectInput): Promise<ProjectResult> {
-    const { name, slug, description, workspaceId } = input;
+    const { name, slug, description, workspaceId, organizationId } = input;
 
     // Check for duplicate slug within the same workspace
     const existingSlug = await prisma.project.findUnique({
@@ -37,16 +39,32 @@ export class ProjectsService {
       },
     });
 
+    await this.invalidateWorkspaceCaches(organizationId, workspaceId);
+
     return this.buildProjectResult(project);
   }
 
   async list(
     query: ListProjectsQuery,
   ): Promise<ListProjectsQueryResult<ProjectResult>> {
-    const { page, limit, q, workspaceId } = query;
+    const { page, limit, q, workspaceId, organizationId } = query;
 
     const skip = (page - 1) * limit;
     const search = q?.trim();
+    const queryString = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+      ...(search ? { q: search } : {}),
+    }).toString();
+    const cacheKey = CacheKeys.projects(
+      organizationId ?? "",
+      workspaceId ?? "",
+      queryString,
+    );
+
+    const cached =
+      await getCache<ListProjectsQueryResult<ProjectResult>>(cacheKey);
+    if (cached) return cached;
 
     const where: Prisma.ProjectWhereInput = {
       workspaceId,
@@ -91,7 +109,7 @@ export class ProjectsService {
       prisma.project.count({ where }),
     ]);
 
-    return {
+    const result = {
       data: projects.map((project) =>
         this.buildProjectResult(project, {
           totalTaskCount: project._count.tasks,
@@ -105,12 +123,20 @@ export class ProjectsService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    await setCache(cacheKey, result, 300);
+    return result;
   }
 
   async getById(
+    organizationId: string,
     workspaceId: string,
     projectId: string,
   ): Promise<ProjectResult> {
+    const cacheKey = CacheKeys.project(organizationId, workspaceId, projectId);
+    const cached = await getCache<ProjectResult>(cacheKey);
+    if (cached) return cached;
+
     const project = await prisma.project.findUnique({
       where: {
         id: projectId,
@@ -141,14 +167,18 @@ export class ProjectsService {
       throw new NotFoundError("Project");
     }
 
-    return this.buildProjectResult(project, {
+    const result = this.buildProjectResult(project, {
       totalTaskCount: project._count.tasks,
       completedTaskCount: project.tasks.length,
     });
+
+    await setCache(cacheKey, result, 300);
+    return result;
   }
 
   async update(input: UpdateProjectInput): Promise<ProjectResult> {
-    const { projectId, workspaceId, name, slug, description } = input;
+    const { projectId, workspaceId, organizationId, name, slug, description } =
+      input;
 
     const existing = await prisma.project.findUnique({
       where: {
@@ -190,10 +220,16 @@ export class ProjectsService {
       },
     });
 
+    await this.invalidateWorkspaceCaches(organizationId, workspaceId);
+
     return this.buildProjectResult(project);
   }
 
-  async delete(workspaceId: string, projectId: string): Promise<void> {
+  async delete(
+    workspaceId: string,
+    projectId: string,
+    organizationId: string,
+  ): Promise<void> {
     const project = await prisma.project.findUnique({
       where: { id: projectId },
     });
@@ -203,14 +239,29 @@ export class ProjectsService {
     }
 
     await prisma.project.delete({ where: { id: projectId } });
+    await this.invalidateWorkspaceCaches(organizationId, workspaceId);
   }
 
   async listProjectAssignees(
     query: ListProjectsQuery,
   ): Promise<ListProjectsQueryResult<ProjectAssignneeResult>> {
-    const { page, limit, projectId } = query;
+    const { page, limit, projectId, organizationId, workspaceId } = query;
 
     const skip = (page - 1) * limit;
+    const queryString = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    }).toString();
+    const cacheKey = CacheKeys.projectAssignees(
+      organizationId ?? "",
+      workspaceId ?? "",
+      projectId ?? "",
+      queryString,
+    );
+
+    const cached =
+      await getCache<ListProjectsQueryResult<ProjectAssignneeResult>>(cacheKey);
+    if (cached) return cached;
     const where = {
       assignedTasks: {
         some: {
@@ -235,7 +286,7 @@ export class ProjectsService {
       prisma.user.count({ where }),
     ]);
 
-    return {
+    const result = {
       data: projectAssignees.map((assignee) => assignee),
       meta: {
         page,
@@ -244,6 +295,26 @@ export class ProjectsService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    await setCache(cacheKey, result, 300);
+    return result;
+  }
+
+  private async invalidateWorkspaceCaches(
+    organizationId: string,
+    workspaceId: string,
+  ) {
+    await Promise.all([
+      deleteCacheByPattern(
+        `organizations:${organizationId}:users:*:workspaces:*`,
+      ),
+      deleteCacheByPattern(
+        `organizations:${organizationId}:workspaces:${workspaceId}:users:*`,
+      ),
+      deleteCacheByPattern(
+        `organizations:${organizationId}:workspaces:${workspaceId}:*`,
+      ),
+    ]);
   }
 
   // Maps database model to public API response format

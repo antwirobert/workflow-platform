@@ -4,20 +4,21 @@ import {
   SendInvitationPayload,
 } from "./invitations.schemas";
 import { invitationsService } from "./invitations.service";
-import { OrganizationIdParams } from "../organizations/organizations.schemas";
 import { AuthenticatedRequest } from "../../middleware/authenticate";
 
 export class InvitationsController {
-  send = async (req: Request, res: Response, next: NextFunction) => {
+  send = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const { email, role } = req.validated!.body as SendInvitationPayload;
-      const { orgId: organizationId } = req.validated!
-        .params as OrganizationIdParams;
 
       const invitation = await invitationsService.send({
         email,
         role,
-        organizationId,
+        organizationId: req.organization!.id,
       });
       res.status(201).json(invitation);
     } catch (error) {
@@ -41,12 +42,15 @@ export class InvitationsController {
     }
   };
 
-  pending = async (req: Request, res: Response, next: NextFunction) => {
+  pending = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      const { orgId: organizationId } = req.validated!
-        .params as OrganizationIdParams;
-
-      const invitations = await invitationsService.pending(organizationId);
+      const invitations = await invitationsService.pending(
+        req.organization!.id,
+      );
       res.status(200).json(invitations);
     } catch (error) {
       next(error);

@@ -7,6 +7,7 @@ const config = {
   setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.ts"],
   clearMocks: true,
   forceExit: true,
+  maxWorkers: 1,
 };
 
 module.exports = config;

@@ -16,6 +16,16 @@ services:
       timeout: 5s
       retries: 5
 
+  db_test:
+    image: postgres:17-alpine
+    container_name: pm_api_db_test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pm_api_test
+    ports:
+      - "5433:5432"
+
   redis:
     image: redis:7-alpine
     container_name: pm_api_redis

@@ -76,7 +76,7 @@ jobs:
       - name: Run tests
         run: npm test
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pm_api
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/pm_api_test
           DATABASE_URL_TEST: postgresql://postgres:postgres@localhost:5433/pm_api_test
           JWT_SECRET: test_jwt_secret
           JWT_EXPIRES_IN: 15m

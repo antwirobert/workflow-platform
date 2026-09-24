@@ -1,8 +1,9 @@
 import "./workers/email.worker";
 import "./workers/cleanup.worker";
 import { startScheduler } from "./scheduler";
+import logger from "../logger";
 
 export async function startJobSystem() {
   await startScheduler();
-  console.log("👷 Workers started");
+  logger.info("Workers started");
 }

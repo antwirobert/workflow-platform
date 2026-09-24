@@ -1,5 +1,6 @@
 import { Worker, Job } from "bullmq";
 import { bullmqConnection } from "../../redis/client";
+import logger from "../../logger";
 
 interface InvitationEmailJob {
   email: string;
@@ -14,20 +15,18 @@ const worker = new Worker(
       const { email, inviteLink, orgName } = job.data as InvitationEmailJob;
 
       // Simulate sending email — swap for real email service later
-      console.log(`\n📧 [Email Worker] Sending invite to ${email}`);
-      console.log(`   Org: ${orgName}`);
-      console.log(`   Link: ${inviteLink}\n`);
+      logger.info("Sending invitation email", { email, orgName, inviteLink });
     }
   },
   { connection: bullmqConnection },
 );
 
 worker.on("completed", (job) => {
-  console.log(`✅ Email job ${job.id} completed`);
+  logger.info("Email job completed", { jobId: job.id });
 });
 
 worker.on("failed", (job, err) => {
-  console.error(`❌ Email job ${job?.id} failed:`, err.message);
+  logger.error("Email job failed", { jobId: job?.id, error: err.message });
 });
 
 export default worker;

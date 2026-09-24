@@ -1,5 +1,6 @@
 import Redis from "ioredis";
 import { config } from "../config/env";
+import logger from "../logger";
 
 const redis = new Redis(config.redisUrl || "redis://localhost:6379", {
   maxRetriesPerRequest: 3,
@@ -14,7 +15,7 @@ export const bullmqConnection = new Redis(
   },
 );
 
-redis.on("connect", () => console.log("Redis connected"));
-redis.on("error", (err) => console.error("Redis error:", err));
+redis.on("connect", () => logger.info("Redis connected"));
+redis.on("error", (err) => logger.error("Redis error", { err }));
 
 export default redis;

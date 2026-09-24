@@ -1,6 +1,7 @@
 import { Worker, Job } from "bullmq";
 import { bullmqConnection } from "../../redis/client";
 import { prisma } from "../../lib/prisma";
+import logger from "../../logger";
 
 const worker = new Worker(
   "cleanup",
@@ -9,7 +10,7 @@ const worker = new Worker(
       const result = await prisma.refreshToken.deleteMany({
         where: { expiresAt: { lt: new Date() } },
       });
-      console.log(`🧹 Cleaned up ${result.count} expired refresh tokens`);
+      logger.info("Cleaned up expired refresh tokens", { count: result.count });
     }
 
     if (job.name === "cleanup-expired-invitations") {
@@ -17,18 +18,19 @@ const worker = new Worker(
         where: { expiresAt: { lt: new Date() }, status: "PENDING" },
         data: { status: "EXPIRED" },
       });
-      console.log(`🧹 Marked ${result.count} invitations as expired`);
+
+      logger.info("Marked invitations as expired", { count: result.count });
     }
   },
   { connection: bullmqConnection },
 );
 
 worker.on("completed", (job) => {
-  console.log(`✅ Cleanup job ${job.id} completed`);
+  logger.info("Cleanup job completed", { jobId: job.id });
 });
 
 worker.on("failed", (job, err) => {
-  console.error(`❌ Cleanup job ${job?.id} failed:`, err.message);
+  logger.error("Cleanup job failed", { jobId: job?.id, error: err.message });
 });
 
 export default worker;

@@ -9,10 +9,8 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./docs/swagger";
 import { authRateLimiter, generalRateLimiter } from "./middleware/rateLimiter";
 import { requestLogger } from "./middleware/requestLogger";
-import logger from "./logger";
 
 const app = express();
-logger.info("Logger sanity check");
 
 // Middleware
 app.use(express.json());

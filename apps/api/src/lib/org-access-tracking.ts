@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { OrganizationMember } from "../generated/prisma/client";
+import logger from "../logger";
 
 const THROTTLE_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -24,6 +25,6 @@ export function touchOrgAccess(membership: OrganizationMember): void {
       },
     })
     .catch((err) => {
-      console.error("Failed to update org access tracking:", err);
+      logger.error("Failed to update org access tracking", { err });
     });
 }

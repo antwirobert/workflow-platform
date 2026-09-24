@@ -1,3 +1,4 @@
+import logger from "../logger";
 import { cleanupQueue } from "./queues";
 
 export async function startScheduler() {
@@ -13,5 +14,5 @@ export async function startScheduler() {
     { name: "cleanup-expired-invitations", data: {} },
   );
 
-  console.log("⏰ Job scheduler started");
+  logger.info("Job scheduler started");
 }

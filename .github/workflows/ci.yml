@@ -57,6 +57,11 @@ jobs:
         run: npx prisma generate
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pm_api
+          DATABASE_URL_TEST: postgresql://postgres:postgres@localhost:5433/pm_api_test
+          JWT_SECRET: test_jwt_secret
+          JWT_EXPIRES_IN: 15m
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: test
 
       - name: Run migrations on test database
         run: npx prisma migrate deploy
@@ -95,6 +100,11 @@ jobs:
         run: npx prisma generate
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pm_api
+          DATABASE_URL_TEST: postgresql://postgres:postgres@localhost:5433/pm_api_test
+          JWT_SECRET: test_jwt_secret
+          JWT_EXPIRES_IN: 15m
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: test
 
       - name: Build TypeScript
         run: npm run build

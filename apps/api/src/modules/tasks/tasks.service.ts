@@ -224,6 +224,7 @@ export class TasksService {
         ...(assigneeId !== undefined && { assigneeId }),
         ...(dueDate !== undefined && { dueDate }),
         ...(labels !== undefined && { labels }),
+        ...(completedAt !== undefined && { completedAt }),
       },
     });
 

@@ -8,6 +8,7 @@ const config = {
   clearMocks: true,
   forceExit: true,
   maxWorkers: 1,
+  transformIgnorePatterns: ["node_modules/(?!(uuid)/)"],
 };
 
 module.exports = config;

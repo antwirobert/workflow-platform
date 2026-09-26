@@ -1,6 +1,8 @@
 import { ForbiddenError, NotFoundError } from "../../common/errors";
 import { Comment, OrgRole, User } from "../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
+import { deleteCache, deleteCacheByPattern } from "../../redis/cache";
+import { CacheKeys } from "../../redis/cacheKeys";
 import { CommentResult, CreateCommentInput } from "./comments.types";
 
 export class CommentsService {
@@ -15,6 +17,8 @@ export class CommentsService {
       },
       include: { author: true },
     });
+
+    await this.invalidateTaskCache(taskId);
 
     return this.buildCommentResult(comment, comment.author);
   }
@@ -54,6 +58,37 @@ export class CommentsService {
     }
 
     await prisma.comment.delete({ where: { id: commentId } });
+    await this.invalidateTaskCache(taskId);
+  }
+
+  private async invalidateTaskCache(taskId: string): Promise<void> {
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+      select: {
+        project: {
+          select: {
+            id: true,
+            workspace: {
+              select: { id: true, organizationId: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!task) return;
+
+    const { project } = task;
+    const { id: workspaceId, organizationId } = project.workspace;
+
+    await Promise.all([
+      deleteCacheByPattern(
+        `organizations:${organizationId}:workspaces:${workspaceId}:projects:${project.id}:tasks:page=*`,
+      ),
+      deleteCache(
+        CacheKeys.task(organizationId, workspaceId, project.id, taskId),
+      ),
+    ]);
   }
 
   private buildCommentResult(comment: Comment, user: User): CommentResult {

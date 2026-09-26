@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn, formatBytes, timeAgo } from "@/lib/utils";
+import { cn, formatBytes } from "@/lib/utils";
 import {
   Ellipsis,
   Loader2,
@@ -27,6 +27,7 @@ import { useAuthStore } from "@/stores/authStore";
 import DeleteFileDialog from "./DeleteFileDialog";
 import { toast } from "@/components/ui/toast";
 import type { TaskFile } from "@/types/file";
+import { useRelativeTime } from "@/hooks/useRelativeTime";
 
 interface FileListProps {
   taskId: string;
@@ -34,8 +35,6 @@ interface FileListProps {
 
 const FileList = ({ taskId }: FileListProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [selectedFileToDelete, setSelectedFileToDelete] =
-    useState<TaskFile | null>(null);
   const user = useAuthStore((state) => state.user);
   const { activeOrganization } = useActiveOrganization();
   const { orgSlug, workspaceSlug, projectSlug } = useParams<{
@@ -164,104 +163,115 @@ const FileList = ({ taskId }: FileListProps) => {
 
       {!isLoading && !isError && (files?.length ?? 0) > 0 && (
         <div className="space-y-2">
-          {files?.map((file) => {
-            const {
-              id,
-              filename,
-              size,
-              uploadedBy: { id: uploadedById, name },
-              createdAt,
-            } = file;
-            const isCreator = user.id === uploadedById;
-
-            return (
-              <div
-                key={id}
-                className="flex items-center gap-2.5 rounded-lg border border-border/60 bg-card px-3 py-2.5 transition-colors hover:border-border"
-              >
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
-                  <Paperclip className="size-3.5 text-muted-foreground" />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className=" truncate text-sm font-medium text-foreground">
-                    {filename}
-                  </p>
-                  <p className="truncate text-[11px] text-muted-foreground">
-                    {formatBytes(size)}
-                    <span className="mx-1 text-muted-foreground/40">·</span>
-                    {name}
-                    <span className="mx-1 text-muted-foreground/40">·</span>
-                    {timeAgo(createdAt)}
-                  </p>
-                </div>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 shrink-0 data-[state=open]:opacity-100"
-                      >
-                        <Ellipsis className="size-4" />
-                      </Button>
-                    }
-                  />
-                  <DropdownMenuContent className="w-52 p-1" align="end">
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem
-                        onClick={() => setSelectedFileToDelete(file)}
-                        disabled={
-                          !ROLES_MANAGEMENT.includes(activeOrganization.role) &&
-                          !isCreator
-                        }
-                        className={
-                          ROLES_MANAGEMENT.includes(activeOrganization.role) &&
-                          isCreator
-                            ? "cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm text-destructive focus:bg-destructive/10 focus:text-destructive [&_svg]:text-destructive"
-                            : "cursor-not-allowed gap-2 rounded-md px-2 py-1.5 text-sm disabled:opacity-100"
-                        }
-                        variant="destructive"
-                      >
-                        {ROLES_MANAGEMENT.includes(activeOrganization.role) &&
-                        isCreator ? (
-                          <>
-                            <Trash2 className="size-3.5" />
-                            Delete file
-                          </>
-                        ) : (
-                          <div className="flex items-start gap-2 py-0.5">
-                            <Lock className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-                            <div className="flex flex-col gap-0.5">
-                              <span className="text-sm text-muted-foreground">
-                                Delete file
-                              </span>
-                              <span className="text-[11px] leading-snug text-muted-foreground/70">
-                                Only the uploader, an admin, or the owner can
-                                delete this file.
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                <DeleteFileDialog
-                  file={selectedFileToDelete}
-                  taskId={taskId}
-                  open={selectedFileToDelete !== null}
-                  onOpenChange={(isOpen) => {
-                    if (!isOpen) setSelectedFileToDelete(null);
-                  }}
-                />
-              </div>
-            );
-          })}
+          {files?.map((file) => (
+            <FileListItem
+              key={file.id}
+              file={file}
+              taskId={taskId}
+              role={activeOrganization.role}
+              userId={user.id}
+            />
+          ))}
         </div>
       )}
+    </div>
+  );
+};
+
+const FileListItem = ({
+  file,
+  taskId,
+  role,
+  userId,
+}: {
+  file: TaskFile;
+  taskId: string;
+  role: string;
+  userId: string;
+}) => {
+  const [selectedFileToDelete, setSelectedFileToDelete] =
+    useState<TaskFile | null>(null);
+  const {
+    filename,
+    size,
+    uploadedBy: { id: uploadedById, name },
+    createdAt,
+  } = file;
+  const isCreator = userId === uploadedById;
+  const canDelete = ROLES_MANAGEMENT.includes(role) && isCreator;
+
+  return (
+    <div className="flex items-center gap-2.5 rounded-lg border border-border/60 bg-card px-3 py-2.5 transition-colors hover:border-border">
+      <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
+        <Paperclip className="size-3.5 text-muted-foreground" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium text-foreground">
+          {filename}
+        </p>
+        <p className="truncate text-[11px] text-muted-foreground">
+          {formatBytes(size)}
+          <span className="mx-1 text-muted-foreground/40">·</span>
+          {name}
+          <span className="mx-1 text-muted-foreground/40">·</span>
+          {useRelativeTime(createdAt)}
+        </p>
+      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 shrink-0 data-[state=open]:opacity-100"
+            >
+              <Ellipsis className="size-4" />
+            </Button>
+          }
+        />
+        <DropdownMenuContent className="w-52 p-1" align="end">
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              onClick={() => setSelectedFileToDelete(file)}
+              disabled={!ROLES_MANAGEMENT.includes(role) && !isCreator}
+              className={
+                canDelete
+                  ? "cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm text-destructive focus:bg-destructive/10 focus:text-destructive [&_svg]:text-destructive"
+                  : "cursor-not-allowed gap-2 rounded-md px-2 py-1.5 text-sm disabled:opacity-100"
+              }
+              variant="destructive"
+            >
+              {canDelete ? (
+                <>
+                  <Trash2 className="size-3.5" />
+                  Delete file
+                </>
+              ) : (
+                <div className="flex items-start gap-2 py-0.5">
+                  <Lock className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-sm text-muted-foreground">
+                      Delete file
+                    </span>
+                    <span className="text-[11px] leading-snug text-muted-foreground/70">
+                      Only the uploader, an admin, or the owner can delete this
+                      file.
+                    </span>
+                  </div>
+                </div>
+              )}
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DeleteFileDialog
+        file={selectedFileToDelete}
+        taskId={taskId}
+        open={selectedFileToDelete !== null}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setSelectedFileToDelete(null);
+        }}
+      />
     </div>
   );
 };

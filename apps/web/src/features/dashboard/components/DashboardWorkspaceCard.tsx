@@ -1,4 +1,5 @@
-import { cn, getIdentityColor, timeAgo } from "@/lib/utils";
+import { useRelativeTime } from "@/hooks/useRelativeTime";
+import { cn, getIdentityColor } from "@/lib/utils";
 
 interface DashboardWorkspaceCardProps {
   id: string;
@@ -11,6 +12,7 @@ export const DashboardWorkspaceCard = ({
   name,
   updatedAt,
 }: DashboardWorkspaceCardProps) => {
+  const relativeText = useRelativeTime(updatedAt);
   const color = getIdentityColor(id);
 
   return (
@@ -23,7 +25,7 @@ export const DashboardWorkspaceCard = ({
           )}
         />
         <span className="text-[11px] tabular-nums text-muted-foreground">
-          {timeAgo(updatedAt)}
+          {relativeText}
         </span>
       </div>
 

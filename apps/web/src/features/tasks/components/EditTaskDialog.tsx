@@ -20,7 +20,7 @@ const EditTaskDialog = ({
   onOpenChange,
 }: EditTaskDialogProps) => {
   return (
-    <ActionDialog open={open} onOpenChange={onOpenChange} title="Edit project">
+    <ActionDialog open={open} onOpenChange={onOpenChange} title="Edit task">
       <EditTaskForm
         orgSlug={orgSlug}
         workspaceSlug={workspaceSlug}

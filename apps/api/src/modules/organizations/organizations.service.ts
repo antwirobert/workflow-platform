@@ -206,6 +206,7 @@ export class OrganizationsService {
         await deleteCacheByPattern(`organizations:users:${userId}:*`);
       }),
     );
+    await deleteCacheByPattern(`organizations:${organizationId}:members:*`);
 
     return this.buildOrganizationResult(updated);
   }
@@ -224,15 +225,14 @@ export class OrganizationsService {
       select: { userId: true },
     });
 
-    await Promise.all(
-      members.map(async ({ userId }) => {
-        await deleteCache(CacheKeys.organization(organizationId, userId));
-        await deleteCacheByPattern(`organizations:users:${userId}:*`);
-        await deleteCacheByPattern(`organizations:${organizationId}:*`);
-      }),
-    );
-
     await prisma.organization.delete({ where: { id: organizationId } });
+
+    await Promise.all([
+      ...members.map(({ userId }) =>
+        deleteCacheByPattern(`organizations:users:${userId}:*`),
+      ),
+      deleteCacheByPattern(`organizations:${organizationId}:*`),
+    ]);
   }
 
   async listMembers(

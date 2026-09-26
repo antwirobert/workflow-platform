@@ -28,6 +28,7 @@ const OrganizationSwitcher = () => {
   const handleSwitch = (slug: string) => {
     setActiveOrgSlug(slug);
     setActiveWorkspaceSlug(null);
+    navigate(`/organizations/${slug}/dashboard`);
   };
 
   return (

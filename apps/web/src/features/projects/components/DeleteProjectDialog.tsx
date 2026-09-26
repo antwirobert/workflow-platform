@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { toast } from "@/components/ui/toast";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ConfirmationDialog } from "@/features/organizations/components/ConfirmationDialog";
 import { useDeleteProject } from "../hooks/useDeleteProject";
 
@@ -19,6 +19,7 @@ const DeleteProjectDialog = ({
   open,
   onOpenChange,
 }: DeleteProjectDialogProps) => {
+  const navigate = useNavigate();
   const { orgSlug, workspaceSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
@@ -43,6 +44,9 @@ const DeleteProjectDialog = ({
           type: "success",
           title: `Deleted ${name}`,
         });
+        navigate(
+          `/organizations/${orgSlug}/workspaces/${workspaceSlug}/projects`,
+        );
       },
     });
   };

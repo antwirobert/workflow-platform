@@ -9,6 +9,7 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./docs/swagger";
 import { authRateLimiter, generalRateLimiter } from "./middleware/rateLimiter";
 import { requestLogger } from "./middleware/requestLogger";
+import usersRouter from "./modules/users/users.routes";
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/api-docs", swaggerUi.serve);
 app.get("/api-docs", swaggerUi.setup(swaggerSpec));
 app.use("/api/health", healthRouter);
 app.use("/api/auth", authRateLimiter, authRouter);
+app.use("/api/users/me", usersRouter);
 app.use("/api/organizations", organizationsRouter);
 app.use("/api/invitations", invitationsRouter);
 

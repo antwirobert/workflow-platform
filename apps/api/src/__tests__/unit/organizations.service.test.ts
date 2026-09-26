@@ -137,7 +137,7 @@ describe("OrganizationsService", () => {
       role: "OWNER",
     });
     expect(deleteCacheByPattern).toHaveBeenCalledWith(
-      "organizations:user:user-1:*",
+      "organizations:users:user-1:*",
     );
   });
 

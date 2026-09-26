@@ -55,10 +55,10 @@ export class OrganizationsService {
         },
       });
 
-      await deleteCacheByPattern(`organizations:user:${userId}:*`);
-
       return { organization, membership };
     });
+
+    await deleteCacheByPattern(`organizations:users:${userId}:*`);
 
     return this.buildOrganizationResult(result.organization, result.membership);
   }

@@ -209,53 +209,55 @@ const AppSidebar = () => {
         </SidebarGroup>
 
         {/* Menu */}
-        {activeOrganization && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <span>Menu</span>
-            </SidebarGroupLabel>
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span>Menu</span>
+          </SidebarGroupLabel>
 
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() =>
-                      navigate(
-                        `/organizations/${activeOrganization?.slug}/dashboard`,
-                      )
-                    }
-                    isActive={
-                      location.pathname ===
-                      `/organizations/${activeOrganization?.slug}/dashboard`
-                    }
-                    className="gap-2.5"
-                  >
-                    <LayoutDashboard className="size-4" />
-                    <span>Dashboard</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => {
+                    navigate(
+                      `/organizations/${activeOrganization?.slug}/dashboard`,
+                    );
+                    setActiveWorkspaceSlug(null);
+                  }}
+                  isActive={
+                    location.pathname ===
+                    `/organizations/${activeOrganization?.slug}/dashboard`
+                  }
+                  className="gap-2.5"
+                  disabled={!activeOrganization}
+                >
+                  <LayoutDashboard className="size-4" />
+                  <span>Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
 
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() =>
-                      navigate(
-                        `/organizations/${activeOrganization?.slug}/my-tasks`,
-                      )
-                    }
-                    isActive={
-                      location.pathname ===
-                      `/organizations/${activeOrganization?.slug}/my-tasks`
-                    }
-                    className="gap-2.5"
-                  >
-                    <CheckSquare className="size-4" />
-                    <span>My Tasks</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => {
+                    navigate(
+                      `/organizations/${activeOrganization?.slug}/my-tasks`,
+                    );
+                    setActiveWorkspaceSlug(null);
+                  }}
+                  isActive={
+                    location.pathname ===
+                    `/organizations/${activeOrganization?.slug}/my-tasks`
+                  }
+                  className="gap-2.5"
+                  disabled={!activeOrganization}
+                >
+                  <CheckSquare className="size-4" />
+                  <span>My Tasks</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         {/* Projects */}
         <SidebarGroup>
@@ -272,7 +274,7 @@ const AppSidebar = () => {
                   </SidebarMenuItem>
                 ))}
 
-              {projectsError && (
+              {!activeOrganization && projectsError && (
                 <div className="mx-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2.5">
                   <p className="text-xs font-medium text-destructive">
                     Projects failed to load

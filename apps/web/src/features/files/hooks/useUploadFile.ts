@@ -16,8 +16,6 @@ export function useUploadFile(
     "projects",
     projectSlug,
     "tasks",
-    taskId,
-    "files",
   ];
 
   return useMutation({

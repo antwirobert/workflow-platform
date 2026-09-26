@@ -16,8 +16,6 @@ export function useDeleteFile(
     "projects",
     projectSlug,
     "tasks",
-    taskId,
-    "files",
   ];
 
   return useMutation({

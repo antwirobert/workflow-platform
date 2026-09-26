@@ -19,8 +19,6 @@ export function useCreateComment(
     "projects",
     projectSlug,
     "tasks",
-    taskId,
-    "comments",
   ];
 
   return useMutation<Comment, ApiError, CreateCommentPayload>({

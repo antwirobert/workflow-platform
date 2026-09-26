@@ -209,51 +209,53 @@ const AppSidebar = () => {
         </SidebarGroup>
 
         {/* Menu */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            <span>Menu</span>
-          </SidebarGroupLabel>
+        {activeOrganization && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <span>Menu</span>
+            </SidebarGroupLabel>
 
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() =>
-                    navigate(
-                      `/organizations/${activeOrganization?.slug}/dashboard`,
-                    )
-                  }
-                  isActive={
-                    location.pathname ===
-                    `/organizations/${activeOrganization?.slug}/dashboard`
-                  }
-                  className="gap-2.5"
-                >
-                  <LayoutDashboard className="size-4" />
-                  <span>Dashboard</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() =>
+                      navigate(
+                        `/organizations/${activeOrganization?.slug}/dashboard`,
+                      )
+                    }
+                    isActive={
+                      location.pathname ===
+                      `/organizations/${activeOrganization?.slug}/dashboard`
+                    }
+                    className="gap-2.5"
+                  >
+                    <LayoutDashboard className="size-4" />
+                    <span>Dashboard</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
 
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() =>
-                    navigate(
-                      `/organizations/${activeOrganization?.slug}/my-tasks`,
-                    )
-                  }
-                  isActive={
-                    location.pathname ===
-                    `/organizations/${activeOrganization?.slug}/my-tasks`
-                  }
-                  className="gap-2.5"
-                >
-                  <CheckSquare className="size-4" />
-                  <span>My Tasks</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() =>
+                      navigate(
+                        `/organizations/${activeOrganization?.slug}/my-tasks`,
+                      )
+                    }
+                    isActive={
+                      location.pathname ===
+                      `/organizations/${activeOrganization?.slug}/my-tasks`
+                    }
+                    className="gap-2.5"
+                  >
+                    <CheckSquare className="size-4" />
+                    <span>My Tasks</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Projects */}
         <SidebarGroup>

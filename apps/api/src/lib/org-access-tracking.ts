@@ -29,6 +29,6 @@ export function touchOrgAccess(membership: OrganizationMember): void {
       deleteCacheByPattern(`organizations:users:${membership.userId}:*`),
     )
     .catch((err) => {
-      console.error("Failed to update org access tracking:", err);
+      logger.error("Failed to update org access tracking", { err });
     });
 }

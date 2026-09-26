@@ -8,14 +8,13 @@ import invitationsRouter from "./modules/invitations/invitations.routes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./docs/swagger";
 import { authRateLimiter, generalRateLimiter } from "./middleware/rateLimiter";
+import { requestLogger } from "./middleware/requestLogger";
 
 const app = express();
 
 // Middleware
 app.use(express.json());
-
-app.use("/api-docs", swaggerUi.serve);
-app.get("/api-docs", swaggerUi.setup(swaggerSpec));
+app.use(requestLogger);
 
 app.use(
   cors({
@@ -28,6 +27,8 @@ app.use(
 app.use(generalRateLimiter);
 
 // Routes
+app.use("/api-docs", swaggerUi.serve);
+app.get("/api-docs", swaggerUi.setup(swaggerSpec));
 app.use("/api/health", healthRouter);
 app.use("/api/auth", authRateLimiter, authRouter);
 app.use("/api/organizations", organizationsRouter);

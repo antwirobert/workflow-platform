@@ -16,8 +16,6 @@ export function useDeleteComment(
     "projects",
     projectSlug,
     "tasks",
-    taskId,
-    "comments",
   ];
 
   return useMutation({

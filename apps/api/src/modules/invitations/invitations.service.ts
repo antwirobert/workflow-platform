@@ -8,6 +8,8 @@ import { emailQueue } from "../../jobs/queues";
 import { prisma } from "../../lib/prisma";
 import { InvitationResult, SendInvitationInput } from "./invitations.types";
 import crypto from "crypto";
+import { deleteCache, deleteCacheByPattern } from "../../redis/cache";
+import { CacheKeys } from "../../redis/cacheKeys";
 
 export class InvitationsService {
   async send(input: SendInvitationInput): Promise<InvitationResult> {
@@ -127,6 +129,19 @@ export class InvitationsService {
         where: { id: invitation.id },
         data: { status: "ACCEPTED" },
       }),
+    ]);
+
+    const members = await prisma.organizationMember.findMany({
+      where: { organizationId: invitation.orgId },
+      select: { userId: true },
+    });
+
+    await Promise.all([
+      deleteCacheByPattern(`organizations:${invitation.orgId}:members:*`),
+      ...members.flatMap(({ userId }) => [
+        deleteCache(CacheKeys.organization(invitation.orgId, userId)),
+        deleteCacheByPattern(`organizations:users:${userId}:*`),
+      ]),
     ]);
 
     return { message: "Invitation accepted successfully" };

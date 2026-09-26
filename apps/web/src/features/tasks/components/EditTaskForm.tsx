@@ -49,7 +49,10 @@ const editTaskSchema = z.object({
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val))
     .optional(),
-  dueDate: z.string().optional(),
+  dueDate: z
+    .instanceof(Date)
+    .optional()
+    .transform((val) => val?.toISOString()),
   labels: z.preprocess((val) => {
     if (typeof val === "string") {
       return val
@@ -102,7 +105,7 @@ const EditTaskForm = ({
       status: task.status,
       priority: task.priority,
       assigneeId: task.assignee?.id ?? "",
-      dueDate: task.dueDate ?? undefined,
+      dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
       labels: task.labels.join(", "),
     },
   });
@@ -114,7 +117,7 @@ const EditTaskForm = ({
       status: task.status,
       priority: task.priority,
       assigneeId: task.assignee?.id ?? "",
-      dueDate: task.dueDate ?? undefined,
+      dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
       labels: task.labels.join(", "),
     });
   }, [form, task]);

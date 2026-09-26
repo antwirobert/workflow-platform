@@ -116,7 +116,11 @@ async function request<T>(
     },
   });
 
-  if (response.status === 401 && !isRetry && path !== "/api/auth/login") {
+  if (
+    response.status === 401 &&
+    !isRetry &&
+    path.replace(/\/+$/, "") !== "/api/auth/login"
+  ) {
     const refreshed = await refreshAccessToken();
     if (refreshed) {
       return request<T>(path, options, true); // retry once, marked so we don't loop forever

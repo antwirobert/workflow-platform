@@ -5,15 +5,12 @@ import ErrorState from "@/components/ErrorState";
 import { useProjects } from "@/features/projects/hooks/useProjects";
 import { useWorkspaceTasks } from "../hooks/useWorkspaceTasks";
 import { DEFAULT_TABLE_LIMIT } from "@/constants";
-import {
-  calculateProgressPercentage,
-  getIdentityColor,
-  timeAgo,
-} from "@/lib/utils";
+import { calculateProgressPercentage, getIdentityColor } from "@/lib/utils";
 import { usePaginationState } from "@/hooks/usePaginationState";
 import WorkspaceTasksTable from "./WorkspaceTasksTable";
 import ProgressBar from "@/components/ProgressBar";
 import { useWorkspaceMembers } from "../hooks/useWorkspaceMembers";
+import { useRelativeTime } from "@/hooks/useRelativeTime";
 
 interface WorkspaceOverviewProps {
   activeProjects: number;
@@ -21,6 +18,79 @@ interface WorkspaceOverviewProps {
   openTasks: number;
   completedTasks: number;
 }
+
+interface WorkspaceProjectRowProps {
+  id: string;
+  name: string;
+  projectSlug: string;
+  description?: string | null;
+  updatedAt: string;
+  totalTaskCount?: number | null;
+  completedTaskCount?: number | null;
+  orgSlug?: string | null;
+  workspaceSlug?: string | null;
+}
+
+const WorkspaceProjectRow = ({
+  id,
+  name,
+  projectSlug,
+  description,
+  updatedAt,
+  totalTaskCount,
+  completedTaskCount,
+  orgSlug,
+  workspaceSlug,
+}: WorkspaceProjectRowProps) => {
+  const color = getIdentityColor(id);
+  const total = totalTaskCount ?? 0;
+  const completed = completedTaskCount ?? 0;
+  const open = total - completed;
+  const progressPercentage = calculateProgressPercentage(total, completed);
+  const relativeUpdatedAt = useRelativeTime(updatedAt);
+
+  return (
+    <Link
+      to={`/organizations/${orgSlug}/workspaces/${workspaceSlug}/projects/${projectSlug}`}
+      key={id}
+      className="group relative flex items-center justify-between gap-4 border-b border-border/40 p-4 transition-all hover:bg-muted/30 hover:cursor-pointer last:border-0"
+    >
+      <div className="flex min-w-0 items-center gap-3.5">
+        <TextAvatar
+          name={name}
+          colorClass={color.bg}
+          textClass={color.text}
+          className="size-10 shrink-0 rounded-lg text-sm font-semibold"
+        />
+
+        <div className="min-w-0 space-y-0.5">
+          <h4 className="truncate text-sm font-semibold tracking-tight text-foreground">
+            {name}
+          </h4>
+          {description && (
+            <p className="truncate text-xs text-muted-foreground">
+              {description}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="flex shrink-0 items-center gap-4">
+        <div className="hidden flex-col items-end gap-0.5 text-xs text-muted-foreground sm:flex">
+          <span className="font-medium text-foreground/80">{open} open</span>
+          <span>Updated {relativeUpdatedAt}</span>
+        </div>
+
+        <div className="flex w-24 flex-col items-end gap-1">
+          <ProgressBar progress={progressPercentage} />
+          <span className="text-[11px] tabular-nums text-muted-foreground">
+            {progressPercentage}%
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+};
 
 const WorkspaceOverview = ({
   activeProjects,
@@ -92,70 +162,20 @@ const WorkspaceOverview = ({
           {!isProjectsError && projects && projects.data.length > 0 ? (
             <>
               <div className="overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
-                {projects.data.map((project) => {
-                  const {
-                    id,
-                    name,
-                    slug: projectSlug,
-                    description,
-                    updatedAt,
-                    totalTaskCount,
-                    completedTaskCount,
-                  } = project;
-                  const color = getIdentityColor(id);
-
-                  const total = totalTaskCount ?? 0;
-                  const completed = completedTaskCount ?? 0;
-                  const open = total - completed;
-                  const progressPercentage = calculateProgressPercentage(
-                    total,
-                    completed,
-                  );
-
-                  return (
-                    <Link
-                      to={`/organizations/${orgSlug}/workspaces/${workspaceSlug}/projects/${projectSlug}`}
-                      key={id}
-                      className="group relative flex items-center justify-between gap-4 border-b border-border/40 p-4 transition-all hover:bg-muted/30 hover:cursor-pointer last:border-0"
-                    >
-                      <div className="flex min-w-0 items-center gap-3.5">
-                        <TextAvatar
-                          name={name}
-                          colorClass={color.bg}
-                          textClass={color.text}
-                          className="size-10 shrink-0 rounded-lg text-sm font-semibold"
-                        />
-
-                        <div className="min-w-0 space-y-0.5">
-                          <h4 className="truncate text-sm font-semibold tracking-tight text-foreground">
-                            {name}
-                          </h4>
-                          {description && (
-                            <p className="truncate text-xs text-muted-foreground">
-                              {description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-4">
-                        <div className="hidden flex-col items-end gap-0.5 text-xs text-muted-foreground sm:flex">
-                          <span className="font-medium text-foreground/80">
-                            {open} open
-                          </span>
-                          <span>Updated {timeAgo(updatedAt)}</span>
-                        </div>
-
-                        <div className="flex w-24 flex-col items-end gap-1">
-                          <ProgressBar progress={progressPercentage} />
-                          <span className="text-[11px] tabular-nums text-muted-foreground">
-                            {progressPercentage}%
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
+                {projects.data.map((project) => (
+                  <WorkspaceProjectRow
+                    key={project.id}
+                    id={project.id}
+                    name={project.name}
+                    projectSlug={project.slug}
+                    description={project.description}
+                    updatedAt={project.updatedAt}
+                    totalTaskCount={project.totalTaskCount}
+                    completedTaskCount={project.completedTaskCount}
+                    orgSlug={orgSlug}
+                    workspaceSlug={workspaceSlug}
+                  />
+                ))}
               </div>
 
               <PaginationControls

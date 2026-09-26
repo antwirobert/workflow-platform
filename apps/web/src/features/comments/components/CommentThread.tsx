@@ -1,7 +1,7 @@
 import TextAvatar from "@/components/TextAvatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn, getIdentityColor, timeAgo } from "@/lib/utils";
+import { cn, getIdentityColor } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,10 +17,21 @@ import { useAuthStore } from "@/stores/authStore";
 import DeleteCommentDialog from "./DeleteCommentDialog";
 import { useComments } from "../hooks/useComments";
 import { useParams } from "react-router-dom";
+import { useRelativeTime } from "@/hooks/useRelativeTime";
 
 interface CommentThreadProps {
   taskId: string;
 }
+
+const CommentTime = ({ createdAt }: { createdAt: string }) => {
+  const relativeTime = useRelativeTime(createdAt);
+
+  return (
+    <span className="shrink-0 text-[11px] text-muted-foreground tabular-nums">
+      {relativeTime}
+    </span>
+  );
+};
 
 const CommentThread = ({ taskId }: CommentThreadProps) => {
   const { orgSlug, workspaceSlug, projectSlug } = useParams<{
@@ -116,9 +127,7 @@ const CommentThread = ({ taskId }: CommentThreadProps) => {
                     <span className="truncate text-sm font-medium text-foreground">
                       {name}
                     </span>
-                    <span className="shrink-0 text-[11px] text-muted-foreground tabular-nums">
-                      {timeAgo(createdAt)}
-                    </span>
+                    <CommentTime createdAt={createdAt} />
                     <div className="ml-auto">
                       <DropdownMenu>
                         <DropdownMenuTrigger
@@ -134,14 +143,6 @@ const CommentThread = ({ taskId }: CommentThreadProps) => {
                         />
                         <DropdownMenuContent className="w-52 p-1" align="end">
                           <DropdownMenuGroup>
-                            {/* <DropdownMenuItem
-                      onClick={() => setIsEditOpen(true)}
-                      className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-100"
-                      >
-                      <Pencil className="size-3.5 text-muted-foreground" />
-                      Edit task
-                      </DropdownMenuItem> */}
-
                             <DropdownMenuItem
                               onClick={() => setIsDeleteOpen(true)}
                               disabled={

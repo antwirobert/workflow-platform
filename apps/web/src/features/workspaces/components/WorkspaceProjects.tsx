@@ -1,15 +1,22 @@
 import { Link, useParams } from "react-router-dom";
 import TextAvatar from "@/components/TextAvatar";
-import {
-  calculateProgressPercentage,
-  getIdentityColor,
-  timeAgo,
-} from "@/lib/utils";
+import { calculateProgressPercentage, getIdentityColor } from "@/lib/utils";
 import PaginationControls from "@/components/PaginationControls";
 import ErrorState from "@/components/ErrorState";
 import { useProjects } from "@/features/projects/hooks/useProjects";
 import { usePaginationState } from "@/hooks/usePaginationState";
 import ProgressBar from "@/components/ProgressBar";
+import { useRelativeTime } from "@/hooks/useRelativeTime";
+
+const ProjectUpdatedAt = ({ updatedAt }: { updatedAt: string }) => {
+  const relativeTime = useRelativeTime(updatedAt);
+
+  return (
+    <span className="text-[11px] text-muted-foreground tabular-nums">
+      updated {relativeTime}
+    </span>
+  );
+};
 
 const WorkspaceProjects = () => {
   const { page, limit, setPage, onPageSizeChange } = usePaginationState();
@@ -88,9 +95,7 @@ const WorkspaceProjects = () => {
                       textClass={color.text}
                       className="size-10 shrink-0 rounded-lg text-sm font-semibold"
                     />
-                    <span className="text-[11px] text-muted-foreground tabular-nums">
-                      updated {timeAgo(updatedAt)}
-                    </span>
+                    <ProjectUpdatedAt updatedAt={updatedAt} />
                   </div>
 
                   {/* Content */}

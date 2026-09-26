@@ -2,6 +2,8 @@ import fs from "fs";
 import { ForbiddenError, NotFoundError } from "../../common/errors";
 import { prisma } from "../../lib/prisma";
 import { OrgRole } from "../../generated/prisma/enums";
+import { deleteCache, deleteCacheByPattern } from "../../redis/cache";
+import { CacheKeys } from "../../redis/cacheKeys";
 
 export class FilesService {
   async upload(
@@ -9,7 +11,7 @@ export class FilesService {
     uploadedById: string,
     file: Express.Multer.File,
   ) {
-    return prisma.file.create({
+    const createdFile = await prisma.file.create({
       data: {
         filename: file.originalname,
         storedName: file.filename,
@@ -23,6 +25,9 @@ export class FilesService {
         uploadedBy: { select: { id: true, name: true, email: true } },
       },
     });
+
+    await this.invalidateTaskCache(taskId);
+    return createdFile;
   }
 
   async list(taskId: string) {
@@ -72,7 +77,39 @@ export class FilesService {
       fs.unlinkSync(file.path);
     }
 
-    return prisma.file.delete({ where: { id: fileId } });
+    const deletedFile = await prisma.file.delete({ where: { id: fileId } });
+    await this.invalidateTaskCache(taskId);
+    return deletedFile;
+  }
+
+  private async invalidateTaskCache(taskId: string): Promise<void> {
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+      select: {
+        project: {
+          select: {
+            id: true,
+            workspace: {
+              select: { id: true, organizationId: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!task) return;
+
+    const { project } = task;
+    const { id: workspaceId, organizationId } = project.workspace;
+
+    await Promise.all([
+      deleteCacheByPattern(
+        `organizations:${organizationId}:workspaces:${workspaceId}:projects:${project.id}:tasks:page=*`,
+      ),
+      deleteCache(
+        CacheKeys.task(organizationId, workspaceId, project.id, taskId),
+      ),
+    ]);
   }
 }
 

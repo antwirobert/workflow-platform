@@ -15,15 +15,15 @@ import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import UserTasksPage from "@/features/tasks/pages/UserTasksPage";
 
 export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Navigate to="/organizations/:orgSlug/dashboard" replace />,
-  },
   { path: "/register", element: <RegisterPage /> },
   { path: "/login", element: <LoginPage /> },
   {
     element: <ProtectedLayout />,
     children: [
+      {
+        path: "/",
+        element: <Navigate to="/organizations/:orgSlug/dashboard" replace />,
+      },
       {
         path: "/organizations",
         element: <Outlet />,

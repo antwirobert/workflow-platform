@@ -178,7 +178,7 @@ const CreateTaskForm = ({
           )}
         />
 
-        <div className="flex justify-between gap-2">
+        <div className="flex justify-between gap-3">
           <Controller
             name="status"
             control={form.control}
@@ -192,7 +192,7 @@ const CreateTaskForm = ({
                   value={field.value}
                   onValueChange={field.onChange}
                 >
-                  <SelectTrigger className="w-full max-w-48">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -225,7 +225,7 @@ const CreateTaskForm = ({
                   value={field.value}
                   onValueChange={field.onChange}
                 >
-                  <SelectTrigger className="w-full max-w-48">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -246,7 +246,7 @@ const CreateTaskForm = ({
           />
         </div>
 
-        <div className="flex justify-between gap-2">
+        <div className="flex justify-between gap-3">
           <Controller
             name="assigneeId"
             control={form.control}
@@ -261,7 +261,7 @@ const CreateTaskForm = ({
                   onValueChange={field.onChange}
                   disabled={isLoading || isError}
                 >
-                  <SelectTrigger className="w-full max-w-48">
+                  <SelectTrigger className="w-full">
                     <SelectValue>
                       {field.value
                         ? members?.data.find((m) => m.user.id === field.value)

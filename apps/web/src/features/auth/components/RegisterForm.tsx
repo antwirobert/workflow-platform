@@ -15,6 +15,8 @@ import { toast } from "@/components/ui/toast";
 import { useNavigate } from "react-router-dom";
 import { ERROR_CODES } from "@/lib/api/constatnts";
 import { Loader2 } from "lucide-react";
+import { useActiveOrganization } from "@/features/organizations/hooks/useActiveOrganization";
+import { useOrgStore } from "@/stores/orgStore";
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
@@ -35,6 +37,11 @@ const registerSchema = z
 const RegisterForm = () => {
   const navigate = useNavigate();
   const { mutate: register, isPending, error } = useRegister();
+  const { refetch: refetchOrganizations } = useActiveOrganization({
+    enabled: false,
+  });
+  const activeOrgSlug = useOrgStore((state) => state.activeOrgSlug);
+  const setActiveOrgSlug = useOrgStore((state) => state.setActiveOrgSlug);
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -48,12 +55,27 @@ const RegisterForm = () => {
 
   function onSubmit(data: RegisterFormValues) {
     register(data, {
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
         toast.add({
           type: "success",
           title: `Account created - Welcome ${data.user.name}`,
         });
-        navigate("/organizations", { replace: true });
+
+        const result = await refetchOrganizations();
+        const organizations = result.data?.data ?? [];
+        const organization =
+          organizations.find((org) => org.slug === activeOrgSlug) ??
+          organizations[0];
+
+        if (result.isError || !organization) {
+          navigate("/organizations", { replace: true });
+          return;
+        }
+
+        setActiveOrgSlug(organization.slug);
+        navigate(`/organizations/${organization.slug}/dashboard`, {
+          replace: true,
+        });
       },
       onError: (err: ApiError) => {
         if (err.code === ERROR_CODES.VALIDATION && err.details) {

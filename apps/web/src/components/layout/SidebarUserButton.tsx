@@ -21,9 +21,13 @@ import { Skeleton } from "../ui/skeleton";
 import { useState } from "react";
 import SettingsDialog from "@/features/users/components/SettingsDialog";
 import { useMe } from "@/features/users/hooks/useMe";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 const SidebarUserButton = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const setActiveWorkspaceSlug = useWorkspaceStore(
+    (state) => state.setActiveWorkspaceSlug,
+  );
   const { mutate: logout, isPending } = useLogout();
   const { data: user } = useMe();
   const color = user ? getIdentityColor(user.id) : null;
@@ -114,7 +118,10 @@ const SidebarUserButton = () => {
 
                 <DropdownMenuGroup>
                   <DropdownMenuItem
-                    onClick={() => logout()}
+                    onClick={() => {
+                      setActiveWorkspaceSlug(null);
+                      logout();
+                    }}
                     variant="destructive"
                     disabled={isPending}
                     className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm text-destructive focus:bg-destructive/10 focus:text-destructive [&_svg]:text-destructive"

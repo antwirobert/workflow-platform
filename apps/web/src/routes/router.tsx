@@ -13,16 +13,18 @@ import { workspaceLoader } from "@/features/workspaces/loaders";
 import { projectLoader } from "@/features/projects/loaders";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import UserTasksPage from "@/features/tasks/pages/UserTasksPage";
+import { NotFoundPage, RouteErrorPage } from "@/components/NotFoundPage";
 
 export const router = createBrowserRouter([
   { path: "/register", element: <RegisterPage /> },
   { path: "/login", element: <LoginPage /> },
   {
     element: <ProtectedLayout />,
+    errorElement: <RouteErrorPage />,
     children: [
       {
         path: "/",
-        element: <Navigate to="/organizations/:orgSlug/dashboard" replace />,
+        element: <Navigate to="/organizations" replace />,
       },
       {
         path: "/organizations",
@@ -98,4 +100,5 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  { path: "*", element: <NotFoundPage /> },
 ]);

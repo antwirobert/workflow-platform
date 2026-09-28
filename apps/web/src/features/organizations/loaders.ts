@@ -10,6 +10,6 @@ export async function organizationLoader({ params }: LoaderFunctionArgs) {
       queryFn: () => organizationsApi.getById(params.orgSlug as string),
     });
   } catch (error) {
-    throwIfNotFound(error);
+    throwIfNotFound(error, "Organization");
   }
 }

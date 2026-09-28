@@ -17,7 +17,7 @@ import UserTasksPage from "@/features/tasks/pages/UserTasksPage";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/organizations" replace />,
+    element: <Navigate to="/organizations/:orgSlug/dashboard" replace />,
   },
   { path: "/register", element: <RegisterPage /> },
   { path: "/login", element: <LoginPage /> },

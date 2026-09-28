@@ -3,17 +3,20 @@ import { useOrganizations } from "./useOrganizations";
 import { useEffect } from "react";
 import { DEFAULT_PAGE, DEFAULT_SIDEBAR_LIMIT } from "@/constants";
 
-export function useActiveOrganization() {
+export function useActiveOrganization(options: { enabled?: boolean } = {}) {
   const {
     data: organizations,
     isLoading,
     isError,
     isFetching,
     refetch,
-  } = useOrganizations({
-    page: DEFAULT_PAGE,
-    limit: DEFAULT_SIDEBAR_LIMIT,
-  });
+  } = useOrganizations(
+    {
+      page: DEFAULT_PAGE,
+      limit: DEFAULT_SIDEBAR_LIMIT,
+    },
+    options,
+  );
   const activeOrgSlug = useOrgStore((state) => state.activeOrgSlug);
   const setActiveOrgSlug = useOrgStore((state) => state.setActiveOrgSlug);
 

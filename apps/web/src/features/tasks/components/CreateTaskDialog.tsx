@@ -29,6 +29,7 @@ const CreateTaskDialog = ({
       title="Create task"
       open={open}
       onOpenChange={onOpenChange}
+      size="md"
     >
       <CreateTaskForm
         orgSlug={orgSlug}

@@ -25,13 +25,13 @@ app.use(
   }),
 );
 
-app.use(generalRateLimiter);
+// app.use(generalRateLimiter);
 
 // Routes
 app.use("/api-docs", swaggerUi.serve);
 app.get("/api-docs", swaggerUi.setup(swaggerSpec));
 app.use("/api/health", healthRouter);
-app.use("/api/auth", authRateLimiter, authRouter);
+app.use("/api/auth", authRouter);
 app.use("/api/users/me", usersRouter);
 app.use("/api/organizations", organizationsRouter);
 app.use("/api/invitations", invitationsRouter);

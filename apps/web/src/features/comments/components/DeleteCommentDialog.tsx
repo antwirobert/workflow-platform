@@ -6,6 +6,8 @@ import { useDeleteComment } from "../hooks/useDeleteComment";
 interface DeleteCommentDialogProps {
   commentId: string;
   taskId: string;
+  workspaceSlug?: string;
+  projectSlug?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -13,6 +15,8 @@ interface DeleteCommentDialogProps {
 const DeleteCommentDialog = ({
   commentId,
   taskId,
+  workspaceSlug: taskWorkspaceSlug,
+  projectSlug: taskProjectSlug,
   open,
   onOpenChange,
 }: DeleteCommentDialogProps) => {
@@ -21,11 +25,13 @@ const DeleteCommentDialog = ({
     workspaceSlug: string;
     projectSlug: string;
   }>();
+  const workspace = taskWorkspaceSlug ?? workspaceSlug ?? "";
+  const project = taskProjectSlug ?? projectSlug ?? "";
   const {
     mutate: deleteComment,
     isPending,
     error,
-  } = useDeleteComment(orgSlug!, workspaceSlug!, projectSlug!, taskId);
+  } = useDeleteComment(orgSlug ?? "", workspace, project, taskId);
 
   const handleConfirm = () => {
     deleteComment(commentId, {

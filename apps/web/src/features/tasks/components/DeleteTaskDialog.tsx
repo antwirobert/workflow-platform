@@ -6,12 +6,16 @@ import type { Task } from "@/types/task";
 
 interface DeleteTaskDialogProps {
   task: Task;
+  workspaceSlug?: string;
+  projectSlug?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 const DeleteTaskDialog = ({
   task,
+  workspaceSlug: taskWorkspaceSlug,
+  projectSlug: taskProjectSlug,
   open,
   onOpenChange,
 }: DeleteTaskDialogProps) => {
@@ -20,11 +24,14 @@ const DeleteTaskDialog = ({
     workspaceSlug: string;
     projectSlug: string;
   }>();
+  const workspace =
+    taskWorkspaceSlug ?? workspaceSlug ?? task.project.workspace.slug;
+  const project = taskProjectSlug ?? projectSlug ?? task.project.slug;
   const {
     mutate: deleteTask,
     isPending,
     error,
-  } = useDeleteTask(orgSlug!, workspaceSlug!, projectSlug!);
+  } = useDeleteTask(orgSlug ?? "", workspace, project);
 
   const handleConfirm = () => {
     deleteTask(task.id, {

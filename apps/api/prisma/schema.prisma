@@ -129,11 +129,12 @@ model Comment {
 
 model File {
   id           String   @id @default(uuid())
-  filename     String    
-  storedName   String   @map("storedName")    
-  mimeType     String   @map("mime_type")   
-  size         Int           
-  path         String        
+  filename     String
+  mimeType     String   @map("mime_type")
+  size         Int
+  url          String                                  // Cloudinary secure_url
+  publicId     String   @map("public_id")              // needed to delete
+  resourceType String   @map("resource_type")          // "image" | "raw" | "video"
   taskId       String   @map("task_id")
   uploadedById String   @map("uploaded_by_id")
   createdAt    DateTime @default(now())

@@ -12,17 +12,6 @@ const ALLOWED_MIME_TYPES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (_req, file, cb) => {
-    const randomName = crypto.randomBytes(16).toString("hex");
-    const ext = path.extname(file.originalname);
-    cb(null, `${randomName}${ext}`);
-  },
-});
-
 const fileFilter = (
   _req: any,
   file: Express.Multer.File,
@@ -36,7 +25,7 @@ const fileFilter = (
 };
 
 export const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB

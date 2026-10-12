@@ -21,4 +21,5 @@ export const config = {
   jwtSecret: requireEnv("JWT_SECRET"),
   jwtExpiresIn: requireEnv("JWT_EXPIRES_IN") as SignOptions["expiresIn"],
   redisUrl: requireEnv("REDIS_URL"),
+  cloudinaryUrl: requireEnv("CLOUDINARY_URL"),
 };

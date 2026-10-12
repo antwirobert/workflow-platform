@@ -3,10 +3,11 @@ export interface TaskFile {
   createdAt: string;
   taskId: string;
   filename: string;
-  storedName: string;
   mimeType: string;
   size: number;
-  path: string;
+  url: string;
+  publicId: string;
+  resourceType: string;
   uploadedById: string;
   uploadedBy: {
     id: string;

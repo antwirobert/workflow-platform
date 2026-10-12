@@ -66,19 +66,26 @@ const TaskDetailsSheet = ({
     workspaceSlug: string;
     projectSlug: string;
   }>();
+  const taskWorkspaceSlug = workspaceSlug ?? task?.project.workspace.slug;
+  const taskProjectSlug = projectSlug ?? task?.project.slug;
 
   const {
     mutate: createComment,
     isPending,
     error,
-  } = useCreateComment(orgSlug!, workspaceSlug!, projectSlug!, task?.id ?? "");
+  } = useCreateComment(
+    orgSlug ?? activeOrganization?.slug ?? "",
+    taskWorkspaceSlug ?? "",
+    taskProjectSlug ?? "",
+    task?.id ?? "",
+  );
 
   if (
     !task ||
     !activeOrganization ||
-    !orgSlug ||
-    !workspaceSlug ||
-    !projectSlug
+    !(orgSlug ?? activeOrganization.slug) ||
+    !taskWorkspaceSlug ||
+    !taskProjectSlug
   )
     return null;
 
@@ -272,11 +279,19 @@ const TaskDetailsSheet = ({
 
           <Separator />
 
-          <FileList taskId={task.id} />
+          <FileList
+            taskId={task.id}
+            workspaceSlug={taskWorkspaceSlug}
+            projectSlug={taskProjectSlug}
+          />
 
           <Separator />
 
-          <CommentThread taskId={task.id} />
+          <CommentThread
+            taskId={task.id}
+            workspaceSlug={taskWorkspaceSlug}
+            projectSlug={taskProjectSlug}
+          />
         </div>
 
         <SheetFooter className="mt-auto border-t p-3">
@@ -316,9 +331,9 @@ const TaskDetailsSheet = ({
         </SheetFooter>
 
         <EditTaskDialog
-          orgSlug={orgSlug}
-          workspaceSlug={workspaceSlug}
-          projectSlug={projectSlug}
+          orgSlug={orgSlug ?? activeOrganization.slug}
+          workspaceSlug={taskWorkspaceSlug}
+          projectSlug={taskProjectSlug}
           task={task}
           open={isEditOpen}
           onOpenChange={setIsEditOpen}
@@ -326,6 +341,8 @@ const TaskDetailsSheet = ({
 
         <DeleteTaskDialog
           task={task}
+          workspaceSlug={taskWorkspaceSlug}
+          projectSlug={taskProjectSlug}
           open={isDeleteOpen}
           onOpenChange={setIsDeleteOpen}
         />

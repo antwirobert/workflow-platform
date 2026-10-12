@@ -8,6 +8,8 @@ import type { TaskFile } from "@/types/file";
 interface DeleteFileDialogProps {
   file: TaskFile | null;
   taskId: string;
+  workspaceSlug?: string;
+  projectSlug?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -15,6 +17,8 @@ interface DeleteFileDialogProps {
 const DeleteFileDialog = ({
   file,
   taskId,
+  workspaceSlug: taskWorkspaceSlug,
+  projectSlug: taskProjectSlug,
   open,
   onOpenChange,
 }: DeleteFileDialogProps) => {
@@ -23,11 +27,13 @@ const DeleteFileDialog = ({
     workspaceSlug: string;
     projectSlug: string;
   }>();
+  const workspace = taskWorkspaceSlug ?? workspaceSlug ?? "";
+  const project = taskProjectSlug ?? projectSlug ?? "";
   const {
     mutate: deleteFile,
     isPending,
     error,
-  } = useDeleteFile(orgSlug!, workspaceSlug!, projectSlug!, taskId);
+  } = useDeleteFile(orgSlug ?? "", workspace, project, taskId);
 
   if (!file) return;
 

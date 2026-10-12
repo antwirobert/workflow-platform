@@ -31,9 +31,15 @@ import { useRelativeTime } from "@/hooks/useRelativeTime";
 
 interface FileListProps {
   taskId: string;
+  workspaceSlug?: string;
+  projectSlug?: string;
 }
 
-const FileList = ({ taskId }: FileListProps) => {
+const FileList = ({
+  taskId,
+  workspaceSlug: taskWorkspaceSlug,
+  projectSlug: taskProjectSlug,
+}: FileListProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const user = useAuthStore((state) => state.user);
   const { activeOrganization } = useActiveOrganization();
@@ -42,17 +48,14 @@ const FileList = ({ taskId }: FileListProps) => {
     workspaceSlug: string;
     projectSlug: string;
   }>();
+  const workspace = taskWorkspaceSlug ?? workspaceSlug ?? "";
+  const project = taskProjectSlug ?? projectSlug ?? "";
 
   const {
     mutate: upload,
     isPending,
     error,
-  } = useUploadFile(
-    orgSlug ?? "",
-    workspaceSlug ?? "",
-    projectSlug ?? "",
-    taskId,
-  );
+  } = useUploadFile(orgSlug ?? "", workspace, project, taskId);
 
   const {
     data: files,
@@ -60,7 +63,7 @@ const FileList = ({ taskId }: FileListProps) => {
     isError,
     isFetching,
     refetch,
-  } = useFiles(orgSlug ?? "", workspaceSlug ?? "", projectSlug ?? "", taskId);
+  } = useFiles(orgSlug ?? "", workspace, project, taskId);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -168,6 +171,8 @@ const FileList = ({ taskId }: FileListProps) => {
               key={file.id}
               file={file}
               taskId={taskId}
+              workspaceSlug={workspace}
+              projectSlug={project}
               role={activeOrganization.role}
               userId={user.id}
             />
@@ -181,11 +186,15 @@ const FileList = ({ taskId }: FileListProps) => {
 const FileListItem = ({
   file,
   taskId,
+  workspaceSlug,
+  projectSlug,
   role,
   userId,
 }: {
   file: TaskFile;
   taskId: string;
+  workspaceSlug: string;
+  projectSlug: string;
   role: string;
   userId: string;
 }) => {
@@ -267,6 +276,8 @@ const FileListItem = ({
       <DeleteFileDialog
         file={selectedFileToDelete}
         taskId={taskId}
+        workspaceSlug={workspaceSlug}
+        projectSlug={projectSlug}
         open={selectedFileToDelete !== null}
         onOpenChange={(isOpen) => {
           if (!isOpen) setSelectedFileToDelete(null);

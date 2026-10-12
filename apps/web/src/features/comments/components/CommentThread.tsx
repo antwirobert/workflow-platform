@@ -21,6 +21,8 @@ import { useRelativeTime } from "@/hooks/useRelativeTime";
 
 interface CommentThreadProps {
   taskId: string;
+  workspaceSlug?: string;
+  projectSlug?: string;
 }
 
 const CommentTime = ({ createdAt }: { createdAt: string }) => {
@@ -33,19 +35,25 @@ const CommentTime = ({ createdAt }: { createdAt: string }) => {
   );
 };
 
-const CommentThread = ({ taskId }: CommentThreadProps) => {
+const CommentThread = ({
+  taskId,
+  workspaceSlug: taskWorkspaceSlug,
+  projectSlug: taskProjectSlug,
+}: CommentThreadProps) => {
   const { orgSlug, workspaceSlug, projectSlug } = useParams<{
     orgSlug: string;
     workspaceSlug: string;
     projectSlug: string;
   }>();
+  const workspace = taskWorkspaceSlug ?? workspaceSlug ?? "";
+  const project = taskProjectSlug ?? projectSlug ?? "";
   const {
     data: comments,
     isLoading,
     isError,
     isFetching,
     refetch,
-  } = useComments(orgSlug!, workspaceSlug!, projectSlug!, taskId);
+  } = useComments(orgSlug ?? "", workspace, project, taskId);
 
   const user = useAuthStore((state) => state.user);
   const { activeOrganization } = useActiveOrganization();
@@ -195,6 +203,8 @@ const CommentThread = ({ taskId }: CommentThreadProps) => {
                 <DeleteCommentDialog
                   commentId={id}
                   taskId={taskId}
+                  workspaceSlug={workspace}
+                  projectSlug={project}
                   open={isDeleteOpen}
                   onOpenChange={setIsDeleteOpen}
                 />

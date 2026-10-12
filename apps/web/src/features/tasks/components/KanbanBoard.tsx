@@ -14,7 +14,7 @@ import { useUpdateTaskStatus } from "../hooks/useUpdateTaskStatus";
 import { KanbanCard } from "./KanbanCard";
 import type { Priority, TaskStatus } from "@/types/task";
 import { KanbanColumn } from "./KanbanColumn";
-import { DEFAULT_PAGE, DEFAULT_SIDEBAR_LIMIT } from "@/constants";
+import { DEFAULT_PAGE, SELECT_ITEMS_LIMIT } from "@/constants";
 import TaskDetailsSheet from "./TaskDetailsSheet";
 
 const STATUSES: TaskStatus[] = [
@@ -58,7 +58,7 @@ export function KanbanBoard({
     projectSlug ?? null,
     {
       page: DEFAULT_PAGE,
-      limit: DEFAULT_SIDEBAR_LIMIT,
+      limit: SELECT_ITEMS_LIMIT,
       status: status === "ALL" ? undefined : status,
       priority: priority === "ALL" ? undefined : priority,
       assigneeId: assignee === "ALL" ? undefined : assignee,

@@ -173,10 +173,11 @@ export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeo
 export const FileScalarFieldEnum = {
   id: 'id',
   filename: 'filename',
-  storedName: 'storedName',
   mimeType: 'mimeType',
   size: 'size',
-  path: 'path',
+  url: 'url',
+  publicId: 'publicId',
+  resourceType: 'resourceType',
   taskId: 'taskId',
   uploadedById: 'uploadedById',
   createdAt: 'createdAt'
@@ -311,9 +312,10 @@ export type CommentOrderByRelevanceFieldEnum = (typeof CommentOrderByRelevanceFi
 export const FileOrderByRelevanceFieldEnum = {
   id: 'id',
   filename: 'filename',
-  storedName: 'storedName',
   mimeType: 'mimeType',
-  path: 'path',
+  url: 'url',
+  publicId: 'publicId',
+  resourceType: 'resourceType',
   taskId: 'taskId',
   uploadedById: 'uploadedById'
 } as const

@@ -49,6 +49,7 @@ services:
       JWT_SECRET: super_secret_key
       JWT_EXPIRES_IN: 15m
       NODE_ENV: production
+      CLOUDINARY_URL: ${CLOUDINARY_URL}
     depends_on:
       db:
         condition: service_healthy

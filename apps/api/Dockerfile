@@ -27,6 +27,7 @@ ENV JWT_SECRET=dummy_secret_for_build
 ENV JWT_EXPIRES_IN=15m
 ENV NODE_ENV=production
 ENV REDIS_URL=redis://localhost:6379
+ENV CLOUDINARY_URL=cloudinary://dummy_key:dummy_secret@dummy_cloud
 
 # Generate Prisma client inside the container
 RUN npx prisma generate

@@ -76,6 +76,7 @@ jobs:
           JWT_EXPIRES_IN: 15m
           REDIS_URL: redis://localhost:6379
           NODE_ENV: test
+          CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
 
       - name: Run tests
         run: npm test

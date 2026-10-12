@@ -66,8 +66,9 @@ const TaskDetailsSheet = ({
     workspaceSlug: string;
     projectSlug: string;
   }>();
-  const taskWorkspaceSlug = workspaceSlug ?? task?.project.workspace.slug;
-  const taskProjectSlug = projectSlug ?? task?.project.slug;
+  const taskWorkspaceSlug =
+    workspaceSlug ?? task?.project?.workspace?.slug;
+  const taskProjectSlug = projectSlug ?? task?.project?.slug;
 
   const {
     mutate: createComment,

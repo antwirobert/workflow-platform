@@ -25,8 +25,8 @@ const DeleteTaskDialog = ({
     projectSlug: string;
   }>();
   const workspace =
-    taskWorkspaceSlug ?? workspaceSlug ?? task.project.workspace.slug;
-  const project = taskProjectSlug ?? projectSlug ?? task.project.slug;
+    taskWorkspaceSlug ?? workspaceSlug ?? task.project?.workspace.slug ?? "";
+  const project = taskProjectSlug ?? projectSlug ?? task.project?.slug ?? "";
   const {
     mutate: deleteTask,
     isPending,

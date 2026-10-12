@@ -67,33 +67,31 @@ const TaskDetailsSheet = ({
     projectSlug: string;
   }>();
   const taskWorkspaceSlug =
-    workspaceSlug ?? task?.project?.workspace?.slug;
-  const taskProjectSlug = projectSlug ?? task?.project?.slug;
+    workspaceSlug ?? task?.project?.workspace?.slug ?? "";
+  const taskProjectSlug = projectSlug ?? task?.project?.slug ?? "";
+  const taskOrganizationSlug =
+    orgSlug ?? activeOrganization?.slug ?? "";
+  const hasTaskContext = Boolean(
+    taskOrganizationSlug && taskWorkspaceSlug && taskProjectSlug,
+  );
 
   const {
     mutate: createComment,
     isPending,
     error,
   } = useCreateComment(
-    orgSlug ?? activeOrganization?.slug ?? "",
-    taskWorkspaceSlug ?? "",
-    taskProjectSlug ?? "",
+    taskOrganizationSlug,
+    taskWorkspaceSlug,
+    taskProjectSlug,
     task?.id ?? "",
   );
 
-  if (
-    !task ||
-    !activeOrganization ||
-    !(orgSlug ?? activeOrganization.slug) ||
-    !taskWorkspaceSlug ||
-    !taskProjectSlug
-  )
-    return null;
+  if (!task) return null;
 
   const color = getIdentityColor(task.assignee?.id ?? "");
 
   const handleCreateComment = () => {
-    if (!comment?.body.trim()) return;
+    if (!hasTaskContext || !comment?.body.trim()) return;
 
     createComment(comment, {
       onSuccess: () => {
@@ -123,63 +121,67 @@ const TaskDetailsSheet = ({
           <div className="flex items-center justify-between px-4 py-3">
             <TaskStatusBadge status={task.status} />
             <div className="flex items-center gap-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-8 shrink-0 data-[state=open]:opacity-100"
-                    >
-                      <Ellipsis className="size-4" />
-                    </Button>
-                  }
-                />
-                <DropdownMenuContent className="w-52 p-1" align="end">
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      onClick={() => setIsEditOpen(true)}
-                      className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-100"
-                    >
-                      <Pencil className="size-3.5 text-muted-foreground" />
-                      Edit task
-                    </DropdownMenuItem>
+              {activeOrganization && hasTaskContext && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 shrink-0 data-[state=open]:opacity-100"
+                      >
+                        <Ellipsis className="size-4" />
+                      </Button>
+                    }
+                  />
+                  <DropdownMenuContent className="w-52 p-1" align="end">
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        onClick={() => setIsEditOpen(true)}
+                        className="cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-100"
+                      >
+                        <Pencil className="size-3.5 text-muted-foreground" />
+                        Edit task
+                      </DropdownMenuItem>
 
-                    <DropdownMenuItem
-                      onClick={() => setIsDeleteOpen(true)}
-                      disabled={
-                        !ROLES_MANAGEMENT.includes(activeOrganization.role)
-                      }
-                      className={
-                        ROLES_MANAGEMENT.includes(activeOrganization.role)
-                          ? "cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm text-destructive focus:bg-destructive/10 focus:text-destructive [&_svg]:text-destructive"
-                          : "cursor-not-allowed gap-2 rounded-md px-2 py-1.5 text-sm disabled:opacity-100"
-                      }
-                      variant="destructive"
-                    >
-                      {ROLES_MANAGEMENT.includes(activeOrganization.role) ? (
-                        <>
-                          <Trash2 className="size-3.5" />
-                          Delete task
-                        </>
-                      ) : (
-                        <div className="flex items-start gap-2 py-0.5">
-                          <Lock className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-sm text-muted-foreground">
-                              Delete task
-                            </span>
-                            <span className="text-[11px] leading-snug text-muted-foreground/70">
-                              Only the creator, an admin, or the owner can
-                              delete this task
-                            </span>
+                      <DropdownMenuItem
+                        onClick={() => setIsDeleteOpen(true)}
+                        disabled={
+                          !ROLES_MANAGEMENT.includes(activeOrganization.role)
+                        }
+                        className={
+                          ROLES_MANAGEMENT.includes(activeOrganization.role)
+                            ? "cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm text-destructive focus:bg-destructive/10 focus:text-destructive [&_svg]:text-destructive"
+                            : "cursor-not-allowed gap-2 rounded-md px-2 py-1.5 text-sm disabled:opacity-100"
+                        }
+                        variant="destructive"
+                      >
+                        {ROLES_MANAGEMENT.includes(
+                          activeOrganization.role,
+                        ) ? (
+                          <>
+                            <Trash2 className="size-3.5" />
+                            Delete task
+                          </>
+                        ) : (
+                          <div className="flex items-start gap-2 py-0.5">
+                            <Lock className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-sm text-muted-foreground">
+                                Delete task
+                              </span>
+                              <span className="text-[11px] leading-snug text-muted-foreground/70">
+                                Only the creator, an admin, or the owner can
+                                delete this task
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                        )}
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -280,73 +282,83 @@ const TaskDetailsSheet = ({
 
           <Separator />
 
-          <FileList
-            taskId={task.id}
-            workspaceSlug={taskWorkspaceSlug}
-            projectSlug={taskProjectSlug}
-          />
+          {hasTaskContext && (
+            <>
+              <FileList
+                taskId={task.id}
+                workspaceSlug={taskWorkspaceSlug}
+                projectSlug={taskProjectSlug}
+              />
 
-          <Separator />
+              <Separator />
 
-          <CommentThread
-            taskId={task.id}
-            workspaceSlug={taskWorkspaceSlug}
-            projectSlug={taskProjectSlug}
-          />
+              <CommentThread
+                taskId={task.id}
+                workspaceSlug={taskWorkspaceSlug}
+                projectSlug={taskProjectSlug}
+              />
+            </>
+          )}
         </div>
 
-        <SheetFooter className="mt-auto border-t p-3">
-          <div className="relative flex w-full flex-col">
-            <Textarea
-              placeholder="Write a comment..."
-              className="min-h-18 w-full resize-none pb-12 text-sm focus-visible:ring-1"
-              value={comment?.body}
-              onChange={(e) =>
-                setComment((prevComment) => ({
-                  ...prevComment,
-                  body: e.target.value,
-                }))
-              }
-            />
-            <div className="absolute bottom-2 right-2">
-              <Button
-                size="sm"
-                className="shrink-0 gap-1.5 h-8"
-                disabled={isPending || !comment.body.trim()}
-                onClick={handleCreateComment}
-              >
-                {isPending ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    Posting...
-                  </>
-                ) : (
-                  <>
-                    <Send className="size-3.5" />
-                    Send
-                  </>
-                )}
-              </Button>
+        {hasTaskContext && (
+          <SheetFooter className="mt-auto border-t p-3">
+            <div className="relative flex w-full flex-col">
+              <Textarea
+                placeholder="Write a comment..."
+                className="min-h-18 w-full resize-none pb-12 text-sm focus-visible:ring-1"
+                value={comment?.body}
+                onChange={(e) =>
+                  setComment((prevComment) => ({
+                    ...prevComment,
+                    body: e.target.value,
+                  }))
+                }
+              />
+              <div className="absolute bottom-2 right-2">
+                <Button
+                  size="sm"
+                  className="shrink-0 gap-1.5 h-8"
+                  disabled={isPending || !comment.body.trim()}
+                  onClick={handleCreateComment}
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      Posting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="size-3.5" />
+                      Send
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
-        </SheetFooter>
+          </SheetFooter>
+        )}
 
-        <EditTaskDialog
-          orgSlug={orgSlug ?? activeOrganization.slug}
-          workspaceSlug={taskWorkspaceSlug}
-          projectSlug={taskProjectSlug}
-          task={task}
-          open={isEditOpen}
-          onOpenChange={setIsEditOpen}
-        />
+        {hasTaskContext && (
+          <>
+            <EditTaskDialog
+              orgSlug={taskOrganizationSlug}
+              workspaceSlug={taskWorkspaceSlug}
+              projectSlug={taskProjectSlug}
+              task={task}
+              open={isEditOpen}
+              onOpenChange={setIsEditOpen}
+            />
 
-        <DeleteTaskDialog
-          task={task}
-          workspaceSlug={taskWorkspaceSlug}
-          projectSlug={taskProjectSlug}
-          open={isDeleteOpen}
-          onOpenChange={setIsDeleteOpen}
-        />
+            <DeleteTaskDialog
+              task={task}
+              workspaceSlug={taskWorkspaceSlug}
+              projectSlug={taskProjectSlug}
+              open={isDeleteOpen}
+              onOpenChange={setIsDeleteOpen}
+            />
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );

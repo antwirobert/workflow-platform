@@ -57,8 +57,8 @@ const TasksTable = ({
   }
 
   const handleRowClick = (id: string): void => {
-    onOpenChange?.(true);
     setSelectedTaskId(id);
+    onOpenChange?.(true);
   };
 
   const activeTask = tasks.find((t) => t.id === selectedTaskId) || null;
@@ -128,10 +128,10 @@ const TasksTable = ({
         </Table>
       </div>
 
-      {open && onOpenChange && (
+      {onOpenChange && (
         <TaskDetailsSheet
           task={activeTask}
-          open={open}
+          open={Boolean(open && activeTask)}
           onOpenChange={(isOpen) => {
             onOpenChange(isOpen);
             if (!isOpen) setSelectedTaskId(null);

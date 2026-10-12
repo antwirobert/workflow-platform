@@ -26,6 +26,10 @@ export interface TaskResult {
   status: TaskStatus;
   priority: Priority;
   projectId: string;
+  project?: {
+    slug: string;
+    workspace: { slug: string };
+  };
   assignee?: {
     id: string | null;
     name: string | null;

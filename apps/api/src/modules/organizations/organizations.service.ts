@@ -17,7 +17,11 @@ import {
 } from "../../generated/prisma/client";
 import { getMonthRange, getNextNDaysRange } from "../../common/utils/date";
 import { TaskWhereInput } from "../../generated/prisma/models";
-import { ListTasksQuery, TaskResult } from "../tasks/tasks.types";
+import {
+  ListTasksQuery,
+  listTasksQueryResult,
+  TaskResult,
+} from "../tasks/tasks.types";
 import {
   deleteCache,
   deleteCacheByPattern,
@@ -401,7 +405,9 @@ export class OrganizationsService {
     };
   }
 
-  async listUserTasks(query: ListTasksQuery) {
+  async listUserTasks(
+    query: ListTasksQuery,
+  ): Promise<listTasksQueryResult<TaskResult>> {
     const {
       page,
       limit,
@@ -430,7 +436,7 @@ export class OrganizationsService {
       queryString,
     );
 
-    const cached = await getCache(cacheKey);
+    const cached = await getCache<listTasksQueryResult<TaskResult>>(cacheKey);
     if (cached) return cached;
 
     const skip = (page - 1) * limit;
@@ -479,6 +485,14 @@ export class OrganizationsService {
           createdBy: {
             select: { id: true, name: true },
           },
+          project: {
+            select: {
+              slug: true,
+              workspace: {
+                select: { slug: true },
+              },
+            },
+          },
         },
       }),
 
@@ -497,6 +511,7 @@ export class OrganizationsService {
             id: task.createdBy?.id ?? null,
             name: task.createdBy?.name ?? null,
           },
+          task.project,
         ),
       ),
       meta: {
@@ -538,6 +553,10 @@ export class OrganizationsService {
     task: Task,
     assignee?: { id: string | null; name: string | null },
     createdBy?: { id: string | null; name: string | null },
+    project?: {
+      slug: string;
+      workspace: { slug: string };
+    },
   ): TaskResult {
     return {
       id: task.id,
@@ -548,6 +567,7 @@ export class OrganizationsService {
       projectId: task.projectId,
       ...(assignee ? { assignee } : {}),
       ...(createdBy ? { createdBy } : {}),
+      ...(project ? { project } : {}),
       dueDate: task.dueDate,
       labels: task.labels,
       createdAt: task.createdAt,

@@ -47,5 +47,5 @@ export const CacheKeys = {
   ) =>
     `organizations:${organizationId}:workspaces:${workspaceId}:projects:${projectId}:tasks:${taskId}`,
   userTasks: (organizationId: string, userId: string, query: string) =>
-    `organizations:${organizationId}:users:${userId}:tasks:${query}`,
+    `organizations:${organizationId}:users:${userId}:tasks:v2:${query}`,
 };

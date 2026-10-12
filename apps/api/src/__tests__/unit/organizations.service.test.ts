@@ -159,6 +159,60 @@ describe("OrganizationsService", () => {
     expect(setCache).not.toHaveBeenCalled();
   });
 
+  it("includes project and workspace slugs in organization task results", async () => {
+    (getCache as jest.Mock).mockResolvedValue(null);
+    mockPrisma.task.findMany = jest.fn().mockResolvedValue([
+      {
+        id: "task-1",
+        title: "Task one",
+        description: null,
+        status: "TODO",
+        priority: "MEDIUM",
+        projectId: "project-1",
+        assignee: null,
+        createdBy: { id: "user-1", name: "User One" },
+        dueDate: null,
+        labels: [],
+        createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+        project: {
+          slug: "project-one",
+          workspace: { slug: "workspace-one" },
+        },
+      },
+    ]);
+    mockPrisma.task.count = jest.fn().mockResolvedValue(1);
+
+    const result = await service.listUserTasks({
+      page: 1,
+      limit: 12,
+      organizationId: "org-1",
+      userId: "user-1",
+      projectId: "",
+      tab: "assigned",
+    });
+
+    expect(result.data[0]).toMatchObject({
+      id: "task-1",
+      project: {
+        slug: "project-one",
+        workspace: { slug: "workspace-one" },
+      },
+    });
+    expect(mockPrisma.task.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        include: expect.objectContaining({
+          project: {
+            select: {
+              slug: true,
+              workspace: { select: { slug: true } },
+            },
+          },
+        }),
+      }),
+    );
+  });
+
   it("updates organization metadata and invalidates member caches", async () => {
     mockPrisma.organization.findUnique = jest.fn().mockResolvedValue({
       id: "org-1",

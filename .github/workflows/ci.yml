@@ -66,6 +66,7 @@ jobs:
           JWT_EXPIRES_IN: 15m
           REDIS_URL: redis://localhost:6379
           NODE_ENV: test
+          CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
 
       - name: Run migrations on test database
         run: npx prisma migrate deploy
@@ -87,6 +88,7 @@ jobs:
           JWT_EXPIRES_IN: 15m
           REDIS_URL: redis://localhost:6379
           NODE_ENV: test
+          CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
 
   build:
     runs-on: ubuntu-latest
@@ -118,6 +120,7 @@ jobs:
           JWT_EXPIRES_IN: 15m
           REDIS_URL: redis://localhost:6379
           NODE_ENV: test
+          CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
 
       - name: Build TypeScript
         run: npm run build

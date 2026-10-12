@@ -4,6 +4,7 @@ import { prisma } from "../../lib/prisma";
 import { OrgRole } from "../../generated/prisma/enums";
 import { deleteCache, deleteCacheByPattern } from "../../redis/cache";
 import { CacheKeys } from "../../redis/cacheKeys";
+import { deleteFromCloudinary, uploadToCloudinary } from "../../lib/cloudinary";
 
 export class FilesService {
   async upload(
@@ -11,23 +12,34 @@ export class FilesService {
     uploadedById: string,
     file: Express.Multer.File,
   ) {
-    const createdFile = await prisma.file.create({
-      data: {
-        filename: file.originalname,
-        storedName: file.filename,
-        mimeType: file.mimetype,
-        size: file.size,
-        path: file.path,
-        taskId,
-        uploadedById,
-      },
-      include: {
-        uploadedBy: { select: { id: true, name: true, email: true } },
-      },
-    });
+    const result = await uploadToCloudinary(file, `tasks/${taskId}`);
 
-    await this.invalidateTaskCache(taskId);
-    return createdFile;
+    try {
+      const createdFile = await prisma.file.create({
+        data: {
+          filename: file.originalname,
+          mimeType: file.mimetype,
+          size: file.size,
+          url: result.secure_url,
+          publicId: result.public_id,
+          resourceType: result.resource_type,
+          taskId,
+          uploadedById,
+        },
+        include: {
+          uploadedBy: { select: { id: true, name: true, email: true } },
+        },
+      });
+
+      await this.invalidateTaskCache(taskId);
+      return createdFile;
+    } catch (err) {
+      await deleteFromCloudinary(
+        result.public_id,
+        result.resource_type as "image" | "raw" | "video",
+      ).catch(() => {});
+      throw err;
+    }
   }
 
   async list(taskId: string) {
@@ -64,20 +76,26 @@ export class FilesService {
       throw new NotFoundError("File");
     }
 
-    const isPriviledged = ["OWNER", "ADMIN"].includes(orgRole);
+    const isPrivileged = ["OWNER", "ADMIN"].includes(orgRole);
     const isCreator = file.uploadedById === userId;
 
-    if (!isPriviledged && !isCreator) {
+    if (!isPrivileged && !isCreator) {
       throw new ForbiddenError(
         "You do not have permission to perform this action.",
       );
     }
 
-    if (fs.existsSync(file.path)) {
-      fs.unlinkSync(file.path);
+    const deletedFile = await prisma.file.delete({ where: { id: fileId } });
+
+    try {
+      await deleteFromCloudinary(
+        file.publicId,
+        file.resourceType as "image" | "raw" | "video",
+      );
+    } catch (err) {
+      console.error(`Failed to delete Cloudinary asset ${file.publicId}`, err);
     }
 
-    const deletedFile = await prisma.file.delete({ where: { id: fileId } });
     await this.invalidateTaskCache(taskId);
     return deletedFile;
   }

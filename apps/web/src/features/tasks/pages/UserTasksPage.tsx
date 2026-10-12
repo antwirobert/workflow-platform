@@ -6,13 +6,11 @@ import { useOrganizationTasks } from "@/features/organizations/hooks/useOrganiza
 import { usePagination } from "@/hooks/usePagination";
 import { useUserTaskFilters } from "../hooks/useUserTaskFilters";
 import TasksTable from "../components/TasksTable";
-import { useState } from "react";
 import PaginationControls from "@/components/PaginationControls";
 import { CheckSquare } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const UserTasksPage = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const { orgSlug } = useParams<{ orgSlug: string }>();
   const { page, limit, onPageChange, onPageSizeChange } = usePagination();
 
@@ -151,9 +149,6 @@ const UserTasksPage = () => {
                   isError={isError}
                   isFetching={isFetching}
                   refetch={refetch}
-                  open={isOpen}
-                  onOpenChange={setIsOpen}
-                  isClickable
                 />
 
                 <PaginationControls

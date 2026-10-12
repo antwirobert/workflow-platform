@@ -26,7 +26,7 @@ export interface Task {
   };
   dueDate: string | null;
   labels: string[];
-  project: {
+  project?: {
     slug: string;
     workspace: {
       slug: string;

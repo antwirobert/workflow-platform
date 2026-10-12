@@ -191,6 +191,7 @@ const DashboardPage = () => {
                       key={workspace.id}
                       id={workspace.id}
                       name={workspace.name}
+                      workspaceSlug={workspace.slug}
                       updatedAt={workspace.updatedAt}
                     />
                   ))}

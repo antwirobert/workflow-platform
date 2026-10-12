@@ -1,22 +1,37 @@
 import { useRelativeTime } from "@/hooks/useRelativeTime";
 import { cn, getIdentityColor } from "@/lib/utils";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface DashboardWorkspaceCardProps {
   id: string;
   name: string;
+  workspaceSlug: string;
   updatedAt: string;
 }
 
 export const DashboardWorkspaceCard = ({
   id,
   name,
+  workspaceSlug,
   updatedAt,
 }: DashboardWorkspaceCardProps) => {
+  const navigate = useNavigate();
+  const setActiveWorkspaceSlug = useWorkspaceStore(
+    (state) => state.setActiveWorkspaceSlug,
+  );
+  const { orgSlug } = useParams<{ orgSlug: string }>();
   const relativeText = useRelativeTime(updatedAt);
   const color = getIdentityColor(id);
 
   return (
-    <div className="group flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
+    <div
+      onClick={() => {
+        setActiveWorkspaceSlug(workspaceSlug);
+        navigate(`/organizations/${orgSlug}/workspaces/${workspaceSlug}`);
+      }}
+      className="group flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md hover:cursor-pointer"
+    >
       <div className="flex items-center justify-between gap-2">
         <div
           className={cn(

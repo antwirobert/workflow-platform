@@ -59,40 +59,43 @@ const SearchCommand = ({ open, onOpenChange }: SearchCommandProps) => {
     type === "ALL" ? undefined : type,
   );
 
-  const taskCount = data?.tasks.length ?? 0;
-  const projectCount = data?.projects.length ?? 0;
-  const workspaceCount = data?.workspaces.length ?? 0;
-  const memberCount = data?.people.length ?? 0;
+  const hasQuery = query.trim().length > 0;
+  const taskCount = hasQuery ? (data?.tasks.length ?? 0) : 0;
+  const projectCount = hasQuery ? (data?.projects.length ?? 0) : 0;
+  const workspaceCount = hasQuery ? (data?.workspaces.length ?? 0) : 0;
+  const memberCount = hasQuery ? (data?.people.length ?? 0) : 0;
   const totalCount = taskCount + projectCount + workspaceCount + memberCount;
 
-  const showEmptyPrompt = query.trim().length === 0 && !isFetching;
-  const showNoResults =
-    query.trim().length > 0 && !isFetching && totalCount === 0;
+  const showEmptyPrompt = !hasQuery && !isFetching;
+  const showNoResults = hasQuery && !isFetching && totalCount === 0;
 
   const goToProject = (workspaceSlug: string, projectSlug: string) => {
     setActiveWorkspaceSlug(workspaceSlug);
+    onSearchChange("");
+    onOpenChange(false);
     navigate(
       `/organizations/${activeOrganization?.slug}/workspaces/${workspaceSlug}/projects/${projectSlug}`,
     );
-    onSearchChange("");
-    onOpenChange(false);
   };
 
   const goToWorkspace = (workspaceSlug: string) => {
     setActiveWorkspaceSlug(workspaceSlug);
+    onSearchChange("");
+    onOpenChange(false);
     navigate(
       `/organizations/${activeOrganization?.slug}/workspaces/${workspaceSlug}`,
     );
-    onOpenChange(false);
-    onSearchChange("");
   };
 
   return (
     <CommandDialog
+      className="max-w-2xl!"
       open={open}
       onOpenChange={(isOpen) => {
-        if (!isOpen) onOpenChange(isOpen);
-        onSearchChange("");
+        onOpenChange(isOpen);
+        if (!isOpen) {
+          onSearchChange("");
+        }
       }}
     >
       <Command

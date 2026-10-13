@@ -67,6 +67,8 @@ jobs:
           REDIS_URL: redis://localhost:6379
           NODE_ENV: test
           CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
+          RESEND_API_KEY: re_dummy_key_for_ci
+          EMAIL_FROM: dummy@example.c
 
       - name: Run migrations on test database
         run: npx prisma migrate deploy
@@ -78,6 +80,8 @@ jobs:
           REDIS_URL: redis://localhost:6379
           NODE_ENV: test
           CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
+          RESEND_API_KEY: re_dummy_key_for_ci
+          EMAIL_FROM: dummy@example.c
 
       - name: Run tests
         run: npm test
@@ -89,6 +93,8 @@ jobs:
           REDIS_URL: redis://localhost:6379
           NODE_ENV: test
           CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
+          RESEND_API_KEY: re_dummy_key_for_ci
+          EMAIL_FROM: dummy@example.c
 
   build:
     runs-on: ubuntu-latest
@@ -121,6 +127,8 @@ jobs:
           REDIS_URL: redis://localhost:6379
           NODE_ENV: test
           CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
+          RESEND_API_KEY: re_dummy_key_for_ci
+          EMAIL_FROM: dummy@example.c
 
       - name: Build TypeScript
         run: npm run build

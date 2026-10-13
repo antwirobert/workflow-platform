@@ -31,6 +31,7 @@
     "multer": "^2.2.0",
     "pg": "^8.22.0",
     "prisma": "^7.8.0",
+    "resend": "^6.32.1",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^14.0.2",

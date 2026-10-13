@@ -22,4 +22,6 @@ export const config = {
   jwtExpiresIn: requireEnv("JWT_EXPIRES_IN") as SignOptions["expiresIn"],
   redisUrl: requireEnv("REDIS_URL"),
   cloudinaryUrl: requireEnv("CLOUDINARY_URL"),
+  resendApiKey: requireEnv("RESEND_API_KEY"),
+  emailFrom: requireEnv("EMAIL_FROM"),
 };

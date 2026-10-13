@@ -28,6 +28,8 @@ ENV JWT_EXPIRES_IN=15m
 ENV NODE_ENV=production
 ENV REDIS_URL=redis://localhost:6379
 ENV CLOUDINARY_URL=cloudinary://dummy_key:dummy_secret@dummy_cloud
+ENV RESEND_API_KEY=re_dummy_key_for_build
+ENV EMAIL_FROM=dummy@example.com
 
 # Generate Prisma client inside the container
 RUN npx prisma generate

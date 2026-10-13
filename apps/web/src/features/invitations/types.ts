@@ -1,8 +1,6 @@
-import type { OrgRole } from "@/types/organization";
-
 export interface SendInvitationPayload {
   email: string;
-  role: OrgRole;
+  role: "ADMIN" | "MEMBER";
 }
 
 export interface AcceptInvitationResponse {

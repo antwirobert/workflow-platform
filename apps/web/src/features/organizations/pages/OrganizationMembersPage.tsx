@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { UserPlus } from "lucide-react";
 import { useOrganization } from "../hooks/useOrganization";
 import { useParams } from "react-router-dom";
 import ErrorState from "@/components/ErrorState";
@@ -10,6 +8,7 @@ import { useOrganizationMembers } from "../hooks/useOrganizationMembers";
 import MemberFilters from "../components/MemberFilters";
 import { usePagination } from "@/hooks/usePagination";
 import { useOrganizationMemberFilters } from "../hooks/useOrganizationMemberFilters";
+import SendInvitationDialog from "@/features/invitations/components/SendInvitationDialog";
 
 const OrganizationMembersPage = () => {
   const { page, limit, onPageChange, onPageSizeChange } = usePagination();
@@ -84,10 +83,8 @@ const OrganizationMembersPage = () => {
               </Badge>
             </div>
           </div>
-          <Button className="shrink-0 gap-1.5 self-start">
-            <UserPlus className="size-4" />
-            Invite members
-          </Button>
+
+          <SendInvitationDialog orgSlug={organization.slug} />
         </div>
 
         <MemberFilters

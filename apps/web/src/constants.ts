@@ -33,6 +33,11 @@ export const PALETTE = [
   },
 ];
 
+export const ROLE_OPTIONS = [
+  { label: "Member", value: "MEMBER" },
+  { label: "Admin", value: "ADMIN" },
+] as const;
+
 export const TASK_STATUS_OPTIONS = [
   { label: "Todo", value: "TODO" },
   { label: "In Progress", value: "IN_PROGRESS" },

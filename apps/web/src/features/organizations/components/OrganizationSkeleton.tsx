@@ -1,5 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import MembersTableSkeleton from "./MembersTableSkeleton";
+import PendingInvitesTableSkeleton from "@/features/invitations/components/PendingInvitesTableSkeleton";
 
 const OrganizationSkeleton = () => {
   return (
@@ -15,6 +16,9 @@ const OrganizationSkeleton = () => {
           </div>
           <Skeleton className="h-10 w-36 shrink-0 self-start" />
         </div>
+
+        <PendingInvitesTableSkeleton />
+
         <div className="mb-5 grid grid-cols-4 gap-2">
           <Skeleton className="col-span-3 h-10 w-full" />
           <Skeleton className="col-span-1 h-10 w-full" />

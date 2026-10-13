@@ -104,8 +104,8 @@ const SendInvitationForm = ({ orgSlug, onClose }: SendInvitationFormProps) => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="task-status" className="font-semibold">
-                Status
+              <FieldLabel htmlFor="role" className="font-semibold">
+                Role
               </FieldLabel>
               <Select
                 id="role"

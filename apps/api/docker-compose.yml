@@ -52,6 +52,7 @@ services:
       CLOUDINARY_URL: ${CLOUDINARY_URL}
       RESEND_API_KEY: ${RESEND_API_KEY}
       EMAIL_FROM: ${EMAIL_FROM}
+      FRONTEND_URL: ${FRONTEND_URL}
     depends_on:
       db:
         condition: service_healthy

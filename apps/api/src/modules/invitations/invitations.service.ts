@@ -10,6 +10,7 @@ import { InvitationResult, SendInvitationInput } from "./invitations.types";
 import crypto from "crypto";
 import { deleteCache, deleteCacheByPattern } from "../../redis/cache";
 import { CacheKeys } from "../../redis/cacheKeys";
+import { config } from "../../config/env";
 
 export class InvitationsService {
   async send(input: SendInvitationInput): Promise<InvitationResult> {
@@ -61,7 +62,7 @@ export class InvitationsService {
 
     await emailQueue.add("send-invitation-email", {
       email,
-      inviteLink: `http://localhost:8080/invitations/accept?token=${token}`,
+      inviteLink: `${config.frontendUrl}/invitations/accept?token=${token}`,
       orgName: org.name,
     });
 

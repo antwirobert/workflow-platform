@@ -9,6 +9,9 @@ import MemberFilters from "../components/MemberFilters";
 import { usePagination } from "@/hooks/usePagination";
 import { useOrganizationMemberFilters } from "../hooks/useOrganizationMemberFilters";
 import SendInvitationDialog from "@/features/invitations/components/SendInvitationDialog";
+import PendingInvitesTable from "@/features/invitations/components/PendingInvitesTable";
+import { usePendingInvitations } from "@/features/invitations/hooks/usePendingInvitations";
+import { Mail } from "lucide-react";
 
 const OrganizationMembersPage = () => {
   const { page, limit, onPageChange, onPageSizeChange } = usePagination();
@@ -23,6 +26,8 @@ const OrganizationMembersPage = () => {
     isFetching: isOrganizationFetching,
     refetch: refetchOrganization,
   } = useOrganization(orgSlug ?? null);
+
+  const { data: pendingInvites } = usePendingInvitations(orgSlug ?? null);
 
   const {
     data: members,
@@ -86,6 +91,33 @@ const OrganizationMembersPage = () => {
 
           <SendInvitationDialog orgSlug={organization.slug} />
         </div>
+
+        {pendingInvites?.length === 0 && (
+          <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border bg-muted/40 px-3.5 py-3">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-background border">
+                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+
+              <div className="min-w-0">
+                <h2 className="text-sm font-medium leading-none">
+                  No pending invites
+                </h2>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  People you invite by email show up here until they accept.
+                </p>
+              </div>
+            </div>
+
+            <div className="shrink-0">
+              <SendInvitationDialog orgSlug={organization.slug} size />
+            </div>
+          </div>
+        )}
+
+        {pendingInvites && pendingInvites.length > 0 && (
+          <PendingInvitesTable pendingInvites={pendingInvites} />
+        )}
 
         <MemberFilters
           role={role}

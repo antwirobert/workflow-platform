@@ -1,7 +1,14 @@
 import { PALETTE } from "@/constants";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format, isToday, isTomorrow, isThisYear, parseISO } from "date-fns";
+import {
+  format,
+  isToday,
+  isTomorrow,
+  isThisYear,
+  parseISO,
+  isYesterday,
+} from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -62,6 +69,19 @@ export function formatDueDate(dateInput: string): string {
   }
 
   return format(date, "MMM d, yyyy");
+}
+
+export function formatInvitationDate(dateInput: string): string {
+  const date = parseISO(dateInput);
+
+  if (isToday(date)) return "Today";
+  if (isYesterday(date)) return "Yesterday";
+
+  if (isThisYear(date)) {
+    return format(date, "MMM d");
+  }
+
+  return format(date, "MM/dd/yyyy");
 }
 
 export function formatBytes(bytes: number): string {

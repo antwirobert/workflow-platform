@@ -11,7 +11,7 @@ const base = (orgSlug: string) => `/api/organizations/${orgSlug}/invitations/`;
 export const invitationsApi = {
   send: (orgSlug: string, payload: SendInvitationPayload) =>
     apiClient.post<Invitation>(base(orgSlug), payload),
-  pending: (orgSlug: string) => apiClient.get<Invitation>(base(orgSlug)),
+  pending: (orgSlug: string) => apiClient.get<Invitation[]>(base(orgSlug)),
   accept: (params: InvitationParams) =>
     apiClient.get<AcceptInvitationResponse>(`/api/invitations/accept`, {
       params: {

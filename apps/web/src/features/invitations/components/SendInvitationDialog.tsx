@@ -7,16 +7,20 @@ import SendInvitationForm from "./sendInvitationForm";
 
 interface SendInvitationDialogProps {
   orgSlug: string;
+  size?: boolean;
 }
 
-const SendInvitationDialog = ({ orgSlug }: SendInvitationDialogProps) => {
+const SendInvitationDialog = ({ orgSlug, size }: SendInvitationDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { activeOrganization } = useActiveOrganization();
 
   return (
     <ActionDialog
       trigger={
-        <Button className="shrink-0 gap-1.5 self-start">
+        <Button
+          className="shrink-0 gap-1.5 self-start"
+          size={size ? "xs" : "default"}
+        >
           <UserPlus className="size-4" />
           Invite members
         </Button>

@@ -68,7 +68,8 @@ jobs:
           NODE_ENV: test
           CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
           RESEND_API_KEY: re_dummy_key_for_ci
-          EMAIL_FROM: dummy@example.c
+          EMAIL_FROM: dummy@example.com
+          FRONTEND_URL: https://yourfrontend.com
 
       - name: Run migrations on test database
         run: npx prisma migrate deploy
@@ -81,7 +82,8 @@ jobs:
           NODE_ENV: test
           CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
           RESEND_API_KEY: re_dummy_key_for_ci
-          EMAIL_FROM: dummy@example.c
+          EMAIL_FROM: dummy@example.com
+          FRONTEND_URL: https://yourfrontend.com
 
       - name: Run tests
         run: npm test
@@ -94,7 +96,8 @@ jobs:
           NODE_ENV: test
           CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
           RESEND_API_KEY: re_dummy_key_for_ci
-          EMAIL_FROM: dummy@example.c
+          EMAIL_FROM: dummy@example.com
+          FRONTEND_URL: https://yourfrontend.com
 
   build:
     runs-on: ubuntu-latest
@@ -128,7 +131,8 @@ jobs:
           NODE_ENV: test
           CLOUDINARY_URL: cloudinary://dummy_key:dummy_secret@dummy_cloud
           RESEND_API_KEY: re_dummy_key_for_ci
-          EMAIL_FROM: dummy@example.c
+          EMAIL_FROM: dummy@example.com
+          FRONTEND_URL: https://yourfrontend.com
 
       - name: Build TypeScript
         run: npm run build

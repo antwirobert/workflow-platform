@@ -24,4 +24,5 @@ export const config = {
   cloudinaryUrl: requireEnv("CLOUDINARY_URL"),
   resendApiKey: requireEnv("RESEND_API_KEY"),
   emailFrom: requireEnv("EMAIL_FROM"),
+  frontendUrl: requireEnv("FRONTEND_URL"),
 };

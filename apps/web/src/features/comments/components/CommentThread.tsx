@@ -153,7 +153,7 @@ const CommentThread = ({ taskId }: CommentThreadProps) => {
                               className={
                                 ROLES_MANAGEMENT.includes(
                                   activeOrganization.role,
-                                ) && isCreator
+                                ) || isCreator
                                   ? "cursor-pointer gap-2 rounded-md px-2 py-1.5 text-sm text-destructive focus:bg-destructive/10 focus:text-destructive [&_svg]:text-destructive"
                                   : "cursor-not-allowed gap-2 rounded-md px-2 py-1.5 text-sm disabled:opacity-100"
                               }
@@ -161,7 +161,7 @@ const CommentThread = ({ taskId }: CommentThreadProps) => {
                             >
                               {ROLES_MANAGEMENT.includes(
                                 activeOrganization.role,
-                              ) && isCreator ? (
+                              ) || isCreator ? (
                                 <>
                                   <Trash2 className="size-3.5" />
                                   Delete comment

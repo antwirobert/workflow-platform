@@ -45,6 +45,12 @@ const LoginForm = () => {
   function onSubmit(data: LoginFormValues) {
     login(data, {
       onSuccess: async (data) => {
+        const pendingToken = localStorage.getItem("pendingInviteToken");
+        if (pendingToken) {
+          navigate(`/invitations/accept?token=${pendingToken}`);
+          return;
+        }
+
         toast.add({
           type: "success",
           title: `Welcome back, ${data.user.name}`,

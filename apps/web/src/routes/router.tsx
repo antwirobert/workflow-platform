@@ -14,10 +14,15 @@ import { projectLoader } from "@/features/projects/loaders";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import UserTasksPage from "@/features/tasks/pages/UserTasksPage";
 import { NotFoundPage, RouteErrorPage } from "@/components/NotFoundPage";
+import AcceptInvitationPage from "@/features/invitations/pages/AcceptInvitationPage";
 
 export const router = createBrowserRouter([
   { path: "/register", element: <RegisterPage /> },
   { path: "/login", element: <LoginPage /> },
+  {
+    path: "/invitations/accept",
+    element: <AcceptInvitationPage />,
+  },
   {
     element: <ProtectedLayout />,
     errorElement: <RouteErrorPage />,
@@ -26,6 +31,7 @@ export const router = createBrowserRouter([
         path: "/",
         element: <Navigate to="/organizations" replace />,
       },
+
       {
         path: "/organizations",
         element: <Outlet />,

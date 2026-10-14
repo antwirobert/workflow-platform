@@ -198,7 +198,7 @@ const FileListItem = ({
     createdAt,
   } = file;
   const isCreator = userId === uploadedById;
-  const canDelete = ROLES_MANAGEMENT.includes(role) && isCreator;
+  const canDelete = ROLES_MANAGEMENT.includes(role) || isCreator;
 
   return (
     <div className="flex items-center gap-2.5 rounded-lg border border-border/60 bg-card px-3 py-2.5 transition-colors hover:border-border">

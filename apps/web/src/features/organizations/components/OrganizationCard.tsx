@@ -16,7 +16,8 @@ import { useState } from "react";
 import EditOrganizationDialog from "./EditOrganizationDialog";
 import DeleteOrganizationDialog from "./DeleteOrganizationDialog";
 import { ROLE_OWNER, ROLES_MANAGEMENT } from "@/constants";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useOrgStore } from "@/stores/orgStore";
 
 interface OrganizationCardProps {
   id: string;
@@ -37,6 +38,8 @@ const OrganizationCard = ({
 }: OrganizationCardProps) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const navigate = useNavigate();
+  const setActiveOrgSlug = useOrgStore((state) => state.setActiveOrgSlug);
   const color = getIdentityColor(id);
 
   return (
@@ -80,7 +83,12 @@ const OrganizationCard = ({
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5">
-          <Link to={`/organizations/${slug}/members`}>
+          <div
+            onClick={() => {
+              setActiveOrgSlug(slug);
+              navigate(`/organizations/${slug}/members`);
+            }}
+          >
             <Button
               variant="outline"
               size="sm"
@@ -88,7 +96,7 @@ const OrganizationCard = ({
             >
               Manage
             </Button>
-          </Link>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={

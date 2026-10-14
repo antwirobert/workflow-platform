@@ -119,7 +119,10 @@ const OrganizationSwitcher = () => {
 
         <DropdownMenuGroup>
           <DropdownMenuItem
-            onClick={() => navigate("/organizations")}
+            onClick={() => {
+              setActiveWorkspaceSlug(activeOrganization?.slug ?? "");
+              navigate("/organizations");
+            }}
             className="flex items-center gap-2.5 rounded-md px-2 py-2 cursor-pointer text-muted-foreground hover:text-foreground focus:bg-accent"
           >
             <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border bg-muted/40 text-muted-foreground">
